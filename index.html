@@ -1,0 +1,5613 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>EMeRsion Learning - Shapcott</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+
+<body class="bg-slate-950 text-slate-100 min-h-screen flex items-start justify-center pt-6">
+
+<div class="w-full max-w-3xl space-y-6">
+
+  <!-- Header -->
+  <div class="text-center">
+    <h1 class="text-4xl font-bold tracking-tight">EMeRsion Learning - An Automated Problem Based Learning Program</h1>
+    <p class="text-slate-400">Programmed by Kyle Shapcott</p>
+  </div>
+
+  <div class="bg-slate-900/80 backdrop-blur border border-slate-700 rounded-2xl shadow-xl p-5 space-y-4">
+
+    <div class="flex justify-between items-center">
+      <div class="flex items-center gap-2">
+
+<button
+  id="teachingModeBtn"
+  onclick="enableTeachingMode()"
+  class="bg-indigo-600 hover:bg-indigo-700 px-3 py-1 rounded text-sm">
+  Enable Teaching Mode
+</button>
+</div>
+
+  <input 
+    type="password"
+    id="teachingPassword"
+    placeholder="Enter teaching password"
+    class="w-full p-2 rounded bg-slate-800 border border-slate-700">
+</div>  
+
+<input 
+  id="caseSearch"
+  placeholder="Search cases..."
+  oninput="filterCases()"
+  class="w-full p-2 rounded bg-slate-800 border border-slate-700"/>
+
+  <div class="bg-gray-800 p-4 rounded-2xl shadow-lg">
+    <select id="caseSelect" class="w-full p-2 rounded bg-slate-800 border border-slate-700"></select>
+
+<input 
+  id="studentName" 
+  placeholder="Enter your name: Firstname Surname" 
+  class="w-full p-2 rounded bg-slate-800 border border-slate-700" 
+/>
+
+
+    <button onclick="loadCase()" 
+      class="w-full bg-indigo-600 hover:bg-indigo-700 p-2 rounded-xl font-semibold">
+      Start Case
+    </button>
+</div>
+
+
+
+<div id="caseIntro" class="mb-4"></div>
+
+    <div id="questionPanel" class="hidden mb-4">
+      <p class="mb-2 font-semibold">Ask for information from the EMR, from the patient, or other healthcare professionals:</p>
+      <input id="userQuery" placeholder="Type what you would like to collect..." 
+        class="w-full p-2 rounded bg-gray-700 mb-2" />
+      <button onclick="handleQuery()" class="w-full bg-purple-500 hover:bg-purple-600 p-2 rounded-xl">
+        Ask
+      </button>
+    </div>
+<button id="hintBtn" onclick="getHint()" class="hidden w-full bg-yellow-500 hover:bg-yellow-600 p-2 rounded-xl mt-2">
+  Get Hint
+</button>
+
+<div id="caseDisplay" class="space-y-2"></div>
+
+
+
+<div id="diagnosisSection" class="hidden">
+    <p class="font-semibold mb-2">Primary Problem Disease State/Condition</p>
+<input id="primaryDx"
+  placeholder="Enter primary disease state/condition"
+  class="w-full p-2 rounded bg-gray-700 mb-2" />
+
+<textarea id="plan_primary" placeholder="Plan (e.g., start statin)"
+  class="w-full p-2 bg-gray-700 rounded resize-y min-h-[60px]"></textarea>
+
+<textarea id="monitor_primary" placeholder="Monitoring (e.g., recheck lipids)"
+  class="w-full p-2 bg-gray-700 rounded resize-y min-h-[60px]"></textarea>
+
+<p class="font-semibold mb-2">Secondary Problem Disease States/Conditions</p>
+
+<div class="border border-gray-600 rounded-xl p-4 mb-3">
+  <input id="cp_problem1" placeholder="Disease State/Condition 1" class="w-full p-2 rounded bg-gray-700 mb-2" />
+  
+  <textarea id="cp_plan1" placeholder="Plan"
+    class="w-full p-2 bg-gray-700 rounded resize-y min-h-[60px]"></textarea>
+  
+  <textarea id="cp_monitor1" placeholder="Monitoring"
+    class="w-full p-2 bg-gray-700 rounded resize-y min-h-[60px]"></textarea>
+</div>
+
+<div class="border border-gray-600 rounded-xl p-4 mb-3">
+  <input id="cp_problem2" placeholder="Disease State/Condition 2"
+    class="w-full p-2 bg-gray-700 rounded mb-2" />
+
+  <textarea id="cp_plan2" placeholder="Plan"
+    class="w-full p-2 bg-gray-700 rounded resize-y min-h-[60px]"></textarea>
+
+  <textarea id="cp_monitor2" placeholder="Monitoring"
+    class="w-full p-2 bg-gray-700 rounded resize-y min-h-[60px]"></textarea>
+</div>
+
+<div class="border border-gray-600 rounded-xl p-4 mb-3">
+  <input id="cp_problem3" placeholder="Disease State/Condition 3" class="w-full p-2 rounded bg-gray-700 mb-2" />
+
+  <textarea id="cp_plan3" placeholder="Plan"
+    class="w-full p-2 bg-gray-700 rounded resize-y min-h-[60px]"></textarea>
+
+  <textarea id="cp_monitor3" placeholder="Monitoring"
+    class="w-full p-2 bg-gray-700 rounded resize-y min-h-[60px]"></textarea>
+</div>
+
+<div class="border border-gray-600 rounded-xl p-4 mb-3">
+  <input id="cp_problem4" placeholder="Disease State/Condition 4" class="w-full p-2 rounded bg-gray-700 mb-2" />
+
+  <textarea id="cp_plan4" placeholder="Plan"
+    class="w-full p-2 bg-gray-700 rounded resize-y min-h-[60px]"></textarea>
+
+  <textarea id="cp_monitor4" placeholder="Monitoring"
+    class="w-full p-2 bg-gray-700 rounded resize-y min-h-[60px]"></textarea>
+</div>
+
+<p class="font-semibold mt-4">Confidence Level (1–5)</p>
+<select id="confidence" class="w-full p-2 bg-gray-700 rounded mb-3">
+  <option value="">Select confidence</option>
+  <option value="1">1 – Not at all confident</option>
+  <option value="2">2 - Not confident</option>
+  <option value="3">3 - Neither confident, nor confident</option>
+  <option value="4">4 - Confident</option>
+  <option value="5">5 – Very confident</option>
+</select>
+
+      <button onclick="checkAnswer()" class="w-full bg-green-500 hover:bg-green-600 p-2 rounded-xl">
+        Submit Care Plan
+      </button>
+    </div>
+
+    <div id="feedback" class="mt-4"></div>
+
+
+    <!-- ✅ MOVED Faculty Block BELOW Care Plan -->
+    <div class="bg-gray-700 p-4 rounded-xl mt-10 space-y-3 border border-gray-600 shadow-md">
+
+
+      <p class="text-sm text-gray-300 font-semibold">Faculty Tools</p>
+
+
+  <input
+  type="password"
+  id="facultyPassword" 
+  placeholder="Enter faculty password"
+  class="w-full p-2 bg-gray-600 rounded"
+/>
+
+
+
+      <button onclick="unlockFaculty()" class="w-full bg-yellow-500 p-2 rounded">
+        Unlock Case Builder
+      </button>
+
+
+      <input type="file" id="importFile" class="hidden" accept=".json"/>
+
+
+      <button onclick="clearCases()"
+        class="w-full bg-red-600 hover:bg-red-700 p-2 rounded">
+        Clear Saved Cases
+      </button>
+
+
+    </div>
+<div id="facultySection" class="hidden mt-6 bg-gray-800 p-4 rounded-xl space-y-3 border border-gray-600">
+
+<button
+  disabled
+  class="w-full bg-gray-600 opacity-50 cursor-not-allowed p-2 rounded-xl mb-4">
+  📊 Faculty Dashboard — Coming Soon
+</button>
+
+  <h2 class="text-lg font-bold">Case Builder</h2>
+  
+<hr class="border-gray-600 my-4">
+<p class="text-blue-300 text-sm font-semibold">AI Case Generator</p>
+
+<p class="font-semibold">Case Topic (Disease State)</p>
+<input id="aiTopic"
+  placeholder="Topic (e.g., cardiology, infectious disease)"
+  class="w-full p-2 bg-gray-600 rounded mt-2"/>
+ 
+<select id="aiDifficulty" class="w-full p-2 bg-gray-600 rounded mt-2">
+  <option value="">Difficulty (optional)</option>
+  <option value="easy">Intro</option>
+  <option value="moderate">Moderate</option>
+  <option value="hard">Advanced</option>
+</select>
+
+<p class="font-semibold">Additional Case Context (Optional)</p>
+<textarea
+  id="aiPromptInput"
+  placeholder="Optional: Add instructions for Generative AI (e.g., 'Have this patient have renal impairment that requires dose adjustment and include drug interactions')"
+  class="w-full p-2 bg-gray-600 rounded mt-2">
+</textarea>
+ 
+<p class="text-sm text-gray-300">
+Use this section to customize the case:
+<ul class="list-disc ml-5">
+  <li>Add comorbidities (e.g., CKD, HF)</li>
+  <li>Include drug interactions</li>
+  <li>Force abnormal labs</li>
+  <li>Target specific learning objectives</li>
+</ul>
+</p>
+ 
+  
+<button onclick="generateCaseAI()" 
+  class="w-full bg-purple-600 p-2 rounded">
+  🤖 Generate AI Case
+</button>
+
+
+<div id="aiLoading" class="hidden mt-3 text-center">
+  <div
+    class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-purple-400">
+  </div>
+
+  <p class="mt-2 text-purple-300">
+    Generating patient case...
+  </p>
+
+  <p class="text-xs text-gray-400">
+    This may take up to 30 seconds
+  </p>
+</div>
+
+
+<p class="font-semibold">Paste AI JSON</p>
+<textarea
+  id="pasteJSON"
+  placeholder="Paste AI Response here..."
+  class="w-full p-2 bg-gray-600 rounded mt-2">
+</textarea>
+
+<button onclick="pasteCaseJSON()"
+  class="w-full bg-green-500 p-2 rounded mt-2">
+  ✅ Load AI Case
+</button>
+
+<button onclick="cloneCase()"
+  class="w-full bg-purple-500 p-2 rounded mt-2">
+  Clone Selected Case
+</button>
+
+<button onclick="document.getElementById('importFile').click()"
+        class="w-full bg-teal-500 hover:bg-teal-600 p-2 rounded-xl">
+        Import Case
+      </button>
+
+<p class="font-semibold">Case Title</p>
+<input id="newTitle" placeholder="Students see the case title, avoid using the disease states assessed in the case." class="w-full p-2 bg-gray-600 rounded"/>
+
+
+<p class="font-semibold">Case Author</p>
+
+<input
+  id="newAuthor"
+  placeholder="e.g., Kyle Shapcott"
+  class="w-full p-2 bg-gray-600 rounded"
+/>
+
+
+<p class="font-semibold">Institution</p>
+<input id="newInstitution"
+  placeholder="e.g., University at Buffalo"
+  class="w-full p-2 bg-gray-600 rounded"/>
+
+
+
+<p class="font-semibold">Patient Name</p>
+<input id="newName" placeholder="Patient Name" class="w-full p-2 bg-gray-600 rounded"/>
+
+  <!-- ✅ SETTING -->
+  <p class="font-semibold">Healthcare Setting</p>
+  <select id="newSetting" class="w-full p-2 bg-gray-600 rounded">
+    <option value="inpatient">Inpatient</option>
+    <option value="outpatient-community">Outpatient (community)</option>
+    <option value="outpatient-clinic">Outpatient (clinic)</option>
+    <option value="other">Other</option>
+  </select>
+  <input id="newSettingOther" placeholder="If other, specify" class="w-full p-2 bg-gray-600 rounded"/>
+  <!-- ✅ DEMOGRAPHICS -->
+  <p class="font-semibold">Demographics</p>
+  <input id="newAge" placeholder="Age" class="w-full p-2 bg-gray-600 rounded"/>
+  <input id="newGender" placeholder="Gender" class="w-full p-2 bg-gray-600 rounded"/>
+<input id="newRace"
+  placeholder="Race/Ethnicity"
+  class="w-full p-2 bg-gray-600 rounded"/>
+  
+<p class="font-semibold">Insurance</p>
+<input id="newInsurance" placeholder="Insurance" class="w-full p-2 bg-gray-600 rounded"/>
+
+<p class="font-semibold">Allergies</p>
+<input id="newAllergies" placeholder="Allergies (comma separated)" class="w-full p-2 bg-gray-600 rounded"/>
+  <!-- ✅ IMMUNIZATIONS -->
+  <p class="font-semibold">Immunizations</p>
+  <textarea id="newImmunizations" placeholder="e.g., Flu (2023), COVID (2022)" class="w-full p-2 bg-gray-600 rounded"></textarea>
+
+  <!-- ✅ CC + INTRO -->
+<p class="font-semibold">Chief Complaint</p>
+<input id="newCC" placeholder="Chief Complaint" class="w-full p-2 bg-gray-600 rounded"/>
+
+<p class="font-semibold">Case Introduction</p>
+<textarea id="newIntro" placeholder="Case Intro" class="w-full p-2 bg-gray-600 rounded"></textarea>
+
+<p class="font-semibold">History of Present Illness (HPI)</p>
+<textarea id="newHPI"
+  placeholder="Describe the patient's current illness (timeline, symptoms, severity, progression)"
+  class="w-full p-2 bg-gray-600 rounded mb-2">
+</textarea>
+
+  <!-- ✅ HISTORY -->
+<p class="font-semibold">Past Medical History</p>
+<input id="newPMH" placeholder="PMH (comma separated)" class="w-full p-2 bg-gray-600 rounded"/>
+
+  <p class="font-semibold">Family History</p>
+  <input id="newFH" placeholder="e.g., Father MI at 55" class="w-full p-2 bg-gray-600 rounded"/>
+
+
+  <!-- ✅ SOCIAL -->
+  <p class="font-semibold">Social History</p>
+  <input id="newMarital" placeholder="Marital Status" class="w-full p-2 bg-gray-600 rounded"/>
+  <input id="newChildren" placeholder="Children" class="w-full p-2 bg-gray-600 rounded"/>
+  <input id="newAlcohol" placeholder="Alcohol" class="w-full p-2 bg-gray-600 rounded"/>
+  <input id="newTobacco" placeholder="Tobacco" class="w-full p-2 bg-gray-600 rounded"/>
+  <input id="newCaffeine" placeholder="Caffeine" class="w-full p-2 bg-gray-600 rounded"/>
+
+<p class="font-semibold mt-4 text-blue-300">
+Functional Status
+</p>
+
+<input id="newMobility"
+  placeholder="Mobility (e.g., Uses walker)"
+  class="w-full p-2 bg-gray-600 rounded"/>
+
+<input id="newADL"
+  placeholder="ADLs (e.g., Independent)"
+  class="w-full p-2 bg-gray-600 rounded"/>
+
+<input id="newIADL"
+  placeholder="IADLs (e.g., Daughter organizes medications)"
+  class="w-full p-2 bg-gray-600 rounded"/>
+
+<input id="newCaregiver"
+  placeholder="Caregiver Support"
+  class="w-full p-2 bg-gray-600 rounded"/>
+
+<input id="newFalls"
+  placeholder="Fall History"
+  class="w-full p-2 bg-gray-600 rounded"/>
+
+<textarea id="newFunctionalNotes"
+  placeholder="Additional Functional Notes"
+  class="w-full p-2 bg-gray-600 rounded">
+</textarea>
+
+  <!-- ✅ VITALS -->
+  <p class="font-semibold">Vitals</p>
+  <input id="newBP" placeholder="BP" class="w-full p-2 bg-gray-600 rounded"/>
+  <input id="newHR" placeholder="HR" class="w-full p-2 bg-gray-600 rounded"/>
+  <input id="newTemp" placeholder="Temp" class="w-full p-2 bg-gray-600 rounded"/>
+<input id="newSpO2" placeholder="SpO₂"
+  class="w-full p-2 bg-gray-600 rounded"/>
+  <input id="newWeight" placeholder="Weight" class="w-full p-2 bg-gray-600 rounded"/>
+  <input id="newHeight" placeholder="Height" class="w-full p-2 bg-gray-600 rounded"/>
+  <input id="newBMI" placeholder="BMI" class="w-full p-2 bg-gray-600 rounded"/>
+  <div>
+
+<p class="font-semibold text-blue-300 mt-4">
+Intake / Output
+</p>
+
+<input id="newOralIntake"
+  placeholder="Oral Intake (e.g., 1200 mL/day)"
+  class="w-full p-2 bg-gray-600 rounded"/>
+
+<input id="newIVIntake"
+  placeholder="IV Intake (e.g., 1000 mL/day)"
+  class="w-full p-2 bg-gray-600 rounded"/>
+
+<input id="newUrineOutput"
+  placeholder="Urine Output (e.g., 400 mL/day)"
+  class="w-full p-2 bg-gray-600 rounded"/>
+
+<input id="newNetBalance"
+  placeholder="Net Balance (e.g., +1800 mL)"
+  class="w-full p-2 bg-gray-600 rounded"/>
+
+<textarea id="newIONotes"
+  placeholder="Additional I/O Notes"
+  class="w-full p-2 bg-gray-600 rounded">
+</textarea>
+
+  <!-- ✅ PHYSICAL EXAM -->
+  <p class="font-semibold">Physical Exam</p>
+  <textarea id="newPE" placeholder="Exam findings" class="w-full p-2 bg-gray-600 rounded"></textarea>
+
+
+  <!-- ✅ MEDS -->
+  <!-- ✅ HOME MEDICATIONS -->
+<p class="font-semibold">Home Medications</p>
+
+<div id="homeMedsContainer"></div>
+
+<button onclick="addHomeMedRow()" class="bg-blue-500 px-3 py-1 rounded mt-2">
+  + Add Home Medication
+</button>
+
+<!-- ✅ INPATIENT MEDICATION ORDERS -->
+<p class="font-semibold">Inpatient Medication Orders</p>
+
+<div id="inpatientMedsContainer"></div>
+
+<button onclick="addInpatientMedRow()" class="bg-blue-500 px-3 py-1 rounded mt-2">
+  + Add Medication
+</button>
+
+
+<div class="flex items-center justify-between">
+  <p class="font-semibold">Labs and Diagnostics</p>
+  <button onclick="openLabHelp()" 
+    class="text-xs bg-gray-600 hover:bg-gray-500 px-2 py-1 rounded">
+    ? Lab Format Help
+  </button>
+</div>
+
+    <div id="labsContainer"></div>
+    <button onclick="addLabRow()" class="bg-blue-500 px-3 py-1 rounded mt-2">+ Add Lab or Diagnostic </button>
+ </div>
+
+<p class="font-semibold">Diagnostic Images (paste links)</p>
+
+<input id="newEKG" placeholder="EKG image URL (seperate multiple images with commas)"
+  class="w-full p-2 bg-gray-600 rounded mb-2"/>
+
+<input id="newCGM" placeholder="CGM graph URL (seperate multiple images with commas)"
+  class="w-full p-2 bg-gray-600 rounded mb-2"/>
+
+<input id="newCXR" placeholder="Chest X-ray URL (seperate multiple images with commas)"
+  class="w-full p-2 bg-gray-600 rounded mb-2"/>
+
+<p class="text-xs text-gray-400">
+Paste a direct image link. Google Drive links will be converted automatically.
+</p>
+
+
+<div class="flex items-center justify-between">
+  <p class="font-semibold">Case Parameters to Obtain Via Interview</p>
+  <button onclick="openInterviewHelp()" 
+    class="text-xs bg-gray-600 hover:bg-gray-500 px-2 py-1 rounded">
+    ? Help
+  </button>
+</div>
+
+<div id="interviewContainer"></div>
+
+<button onclick="addInterviewRow()" 
+  class="bg-blue-500 px-3 py-1 rounded mt-2">
+  + Add Interview Factor
+</button>
+
+
+<div class="flex items-center justify-between">
+  <p class="font-semibold">Hints</p>
+  <button onclick="openHintGuide()" 
+    class="text-xs bg-gray-600 hover:bg-gray-500 px-2 py-1 rounded">
+    ? How to write hints
+  </button>
+</div>
+
+<div id="hintsContainer"></div>
+
+<button onclick="addHintRow()" class="bg-blue-500 px-3 py-1 rounded mt-2">
+  + Add Hint
+</button>
+
+<p class="font-semibold">Critical Elements</p>
+
+<div id="criticalContainer"></div>
+
+<button onclick="addCriticalRow()" class="bg-blue-500 px-3 py-1 rounded mt-2">
+  + Add Critical Element
+</button>
+
+<p class="font-semibold">Teaching Pearls</p>
+
+<div id="pearlsContainer"></div>
+
+<button onclick="addPearlRow()" class="bg-blue-500 px-3 py-1 rounded mt-2">
+  + Add Teaching Pearl
+</button>
+
+
+<!-- ✅ DIAGNOSIS SECTION -->
+<p class="font-semibold text-lg mb-2 text-blue-300">Primary Problem</p>
+
+<div class="border border-blue-500 rounded-xl p-4 mb-4 space-y-2">
+
+  <input id="newPrimaryDiagnosis"
+    placeholder="Disease State (e.g., ASCVD Risk)"
+    class="w-full p-2 bg-gray-600 rounded"/>
+
+  <input id="newPrimaryPoints"
+    placeholder="Diagnosis Points"
+    class="w-full p-2 bg-gray-600 rounded"/>
+
+  <p class="text-sm font-semibold text-gray-300">Acceptable Answers</p>
+  <textarea id="diagnosisList"
+    placeholder="e.g., ascvd risk, primary prevention"
+    class="w-full p-2 bg-gray-600 rounded"></textarea>
+
+  <p class="text-sm font-semibold text-blue-300">Expected Plan</p>
+  <textarea id="primaryPlanExpected"
+    placeholder="One recommendation per line"
+     class="w-full p-2 bg-gray-600 text-white rounded"></textarea>
+
+  <input id="primaryPlanPoints"
+    placeholder="Plan Points"
+     class="w-full p-2 bg-gray-600 text-white rounded"/>
+
+<div class="text-sm text-gray-300 mt-1">
+  
+  <p class="text-sm font-semibold text-green-300">Expected Monitoring</p>
+  <textarea id="primaryMonitorExpected"
+    placeholder="One monitoring recommendation per line"
+    class="w-full p-2 bg-gray-600 text-white rounded"></textarea>
+
+  <input id="primaryMonitorPoints"
+    placeholder="Monitoring Points"
+   class="w-full p-2 bg-gray-600 text-white rounded"/>
+
+</div>
+
+<p class="font-semibold mt-4">Secondary Problems (optional)</p>
+
+<div id="secondaryContainer"></div>
+
+<button onclick="addSecondaryRow()"
+  class="bg-blue-500 px-3 py-1 rounded mt-2">
+  + Add Secondary Problem
+</button>
+
+<button
+  disabled
+  class="w-full bg-gray-600 opacity-50 cursor-not-allowed p-2 rounded mb-2">
+  👁 Preview Case — Coming Soon
+</button>
+
+  <button onclick="addCaseFull()" class="w-full bg-green-500 p-2 rounded">
+    Save Case
+  </button>
+
+</div>
+
+  </div>
+</div>
+
+<script>
+
+const masterLabMap = {
+  // CBC
+  wbc: ["wbc", "white blood cell", "white blood cell count", "leukocyte count", "white count"],
+  rbc: ["rbc", "red blood cell", "red blood cell count", "erythrocyte count"],
+  hgb: ["hgb", "hemoglobin", "hb"],
+  hct: ["hct", "hematocrit"],
+  plt: ["plt", "platelets", "platelet count", "thrombocyte count"],
+  mcv: ["mcv", "mean corpuscular volume"],
+  mch: ["mch", "mean corpuscular hemoglobin"],
+  mchc: ["mchc", "mean corpuscular hemoglobin concentration"],
+  reticulocyte: ["reticulocyte", "retic", "retic count"],
+   // Coag
+  pt: ["pt", "prothrombin time"],
+  inr: ["inr", "international normalized ratio"],
+  aptt: ["aptt", "ptt", "activated partial thromboplastin time"],
+    // Inflammation
+  esr: ["esr", "sed rate", "erythrocyte sedimentation rate"],
+  crp: ["crp", "c reactive protein", "c-reactive protein"],
+  // BMP / Electrolytes
+  sodium: ["sodium", "na", "serum sodium"],
+  potassium: ["potassium", "k", "serum potassium"],
+  chloride: ["chloride", "cl"],
+  bicarbonate: ["bicarbonate", "co2", "serum co2"],
+  bun: ["bun", "blood urea nitrogen"],
+  creatinine: ["creatinine", "cr", "serum creatinine"],
+  egfr: ["egfr", "gfr", "estimated gfr", "glomerular filtration rate"],
+  glucose: ["glucose", "blood glucose", "serum glucose"],
+  calcium: ["calcium", "serum calcium"],
+ 
+    // Liver
+  alt: ["alt", "alanine aminotransferase"],
+  ast: ["ast", "aspartate aminotransferase"],
+  alp: ["alp", "alk phos", "alkaline phosphatase"],
+  bilirubin: ["bilirubin", "total bilirubin", "tbili"],
+  albumin: ["albumin", "serum albumin"],
+  totalProtein: ["total protein", "serum protein"],
+  ggt: ["ggt", "gamma glutamyl transferase"],
+ 
+  // Lipid
+  ldl: ["ldl", "ldl cholesterol"],
+  hdl: ["hdl", "hdl cholesterol"],
+  triglycerides: ["triglycerides", "tg", "trigs"],
+  totalcholesterol: ["totalcholesterol", "total cholesterol", "cholesterol", "tc", "TC"],
+  nonHdl: ["non hdl", "non-hdl cholesterol"],
+  apob: ["apob", "apolipoprotein b"],
+  lipoproteinA: ["lipoprotein a", "lp(a)", "lpa"],
+ 
+  // Endocrine
+  tsh: ["tsh", "thyroid stimulating hormone"],
+  a1c: ["a1c", "hba1c", "hemoglobin a1c"],
+  t3: ["t3", "triiodothyronine"],
+  t4: ["t4", "thyroxine"],
+  cortisol: ["cortisol"],
+  insulin: ["insulin"],
+  cpeptide: ["c peptide", "c-peptide"],
+  vitaminD: ["vitamin d", "vitamin d 25 oh", "25 hydroxy vitamin d"],
+   
+  // Renal / Urine
+  ua: ["urinalysis", "ua", "urine test"],
+  microalbumin: ["microalbumin", "urine albumin", "albumin creatinine ratio"],
+  uacr: ["albumin creatinine ratio","uacr", "Urine Albumin-Creatinine Ratio","albumin creatinine"],
+
+  // Cardiac
+  troponin: ["troponin", "troponin i", "troponin t"],
+  bnp: ["bnp", "brain natriuretic peptide"],
+  ntprobnp: ["ntprobnp", "nt pro bnp"],
+ejectionfraction: [
+  "ef",
+  "ejection fraction",
+  "left ventricular ejection fraction",
+  "lvef"
+],
+ 
+  // Infectious
+  cultures: ["culture", "blood culture", "c&s", "culture and sensitivity"],
+  hiv: ["hiv", "hiv test"],
+  hepatitisB: ["hbsag", "hepatitis b", "hepatitis b surface antigen"],
+  hepatitisC: ["hepatitis c", "hcv", "hep c"],
+
+  // Hematology / Iron
+  iron: ["iron", "serum iron"],
+  ferritin: ["ferritin"],
+  tibc: ["tibc", "total iron binding capacity"],
+  b12: ["b12", "vitamin b12", "cobalamin"],
+  folate: ["folate", "folic acid"],
+
+  // Other
+  psa: ["psa", "prostate specific antigen"],
+  hcg: ["hcg", "pregnancy", "pregnancy test", "beta hcg"],
+  ldh: ["ldh", "lactate dehydrogenase"],
+  uricAcid: ["uric acid", "urate"],
+  dDimer: ["d dimer", "ddimer", "d-dimer"]
+};
+
+const conceptMap = {
+  // ✅ CARDIOVASCULAR
+  statin: ["atorvastatin", "rosuvastatin", "simvastatin", "pravastatin"],
+  beta_blocker: ["metoprolol", "carvedilol", "atenolol", "propranolol"],
+  ace_inhibitor: ["lisinopril", "enalapril", "ramipril", "benazepril"],
+  arb: ["losartan", "valsartan", "irbesartan"],
+  ccb: ["amlodipine", "diltiazem", "verapamil"],
+  diuretic: ["furosemide", "torsemide", "bumetanide", "hydrochlorothiazide"],
+  anticoagulation: ["heparin", "enoxaparin", "lovenox", "apixaban", "rivaroxaban", "warfarin"],
+  antiplatelet: ["aspirin", "asa", "clopidogrel", "ticagrelor", "prasugrel"],
+  nitrate: ["nitroglycerin", "isosorbide"],
+
+  // ✅ DIABETES
+  insulin: ["glargine", "lispro", "aspart", "detemir", "regular insulin"],
+  metformin: ["metformin"],
+  sglt2: ["empagliflozin", "dapagliflozin"],
+  glp1: ["semaglutide", "liraglutide"],
+
+  // ✅ RESPIRATORY
+  saba: ["albuterol", "levalbuterol"],
+  laba: ["salmeterol", "formoterol"],
+  steroid_inhaler: ["fluticasone", "budesonide"],
+  anticholinergic_inhaler: ["tiotropium", "ipratropium"],
+
+  // ✅ INFECTIOUS DISEASE
+  penicillin: ["amoxicillin", "ampicillin"],
+  cephalosporin: ["ceftriaxone", "cephalexin", "cefepime"],
+  macrolide: ["azithromycin", "clarithromycin"],
+  fluoroquinolone: ["ciprofloxacin", "levofloxacin"],
+  vancomycin: ["vancomycin"],
+  antifungal: ["fluconazole"],
+  antiviral: ["oseltamivir", "acyclovir"],
+
+  // ✅ GI
+  ppi: ["omeprazole", "pantoprazole", "esomeprazole"],
+  h2_blocker: ["famotidine", "ranitidine"],
+  laxative: ["polyethylene glycol", "senna", "docusate"],
+  antiemetic: ["ondansetron", "metoclopramide"],
+
+  // ✅ NEURO/PSYCH
+  ssri: ["sertraline", "fluoxetine", "citalopram"],
+  snri: ["venlafaxine", "duloxetine"],
+  benzodiazepine: ["lorazepam", "diazepam", "alprazolam"],
+  antipsychotic: ["quetiapine", "haloperidol"],
+  antiepileptic: ["levetiracetam", "phenytoin", "valproate"],
+
+  // ✅ PAIN
+  opioid: ["morphine", "oxycodone", "fentanyl"],
+  nsaid: ["ibuprofen", "naproxen", "ketorolac"],
+  acetaminophen: ["acetaminophen", "tylenol"],
+
+  // ✅ ENDOCRINE
+  steroid: ["prednisone", "hydrocortisone", "dexamethasone"],
+  thyroid_replacement: ["levothyroxine"],
+  antithyroid: ["methimazole", "propylthiouracil"],
+
+  // ✅ ELECTROLYTES
+  potassium: ["potassium chloride", "kcl"],
+  magnesium: ["magnesium sulfate"],
+  calcium: ["calcium carbonate", "calcium gluconate"],
+
+  // ✅ RENAL
+  dialysis: ["hemodialysis", "peritoneal dialysis"],
+
+  // ✅ HEMATOLOGY
+  iron: ["ferrous sulfate"],
+  epo: ["epoetin alfa"],
+
+  // ✅ GENERAL THERAPIES
+  fluids: ["normal saline", "lactated ringers"],
+  oxygen: ["oxygen", "o2"],
+  transfusion: ["packed red blood cells", "prbc"]
+};
+
+const cases = [
+  {
+    id: 1,
+    name: "Tom Holland",
+    title: "Anemia IPC - Case 1",
+    symptoms: ["fatigue"],
+
+labs: {
+  Hb: "10 g/dL",
+  MCV: "85 fL",
+  Ferritin: "80 ng/mL"
+},
+    bmi: "27.7",
+    height: "70 inches",
+    weight: "193 pounds",
+    address: "742 Evergreen Terrace-ish, Apt 404B, Buffalo-ish, NY 14221",
+    bloodPressure: "136/78 mmHg (today)",
+bpTrend: [
+  "142/84 mmHg (36 months ago)",
+  "140/82 mmHg (33 months ago)",
+  "138/80 mmHg (30 months ago)",
+  "136/78 mmHg (27 months ago)",
+  "134/76 mmHg (24 months ago)"
+],
+
+    },
+    {
+  id: 2,
+  name: "Margaret “Maggie” O’Donnell",
+  personality: "Practical but worried, values independence and downplays symptoms",
+  age: "67 years old",
+  gender: "female",  
+  title: "ASCVD Prevention - Case 2", 
+  hints: [
+    "Consider cardiovascular risk factors",
+    "Pay attention to lipid panel abnormalities",
+    "LDL level is important for decision-making"
+  ],
+  chiefComplaint: "No complaints. Presented for yearly physical with PCP.",
+  symptoms: [
+    "The patient presents for a routine follow-up visit with no acute complaints.",
+    "\"I feel fine overall, just here for my yearly checkup.\""],
+
+  pmh: [
+    "Hypertension",
+    "Type 2 diabetes mellitus (diagnosed 5 years ago)",
+    "Hyperlipidemia",
+    "Family history of myocardial infarction (father at age 58)"
+  ],
+  medications: [
+    "Metformin 1000 mg twice daily",
+    "Lisinopril 20 mg daily",
+    "Amlodipine 5 mg daily"
+  ],
+  
+  socialHistory: {
+    tobacco: "No current tobacco use. No history of tobacco use.",
+    alcohol: "Occassional glass of wine (One glass 2-3 times a week at most)",
+    occupation: "Retired, former school teach",
+    livingSituation: "Lives at home with husband. Independent"
+  },
+
+  physicalExam: {
+    bp: "146/88 mmHg (today)",
+    hr: "82",
+    weight: "77.1 kg",
+    height: "64 inches",  
+    bmi: "Our EMR does not calculate BMI.",
+  },
+
+   labs: {
+    Hb: "12.5 g/dL",
+    MCV: "88 fL",
+    LDL: "142 mg/dL",
+    HDL: "38 mg/dL",
+    "Triglycerides": "210 mg/dL",
+    "Non-HDL Cholesterol": "180 mg/dL",
+    A1c: "8.2%",
+    "eGFR": "78 mL/min/1.73m²"
+  },
+  
+  bloodPressure: "146/88 mmHg (today)",
+  bpTrend: [
+    "150/92 mmHg",
+    "148/90 mmHg",
+    "146/88 mmHg"
+  ],
+  
+  bmi: "The BMI is not something that this EMR can calculate.",
+  address: "22 Grover Drive, Buffalo-ish, NY 14221",
+  patientResponses: {
+    adherence: "I take my medications everyday!",
+    diet: "Mostly frozen meals, limited fruits and vegetables."
+  },
+diagnosis: "Elevated ASCVD risk requiring statin therapy",
+
+diagnoses: [
+  "ascvd risk",
+  "elevated ascvd risk",
+  "needs statin",
+  "primary prevention",
+  "hyperlipidemia requiring statin",
+  "indication for statin therapy"
+],
+
+keywords: ["ascvd", "statin", "primary prevention", "risk", "lipid"],
+criticalElements: {
+  pmh: "Past medical history influences overall risk stratification.",
+  meds: "Current medications help assess adherence and optimization.",
+  ldl: "LDL level determines need for statin therapy.",
+  hdl: "Low HDL contributes to cardiovascular risk.",
+  egfr: "Renal function impacts drug selection and dosing.",
+  a1c: "A1c reflects glycemic control and ASCVD risk."},
+},
+{
+  id: 3,
+  name: "Ethan Park",
+  personality: "Detail-oriented and anxious",
+  title: "Case 3",
+    bloodPressure: "118/72 mmHg (today)",
+    labs: {
+    Hb: "9 g/dL",
+    MCV: "110 fL",
+    MMA: "High",
+    Homocysteine: "High"},
+
+}
+  ];
+// ✅ Load saved cases from browser
+const savedCases = localStorage.getItem("cases");
+
+if (savedCases) {
+  try {
+ cases.splice(0, cases.length, ...JSON.parse(savedCases));
+  } catch {
+    console.error("Failed to load saved cases");
+  }
+};
+
+
+let currentCase = null;
+let caseSubmitted = false;
+let attempts = 0;
+let hintIndex = 0;
+let hintCount = 0;
+let isTeachingMode = false; 
+let sessionData = {
+  studentName: "",
+  caseTitle: "",
+  startTime: null,
+  endTime: null,
+status: "started",
+lastActiveTime: null,
+firstInteraction: false,
+
+  // ✅ ADD THIS LINE
+  sessionID: "",
+
+  queries: [],
+  failedQueries: [],
+  querySequence: [],
+  categoriesUsed: new Set(),
+  categoryCounts: {},
+  vagueQueryCount: 0,
+  unknownQueryCount: 0,
+  unavailableLabs: [],
+  requestedElements: new Set(),
+  missedCritical: [],
+  firstLabTime: null,
+  firstPMHTime: null,
+  firstMedTime: null,
+  diagnosis: "",
+  correct: null
+};
+
+const fuzzyMatch = (str, keywords) =>
+  keywords.some(k => str.includes(k));
+
+function cloneCase() {
+
+  const id = document.getElementById("caseSelect").value;
+  const original = cases.find(c => c.id == id);
+
+  if (!original) {
+    alert("No case selected");
+    return;
+  }
+
+  // ✅ Deep copy
+  const clone = JSON.parse(JSON.stringify(original));
+
+  clone.id = cases.length + 1;
+  clone.displayTitle = clone.displayTitle + " (Copy)";
+
+  // ✅ Load into builder
+  loadCaseIntoBuilder(clone);
+
+  document.getElementById("facultySection").classList.remove("hidden");
+
+  alert("✅ Case cloned! Edit and save.");
+}
+
+// ✅ LOAD CASES FROM GOOGLE SCRIPT
+function loadCasesFromServer() {
+  fetch("https://script.google.com/macros/s/AKfycbwdV8WfMbu634y5zb9Y--nKH2CaBGScStle_iRPyZx1tPD8DvYfI-QkxZ9yewPUmN4l/exec")
+    .then(res => res.json())
+.then(serverCases => {
+
+  const uniqueCases = [];
+
+  const seenIds = new Set();
+
+  serverCases.forEach(c => {
+    if (!seenIds.has(c.id)) {
+      seenIds.add(c.id);
+      uniqueCases.push(c);
+    }
+  });
+
+  cases.splice(0, cases.length, ...uniqueCases);
+
+  init();
+})
+
+    .catch(err => console.error("❌ Failed to load cases", err));
+}
+
+function filterCases() {
+  const query = document.getElementById("caseSearch").value.toLowerCase();
+
+const filtered = cases.filter(c =>
+  (c.title || "").toLowerCase().includes(query) ||
+  (c.displayTitle || "").toLowerCase().includes(query) ||
+  (c.author || "").toLowerCase().includes(query) ||
+  (c.institution || "").toLowerCase().includes(query)
+);
+
+  const select = document.getElementById("caseSelect");
+  select.innerHTML = "";
+
+  filtered.forEach(c => {
+    const option = document.createElement("option");
+    option.value = c.id;
+    option.textContent = c.displayTitle || c.title;
+    select.appendChild(option);
+  });
+}
+
+function addCollectedInfo(html) {
+
+  const display =
+    document.getElementById("caseDisplay");
+
+  display.innerHTML =
+    html + display.innerHTML;
+}
+
+function fixImageLink(url) {
+  if (!url) return "";
+
+  // ✅ Google Drive conversion
+  if (url.includes("drive.google.com")) {
+    const idMatch = url.match(/\/d\/([^\/]+)/);
+    if (idMatch && idMatch[1]) {
+      return `https://drive.google.com/uc?export=view&id=${idMatch[1]}`;
+    }
+  }
+
+  return url;
+}
+
+
+function init() {
+  const select = document.getElementById("caseSelect");
+  select.innerHTML = "";
+
+  cases.forEach(c => {
+    const option = document.createElement("option");
+    option.value = c.id;
+    option.textContent = c.displayTitle || c.title;
+    select.appendChild(option);
+  });
+
+;
+}
+
+function normalize(str) {
+  return str.toLowerCase();
+}
+
+function escapeRegExp(string) {
+  return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+function matchTerm(input, term) {
+  const pattern = `\\b${escapeRegExp(term.toLowerCase())}\\b`;
+  return new RegExp(pattern).test(input);
+}
+
+function loadCase() {
+  const id = document.getElementById("caseSelect").value;
+  currentCase = cases.find(c => c.id == id);
+attempts = 0;
+hintIndex = 0;
+hintCount = 0;
+document.getElementById("diagnosisSection").classList.add("hidden");
+setTimeout(() => {
+  document.getElementById("diagnosisSection").classList.remove("hidden");
+}, 100);
+
+// ✅ Start new session
+sessionData = {
+  studentName: document.getElementById("studentName").value || "Anonymous",
+  caseTitle: currentCase.displayTitle || currentCase.title,
+ startTime: Date.now(),
+  endTime: null,
+
+  // ✅ CRITICAL FIX — define here
+  sessionID: crypto.randomUUID?.() || Date.now().toString(),
+
+  queries: [],
+  failedQueries: [],
+  querySequence: [],
+  categoriesUsed: new Set(),
+  categoryCounts: {},
+  requestedElements: new Set(),
+  missedCritical: [],
+  vagueQueryCount: 0,
+  unknownQueryCount: 0,
+  unavailableLabs: [],
+  firstLabTime: null,
+  firstPMHTime: null,
+  firstMedTime: null,
+  diagnosis: "",
+  correct: null,
+
+  lastQueryTime: Date.now(),
+  redundantQueries: 0,
+  hintTimestamps: [],
+};
+
+// ✅ Initialize session tracking (NEW)
+
+
+sessionData.lastQueryTime = Date.now();
+
+sessionData.redundantQueries = 0;
+
+sessionData.hintTimestamps = [];
+
+sessionData.status = "started";
+sessionData.lastActiveTime = Date.now();
+
+sendToServer({
+  ...sessionData,
+  event: "start",
+  timestamp: new Date().toISOString()
+});
+
+document.getElementById("questionPanel").classList.remove("hidden");
+document.getElementById("caseDisplay").innerHTML = "";
+document.getElementById("diagnosisSection").classList.remove("hidden");
+document.getElementById("hintBtn").classList.remove("hidden");
+
+// ✅ STEP 1: set intro FIRST
+document.getElementById("caseIntro").innerHTML = `
+  <h2 class="text-xl font-bold">${currentCase.displayTitle}</h2>
+  <p><strong>Name:</strong> ${currentCase.name}</p>
+  <p><strong>Age:</strong> ${currentCase.age || "N/A"}</p>
+  <p><strong>Gender:</strong> ${currentCase.gender || "N/A"}</p>
+  <p><strong>Race/Ethnicity:</strong> ${currentCase.race || "N/A"}</p>
+  <p><strong>Chief Complaint:</strong> ${currentCase.chiefComplaint || "N/A"}</p>
+  <p class="mt-2 text-gray-300">${currentCase.intro || ""}</p>
+`;
+
+// ✅ STEP 2: THEN add teaching mode (OUTSIDE template string)
+if (isTeachingMode) {
+
+  const problemReview =
+    (currentCase.problems || [])
+      .map(p => `
+
+        <div class="bg-green-900 p-3 rounded mt-3">
+
+          <strong>${p.disease}</strong>
+
+          <br><br>
+
+          <strong>Acceptable Answers</strong>
+
+          <ul class="list-disc ml-5 mt-1">
+            ${(p.acceptableAnswers || [])
+              .map(x => `<li>${x}</li>`)
+              .join("")}
+          </ul>
+
+          <strong>Expected Plan</strong>
+
+          <ul class="list-disc ml-5 mt-1">
+            ${(p.plan?.expected || [])
+              .map(x => `<li>${x}</li>`)
+              .join("")}
+          </ul>
+
+          <strong>Expected Monitoring</strong>
+
+          <ul class="list-disc ml-5 mt-1">
+            ${(p.monitoring?.expected || [])
+              .map(x => `<li>${x}</li>`)
+              .join("")}
+          </ul>
+
+        </div>
+
+      `)
+      .join("");
+
+  const criticalElements =
+    Object.entries(
+      currentCase.criticalElements || {}
+    )
+      .map(([key,val]) => {
+
+        const feedback =
+          typeof val === "object"
+            ? val.feedback
+            : val;
+
+        return `
+
+          <div class="bg-blue-900 p-2 rounded mt-2">
+
+            <strong>${key}</strong><br>
+
+            ${feedback || ""}
+
+          </div>
+
+        `;
+      })
+      .join("");
+
+  const pearls =
+    (currentCase.teachingPearls || [])
+      .map(p => `<li>${p}</li>`)
+      .join("");
+
+  const hints =
+    (currentCase.hints || [])
+      .map(h => `<li>${h}</li>`)
+      .join("");
+
+  const homeMeds =
+    (currentCase.medications || [])
+      .map(m => `
+
+        <li>
+
+          <strong>${m.name || ""}</strong>
+
+          ${m.dose || ""}
+
+          ${m.route || ""}
+
+          ${m.frequency || ""}
+
+          ${m.duration
+            ? `(${m.duration})`
+            : ""}
+
+        </li>
+
+      `)
+      .join("");
+
+  const inpatientMeds =
+    (currentCase.inpatientMeds || [])
+      .map(m => `
+
+        <li>
+
+          <strong>${m.name || ""}</strong>
+
+          ${m.dose || ""}
+
+          ${m.route || ""}
+
+          ${m.frequency || ""}
+
+        </li>
+
+      `)
+      .join("");
+
+  document.getElementById(
+    "caseIntro"
+  ).innerHTML += `
+
+    <div class="mt-6 border border-green-500 rounded-xl p-4">
+
+      <h3 class="text-xl font-bold text-green-300">
+        Faculty Review Mode
+      </h3>
+
+      <details class="mt-3">
+        <summary class="cursor-pointer font-semibold">
+          Patient Overview
+        </summary>
+
+        <div class="mt-2 text-sm">
+          <strong>Chief Complaint:</strong>
+          ${currentCase.chiefComplaint || "N/A"}<br><br>
+
+          <strong>HPI:</strong><br>
+          ${currentCase.hpi || "N/A"}
+        </div>
+      </details>
+
+      <details class="mt-3">
+        <summary class="cursor-pointer font-semibold">
+          PMH / Family History / Social History
+        </summary>
+
+        <div class="mt-2 text-sm">
+
+          <strong>PMH</strong>
+
+          <ul class="list-disc ml-5">
+            ${(currentCase.pmh || [])
+              .map(x => `<li>${x}</li>`)
+              .join("")}
+          </ul>
+
+          <strong>Family History</strong><br>
+          ${currentCase.familyHistory || "N/A"}
+
+          <br><br>
+
+          <strong>Social History</strong>
+
+          <pre class="whitespace-pre-wrap">
+${JSON.stringify(
+  currentCase.socialHistory || {},
+  null,
+  2
+)}
+          </pre>
+
+        </div>
+      </details>
+
+      <details class="mt-3">
+        <summary class="cursor-pointer font-semibold">
+          Medications
+        </summary>
+
+        <div class="mt-2 text-sm">
+
+          <strong>Home Medications</strong>
+
+          <ul class="list-disc ml-5">
+            ${homeMeds}
+          </ul>
+
+          <br>
+
+          <strong>Inpatient Medications</strong>
+
+          <ul class="list-disc ml-5">
+            ${inpatientMeds}
+          </ul>
+
+        </div>
+      </details>
+
+      <details class="mt-3">
+        <summary class="cursor-pointer font-semibold">
+          Labs & Diagnostics
+        </summary>
+
+        <pre class="whitespace-pre-wrap text-sm">
+${JSON.stringify(
+  currentCase.labs || {},
+  null,
+  2
+)}
+        </pre>
+      </details>
+
+      <details class="mt-3">
+        <summary class="cursor-pointer font-semibold">
+          Functional Status
+        </summary>
+
+        <pre class="whitespace-pre-wrap text-sm">
+${JSON.stringify(
+  currentCase.functionalStatus || {},
+  null,
+  2
+)}
+        </pre>
+      </details>
+
+      <details class="mt-3">
+        <summary class="cursor-pointer font-semibold">
+          Intake / Output
+        </summary>
+
+        <pre class="whitespace-pre-wrap text-sm">
+${JSON.stringify(
+  currentCase.intakeOutput || {},
+  null,
+  2
+)}
+        </pre>
+      </details>
+
+      <details class="mt-3">
+        <summary class="cursor-pointer font-semibold">
+          Interview Factors
+        </summary>
+
+        <pre class="whitespace-pre-wrap text-sm">
+${JSON.stringify(
+  currentCase.interviewFactors || {},
+  null,
+  2
+)}
+        </pre>
+      </details>
+
+      <details class="mt-3">
+        <summary class="cursor-pointer font-semibold">
+          Hints
+        </summary>
+
+        <ul class="list-disc ml-5">
+          ${hints}
+        </ul>
+      </details>
+
+      <details class="mt-3">
+        <summary class="cursor-pointer font-semibold">
+          Critical Elements
+        </summary>
+
+        ${criticalElements}
+      </details>
+
+      <details class="mt-3">
+        <summary class="cursor-pointer font-semibold">
+          Teaching Pearls
+        </summary>
+
+        <ul class="list-disc ml-5">
+          ${pearls}
+        </ul>
+      </details>
+
+      <details class="mt-3" open>
+        <summary class="cursor-pointer font-semibold text-green-300">
+          Problem Breakdown & Answer Key
+        </summary>
+
+        ${problemReview}
+      </details>
+
+    </div>
+  `;
+}
+}
+
+function handleQuery() {
+  const input = normalize(document.getElementById("userQuery").value);
+  let response = "";
+
+if (
+  input.includes("functional") ||
+  input.includes("functional status") ||
+  input.includes("adl") ||
+  input.includes("activities of daily living") ||
+  input.includes("iadl") ||
+  input.includes("caregiver") ||
+  input.includes("mobility") ||
+  input.includes("ambulation") ||
+  input.includes("ambulatory") ||
+  input.includes("walker") ||
+  input.includes("wheelchair") ||
+  input.includes("fall history") ||
+  input.includes("falls")
+) {
+
+  const f =
+    currentCase.functionalStatus || {
+      mobility: "Not available",
+      adl: "Not available",
+      iadl: "Not available",
+      caregiverSupport: "Not available",
+      fallHistory: "Not available",
+      additionalNotes: "Not available"
+    };
+
+  addCollectedInfo(`
+    <div class="bg-gray-700 p-2 rounded">
+      <strong>Functional Status</strong><br><br>
+
+      <strong>Mobility:</strong>
+      ${f.mobility}<br>
+
+      <strong>ADLs:</strong>
+      ${f.adl}<br>
+
+      <strong>IADLs:</strong>
+      ${f.iadl}<br>
+
+      <strong>Caregiver Support:</strong>
+      ${f.caregiverSupport}<br>
+
+      <strong>Fall History:</strong>
+      ${f.fallHistory}<br>
+
+      <strong>Additional Notes:</strong>
+      ${f.additionalNotes}
+    </div>
+  `);
+
+  sessionData.requestedElements.add("functional");
+
+  return;
+}
+
+const now = Date.now();
+sessionData.lastActiveTime = now;
+
+if (!sessionData.firstInteraction) {
+  sessionData.firstInteraction = true;
+  sessionData.status = "in-progress";
+
+  sendToServer({
+    ...sessionData,
+    event: "first_interaction",
+    timestamp: new Date().toISOString()
+  });
+}
+
+const timeSinceLastQuery = now - (sessionData.lastQueryTime || now);
+
+sessionData.lastQueryTime = now;
+
+
+let matchedLabs = [];
+
+if (matchTerm(input, "uacr")) {
+  matchedLabs = ["uacr"];
+}
+  if (!input) return;
+
+  if (!currentCase) {
+    addCollectedInfo("<p class='text-red-400'>⚠️ Please start a case first</p>");
+    return;
+  }
+
+
+// =====================
+// ✅ DIAGNOSTIC IMAGES (MOVE HERE)
+// =====================
+
+// =====================
+// ✅ DIAGNOSTIC IMAGES (FIXED)
+// =====================
+
+const images = currentCase.diagnosticImages || {};
+
+function renderImages(imageArray, title) {
+
+  if (!imageArray) imageArray = [];
+  if (!Array.isArray(imageArray)) imageArray = [imageArray];
+
+  if (imageArray.length === 0) {
+    return `<p class="text-blue-400">ℹ️ No ${title} available</p>`;
+  }
+
+  return `
+    <div class="bg-gray-700 p-2 rounded">
+      <strong>${title}:</strong><br>
+      ${imageArray.map((url, i) => `
+        <div class="mt-2">
+          <p class="text-xs text-gray-400">${title} ${i+1}</p>
+          <img src="${url}" 
+               class="rounded shadow max-w-full cursor-pointer"
+               onclick="window.open('${url}', '_blank')">
+        </div>
+      `).join("")}
+    </div>
+  `;
+}
+
+// ✅ EKG
+if (["ekg","ecg","electrocardiogram"].some(t => input.includes(t))) {
+addCollectedInfo(renderImages(images.ekg, "EKG"));
+  return;
+}
+
+// ✅ CGM
+if (
+  input.includes("cgm") ||
+  input.includes("continuous glucose monitor") ||
+  input.includes("continuous glucose monitoring") ||
+  input.includes("dexcom") ||
+  input.includes("freestyle libre")
+) {
+  addCollectedInfo(renderImages(images.cgm, "CGM Data"));
+  return;
+}
+
+// ✅ X-ray
+if (["xray","cxr","chest xray"].some(t => input.includes(t))) {
+addCollectedInfo(renderImages(images.chest_xray, "Chest X-ray"));
+  return;
+}
+
+  // ===== SYNONYM GROUPS =====
+const addressTerms = ["address", "where does the patient live", "location"];
+const complaintTerms = ["chief complaint", "cc", "reason for visit", "why are they here"];
+const bpTerms = ["blood pressure", "bp"];
+const occupationTerms = ["occupation", "job", "work"];
+  const lipidTerms = ["lipid", "lipid panel", "lipids"];
+  const thyroidTerms = ["thyroid", "tsh", "t3", "t4", "thyroid function"];
+  const liverTerms = ["liver", "lft", "liver function"];
+  const kidneyTerms = ["kidney", "renal", "kidney function", "renal function"];
+  const genderTerms = ["gender", "sex", "male", "female"];
+  const ageTerms = ["age", "old", "how old", "years old"];
+  const dobTerms = ["dob", "date of birth", "birthday", "birth"];
+const interviewTerms = ["interview", "patient preference", "preferences", "concerns"];
+const allergyTerms = [
+  "allergy",
+  "allergies",
+  "allergic",
+  "drug allergy",
+  "drug allergies",
+  "allergy history"
+];
+const intakeOutputTerms = [
+  "i&o",
+  "io",
+  "ins and outs",
+  "intake",
+  "output",
+  "intake output",
+  "urine output",
+  "uop",
+  "fluid balance",
+  "net balance",
+  "diuresis"
+];
+
+
+  const pmhTerms = ["pmh", "history", "medical history", "conditions"];
+const hpiTerms = ["hpi", "history of present illness", "current illness", "present illness"];
+  
+const medTerms = ["med", "medication", "medications", "rx"];
+const insuranceTerms = [
+  "insurance",
+  "coverage",
+  "payer",
+  "plan",
+  "insurance coverage"
+];
+
+const immunizationTerms = [
+  "immunizations",
+  "immunization",
+  "vaccines",
+  "vaccine",
+  "vaccination",
+  "vaccinations",
+  "shot history",
+  "vaccine history"
+];
+
+const familyHistoryTerms = [
+  "family history",
+  "fh",
+  "fam hx",
+  "family hx",
+  "genetic history",
+  "hereditary",
+  "relatives"
+];
+const medQuestionBlockers = [
+  // cost
+  "cost", "afford", "expense", "price", "financial",
+
+  // adherence
+  "forget", "miss", "skip", "adherence", "compliance", "compliant",
+
+  // side effects
+  "side effect", "reaction", "issue", "problem", "adverse effect", "side effects", "adverse effects",
+
+  // preferences
+  "prefer", "avoid", "want", "willing",
+
+  // barriers
+  "difficulty", "hard", "trouble", "manage", "barriers", "access",
+
+  // general interview language
+  "concern", "feel", "think",
+];
+
+const inpatientMedTerms = [
+  "inpatient",
+  "hospital",
+  "hospital meds",
+  "med orders",
+  "orders",
+  "current orders"
+];
+
+
+if (
+  medTerms.some(term => input.includes(term)) &&
+  !medQuestionBlockers.some(term => input.includes(term))
+) {
+
+
+  // ✅ INPATIENT meds
+  if (
+    input.includes("inpatient") ||
+    input.includes("hospital") ||
+    input.includes("orders")
+  ) {
+
+    if (!currentCase.inpatientMeds || currentCase.inpatientMeds.length === 0) {
+      response = `<p>No inpatient medications ordered.</p>`;
+    } 
+    else {
+      const meds = currentCase.inpatientMeds.map(m => `
+        <div class="bg-gray-700 p-2 rounded mb-1">
+          <strong>${m.name || "Unknown"}</strong><br>
+          Dose: ${m.dose || "N/A"}<br>
+          Route: ${m.route || "N/A"}<br>
+          Last Given: ${m.lastGiven || "N/A"}
+        </div>
+      `).join("");
+
+      response = `<div><strong>Inpatient Medications:</strong>${meds}</div>`;
+    }
+  }
+
+  // ✅ DEFAULT → HOME MEDS
+  else {
+
+    if (!currentCase.medications || currentCase.medications.length === 0) {
+      response = `<p>No home medications listed.</p>`;
+    } 
+    else {
+      const meds = currentCase.medications.map(m => `
+        <div class="bg-gray-700 p-2 rounded mb-1">
+          <strong>${m.name || "Unknown"}</strong><br>
+          Dose: ${m.dose || "N/A"}<br>
+          Route: ${m.route || "N/A"}<br>
+          Frequency: ${m.frequency || "N/A"}
+Duration: ${m.duration || "Unknown"}
+        </div>
+      `).join("");
+
+      response = `<div><strong>Home Medications:</strong>${meds}</div>`;
+    }
+  }
+
+addCollectedInfo(`
+  <div class="mb-2">
+    ${response}
+  </div>
+`);
+  return;
+}
+
+  const labTerms = ["labs", "lab", "blood work", "results"];
+  const physicalTerms = ["physical", "exam", "vitals", "bp"];
+  const socialTerms = [
+  "social",
+  "social history",
+
+  "smoking",
+  "smoking history",
+  "smoker",
+
+  "tobacco",
+  "tobacco history",
+
+  "cigarette",
+  "cigarettes",
+
+  "alcohol",
+  "alcohol use",
+
+  "living",
+  "living situation",
+
+  "housing",
+
+  "caffeine"
+];
+const functionalTerms = [
+  "functional",
+  "functional status",
+  "mobility",
+  "ambulation",
+  "ambulatory",
+  "walker",
+  "cane",
+  "wheelchair",
+  "adl",
+  "activities of daily living",
+  "iadl",
+  "instrumental activities",
+  "caregiver",
+  "caregiver support",
+  "fall",
+  "falls",
+  "fall history",
+  "independent",
+  "mobility aid"
+];
+
+  const dietTerms = ["diet", "nutrition", "food"];
+const adherenceTerms = ["adherence", "compliance", "taking meds"];  
+  const symptomTerms = ["symptoms", "complaint", "presentation"];
+const raceTerms = ["race", "ethnicity", "background"];
+const vitalTerms = [
+  "vitals",
+  "vital signs",
+
+  "bp",
+  "blood pressure",
+
+  "heart rate",
+  "hr",
+  "pulse",
+
+  "temperature",
+  "temp",
+  "fever",
+
+  "weight",
+  "body weight",
+
+  "height",
+
+  "bmi",
+  "body mass index",
+
+"o2",
+"spo2",
+"oxygen saturation",
+"oxygen"
+
+];
+  
+
+  // ✅ CATEGORY TRACKING
+  let detectedCategory = "other";
+
+  if (labTerms.some(t => input.includes(t))) {
+    detectedCategory = "labs";
+  }
+  else if (pmhTerms.some(t => input.includes(t))) {
+    detectedCategory = "pmh";
+  }
+
+else if (raceTerms.some(term => input.includes(term))) {
+  response = `<p><strong>Race/Ethnicity:</strong> ${currentCase.race || "Not available"}</p>`;
+}
+
+// ✅ PATIENT INTERVIEW — GUIDED MATCHING (NO AUTO-DUMP)
+else if (currentCase.interviewFactors) {
+
+  const clean = str => str.toLowerCase().replace(/[^a-z0-9 ]/g, "");
+  const inputWords = clean(input).split(" ").filter(Boolean);
+
+  let bestMatch = null;
+  let bestScore = 0;
+
+  Object.keys(currentCase.interviewFactors).forEach(q => {
+    const qWords = clean(q).split(" ").filter(Boolean);
+
+    let overlap = 0;
+
+    inputWords.forEach(w => {
+      if (qWords.includes(w)) overlap++;
+    });
+
+    const score = overlap / Math.max(qWords.length, 1);
+
+if (
+  clean(input).includes(clean(q)) ||
+  clean(q).includes(clean(input)) ||
+  score >= 0.2
+) {
+  if (score > bestScore) {
+    bestScore = score;
+    bestMatch = q;
+  }
+}
+
+  });
+
+  if (bestMatch && bestScore >= 0.2) {
+    response = `
+      <div class="bg-gray-700 p-2 rounded">
+        <strong>${bestMatch}</strong><br>
+        ${currentCase.interviewFactors[bestMatch]}
+      </div>
+    `;
+
+    sessionData.requestedElements.add("interview");
+    detectedCategory = "interview";
+  }
+
+  else if (
+    input.includes("interview") ||
+    input.includes("preference") ||
+    input.includes("concern")
+  ) {
+    response = `
+      <p class="text-yellow-300">
+        ⚠️ Try asking a more specific patient-centered question
+        (cost, adherence, preferences, concerns, injections, etc)
+      </p>
+    `;
+
+    detectedCategory = "vague";
+  }
+
+
+if (response) {
+  addCollectedInfo(`
+    <div class="mb-2">
+      ${response}
+    </div>
+  `);
+  return;  // ✅ STOP execution so it doesn’t get overwritten
+}
+
+
+if (response) {
+  addCollectedInfo(`
+    <div class="mb-2">
+      ${response}
+    </div>
+  `);
+  return;
+}
+}
+
+ if (inpatientMedTerms.some(term => input.includes(term))) {
+
+  if (!currentCase.setting || !currentCase.setting.includes("inpatient")) {
+    response = `
+      <p class="text-yellow-300">
+        ⚠️ This patient is not currently admitted
+      </p>
+    `;
+  }
+  else if (!currentCase.inpatientMeds || currentCase.inpatientMeds.length === 0) {
+    response = `<p>No inpatient medications ordered.</p>`;
+  }
+  else {
+
+const meds = currentCase.inpatientMeds.map(m => {
+
+  if (typeof m === "string") {
+    return `
+      <div class="bg-gray-700 p-2 rounded mb-1">
+        <strong>${m}</strong>
+      </div>
+    `;
+  }
+
+  return `
+    <div class="bg-gray-700 p-2 rounded mb-1">
+      <strong>${m.name || "Unknown"}</strong><br>
+      Dose: ${m.dose || "N/A"}<br>
+      Route: ${m.route || "N/A"}<br>
+      Frequency: ${m.frequency || "N/A"}
+    </div>
+  `;
+}).join("");
+
+    response = `<div><strong>Inpatient Medications:</strong><br>${meds}</div>`;
+  }  
+}
+  
+  else if (
+    Object.keys(masterLabMap).some(labKey =>
+  masterLabMap[labKey].some(term => matchTerm(input, term))
+)
+  ) {
+    detectedCategory = "specific_lab";
+  }
+  else if (physicalTerms.some(t => input.includes(t))) {
+    detectedCategory = "physical";
+  }
+  else if (socialTerms.some(t => input.includes(t))) {
+    detectedCategory = "social";
+  }
+else if (
+  intakeOutputTerms.some(t =>
+    input.includes(t)
+  )
+) {
+  detectedCategory = "intakeoutput";
+}
+
+else if (functionalTerms.some(t => input.includes(t))) {
+  detectedCategory = "functional";
+}
+
+else if (insuranceTerms.some(t => input.includes(t))) {
+  detectedCategory = "insurance";
+}
+else if (immunizationTerms.some(t => input.includes(t))) {
+  detectedCategory = "immunizations";
+}
+else if (familyHistoryTerms.some(t => input.includes(t))) {
+  detectedCategory = "family_history";
+}
+else if (allergyTerms.some(t => input.includes(t))) {
+  detectedCategory = "allergies";
+}
+  else if (dietTerms.some(t => input.includes(t))) {
+    detectedCategory = "diet";
+  }
+  else if (adherenceTerms.some(t => input.includes(t))) {
+    detectedCategory = "adherence";
+  }
+ 
+else if (vitalTerms.some(term => input.includes(term))) {
+
+  if (sessionData.requestedElements.has("vitals")) {
+    response = `
+      <p class="text-yellow-300">
+        ⚠️ Vitals have already been reviewed
+      </p>
+    `;
+  } else {
+
+    const e = currentCase.physicalExam || {};
+
+    response = `
+      <div class="bg-gray-700 p-2 rounded">
+        <strong>Vitals:</strong><br>
+        BP: ${e.bp || currentCase.bloodPressure || "N/A"}<br>
+        HR: ${e.hr || "N/A"}<br>
+        Temp: ${e.temp || "N/A"}<br>
+SpO₂: ${e.spo2 || "N/A"}<br>
+        Weight: ${e.weight || currentCase.weight || "N/A"}<br>
+        BMI: ${e.bmi || currentCase.bmi || "N/A"}
+      </div>
+    `;
+
+    sessionData.requestedElements.add("vitals");
+  }
+}
+else if (raceTerms.some(term => input.includes(term))) {
+  detectedCategory = "demographics";
+  response = `<p><strong>Race:</strong> ${currentCase.race || "Not available"}</p>`;
+} 
+  
+// ✅ TIMING METRICS (ADD THIS BLOCK HERE)
+if (detectedCategory === "labs" && !sessionData.firstLabTime) {
+  sessionData.firstLabTime = now;
+}
+
+if (detectedCategory === "pmh" && !sessionData.firstPMHTime) {
+  sessionData.firstPMHTime = now;
+}
+  
+else if (hpiTerms.some(term => input.includes(term))) {
+
+  response = `
+    <div class="bg-gray-700 p-2 rounded">
+      <strong>History of Present Illness:</strong><br>
+      ${currentCase.hpi || "No HPI available"}
+    </div>
+  `;
+
+  detectedCategory = "hpi";
+  sessionData.requestedElements.add("hpi");
+  
+}
+
+if (detectedCategory === "meds" && !sessionData.firstMedTime) {
+  sessionData.firstMedTime = now;
+}
+  
+  
+  // ✅ TRACK EVERYTHING (now safe)
+  sessionData.queries.push({
+    query: input,
+    timestamp: now
+  });
+
+  sessionData.categoriesUsed.add(detectedCategory);
+
+  sessionData.categoryCounts[detectedCategory] =
+    (sessionData.categoryCounts[detectedCategory] || 0) + 1;
+
+// ✅ TRACK QUERY (AFTER LOGIC IS COMPLETE)
+sessionData.querySequence.push({
+  query: input,
+  timestamp: new Date().toISOString(),
+  timeSinceLastQuery: timeSinceLastQuery,
+  category: detectedCategory || "unknown"
+});
+
+// ✅ STOP if response already exists (CRITICAL FIX)
+if (response) {
+document.getElementById("caseDisplay").innerHTML =
+response +
+document.getElementById("caseDisplay").innerHTML;  return;
+}
+
+  // ===== QUERY LOGIC =====
+
+if (bpTerms.some(term => input.includes(term))) {
+  response = `<p><strong>Blood Pressure:</strong> ${
+    currentCase.physicalExam?.bp || currentCase.bloodPressure || "Not available"
+  }</p>`;
+}
+
+else if (complaintTerms.some(term => input.includes(term))) {
+  response = `<p><strong>Chief Complaint:</strong> ${
+    currentCase.chiefComplaint || "Not available"
+  }</p>`;
+}
+
+else if (ageTerms.some(term => input.includes(term))) {
+  response = `<p><strong>Age:</strong> ${currentCase.age || "Not available"}</p>`;
+}
+
+else if (genderTerms.some(term => input.includes(term))) {
+  response = `<p><strong>Gender:</strong> ${currentCase.gender || "Not available"}</p>`;
+}
+
+else if (liverTerms.some(term => input.includes(term))) {
+  response = `
+    <p class="text-yellow-300">
+      ⚠️ Please specify which liver test
+    </p>
+  `;
+}
+
+else if (kidneyTerms.some(term => input.includes(term))) {
+  response = `
+    <p class="text-yellow-300">
+      ⚠️ Please specify which kidney function test
+    </p>
+  `;
+}
+else if (lipidTerms.some(term => input.includes(term))) {
+  response = `
+    <p class="text-yellow-300">
+      ⚠️ Please specify which lipid test
+    </p>
+  `;
+}
+
+else if (thyroidTerms.some(term => input.includes(term))) {
+  response = `
+    <p class="text-yellow-300">
+      ⚠️ Please specify which thyroid test
+    </p>
+  `;
+}
+
+// DOB / BIRTHDAY (returns age for now)
+else if (dobTerms.some(term => input.includes(term))) {
+  response = `<p><strong>DOB:</strong> ${currentCase.age || "Not available"}</p>`;
+}
+
+else if (addressTerms.some(term => input.includes(term))) {
+  response = `<p><strong>Address:</strong> ${currentCase.address || "Not available"}</p>`;
+}
+
+  // PMH
+else if (pmhTerms.some(term => input.includes(term))) {
+
+  if (sessionData.requestedElements.has("pmh")) {
+    response = `
+      <p class="text-yellow-300">
+        ⚠️ Past medical history has already been collected
+      </p>
+    `;
+  } else {
+
+    response = `
+      <p><strong>PMH:</strong> 
+      ${currentCase.pmh?.join(", ") || "Not available"}
+      </p>
+    `;
+
+    sessionData.requestedElements.add("pmh");
+  }
+}
+
+else if (input.includes("alcohol")) {
+  response = `<p><strong>Alcohol:</strong> ${currentCase.socialHistory?.alcohol || "Not available"}</p>`;
+}
+
+else if (input.includes("smoking") || input.includes("tobacco")) {
+  response = `<p><strong>Tobacco:</strong> ${currentCase.socialHistory?.tobacco || "Not available"}</p>`;
+}
+
+   
+else if (physicalTerms.some(term => input.includes(term))) {
+  const e = currentCase.physicalExam || {};
+
+  response = `
+    <div class="bg-gray-700 p-2 rounded">
+      <strong>Vitals:</strong><br>
+      BP: ${e.bp || currentCase.bloodPressure || "N/A"}<br>
+      HR: ${e.hr || "N/A"}<br>
+      Temp: ${e.temp || "N/A"}<br>
+SpO₂: ${e.spo2 || "N/A"}<br>
+      Weight: ${e.weight || currentCase.weight || "N/A"}<br>
+      Height: ${e.height || currentCase.height || "N/A"}<br>
+      BMI: ${e.bmi || currentCase.bmi || "N/A"}
+    </div>
+
+    <div class="bg-gray-700 p-2 rounded mt-2">
+      <strong>Physical Exam:</strong><br>
+      ${e.notes || "No additional exam findings documented"}
+    </div>
+  `;
+}
+
+else if (
+  detectedCategory === "functional"
+) {
+
+  if (
+    sessionData.requestedElements.has("functional")
+  ) {
+
+    response = `
+      <p class="text-yellow-300">
+        ⚠️ Functional status has already been reviewed
+      </p>
+    `;
+  }
+
+  else if (
+  input.includes("functional") ||
+  input.includes("functional status") ||
+  input.includes("adl") ||
+  input.includes("activities of daily living") ||
+  input.includes("iadl") ||
+  input.includes("caregiver") ||
+  input.includes("mobility") ||
+  input.includes("ambulatory") ||
+  input.includes("walker") ||
+  input.includes("wheelchair") ||
+  input.includes("fall history") ||
+  input.includes("falls")
+)
+{
+
+  const f =
+    currentCase.functionalStatus || {
+      mobility: "Not available",
+      adl: "Not available",
+      iadl: "Not available",
+      caregiverSupport: "Not available",
+      fallHistory: "Not available",
+      additionalNotes: "Not available"
+    };
+
+  response = `
+    <div class="bg-gray-700 p-2 rounded">
+
+      <strong>Functional Status</strong><br><br>
+
+      <strong>Mobility:</strong>
+      ${f.mobility}<br>
+
+      <strong>ADLs:</strong>
+      ${f.adl}<br>
+
+      <strong>IADLs:</strong>
+      ${f.iadl}<br>
+
+      <strong>Caregiver Support:</strong>
+      ${f.caregiverSupport}<br>
+
+      <strong>Fall History:</strong>
+      ${f.fallHistory}<br>
+
+      <strong>Additional Notes:</strong>
+      ${f.additionalNotes}
+
+    </div>
+  `;
+
+  sessionData.requestedElements.add("functional");
+}
+}
+
+else if (
+  detectedCategory === "intakeoutput"
+) {
+
+  const io =
+    currentCase.intakeOutput || {};
+
+  response = `
+    <div class="bg-gray-700 p-2 rounded">
+
+      <strong>Intake / Output</strong><br><br>
+
+      <strong>Oral Intake:</strong>
+      ${io.oralIntake || "N/A"}<br>
+
+      <strong>IV Intake:</strong>
+      ${io.ivIntake || "N/A"}<br>
+
+      <strong>Urine Output:</strong>
+      ${io.urineOutput || "N/A"}<br>
+
+      <strong>Net Balance:</strong>
+      ${io.netBalance || "N/A"}<br>
+
+      <strong>Notes:</strong>
+      ${io.notes || "N/A"}
+
+    </div>
+  `;
+
+  sessionData.requestedElements.add("intakeoutput");
+}
+
+// LABS — require specific request
+else if (
+  labTerms.some(term => input.includes(term)) || 
+  Object.keys(masterLabMap).some(labKey =>
+    masterLabMap[labKey].some(term => matchTerm(input, term))
+  )
+) {
+
+  let matchedLabs = [];
+
+  // ✅ find matching labs
+  Object.keys(masterLabMap).forEach(labKey => {
+    const synonyms = masterLabMap[labKey];
+
+    if (synonyms.some(term => matchTerm(input, term))) {
+
+      const actualLab = currentCase.labs
+        ? Object.keys(currentCase.labs).find(k => {
+            const normalizedLabName = k.toLowerCase().trim();
+
+            return masterLabMap[labKey].some(term =>
+              normalizedLabName.includes(term)
+            );
+          })
+        : null;
+
+      if (actualLab) {
+        matchedLabs.push(actualLab);
+      }
+    }
+  });
+
+  // ✅ IF labs found
+  if (matchedLabs.length > 0) {
+
+    const newLabs = matchedLabs.filter(lab =>
+      !sessionData.requestedElements.has(lab.toLowerCase().trim())
+    );
+
+    // ✅ ALL already requested
+    if (newLabs.length === 0) {
+
+      response = `
+        <p class="text-yellow-300">
+          ⚠️ These labs have already been collected
+        </p>
+      `;
+    } 
+    
+    // ✅ NEW labs to show
+    else {
+
+      const labResults = newLabs.map(lab => {
+
+        const labData = currentCase.labs[lab];
+        let labOutput = "";
+
+if (typeof labData === "object" && labData !== null) {
+
+  labOutput += `
+    <div class="bg-gray-800 p-2 rounded mt-1">
+      <strong>${lab}:</strong> ${labData.current}
+    </div>
+  `;
+
+  if (labData.history && labData.history.length > 0) {
+
+    const trend = labData.history.map(h => `
+      <div class="text-sm text-gray-300 ml-2">
+        ${h.value} (${h.date})
+      </div>
+    `).join("");
+
+    labOutput += `
+      <div class="mt-1 text-xs text-gray-400">
+        Trend:
+      </div>
+      ${trend}
+    `;
+  }
+}
+
+else {
+          // fallback
+          labOutput += `<strong>${lab}:</strong> ${labData}`;
+        }
+
+        return labOutput;
+
+      }).join("<br>");
+
+      response = `
+        <div class="bg-gray-700 p-2 rounded">
+          <strong>Requested Labs:</strong><br>
+          ${labResults}
+        </div>
+      `;
+
+      // ✅ mark AFTER showing
+      newLabs.forEach(lab => {
+        sessionData.requestedElements.add(lab.toLowerCase().trim());
+      });
+    }
+  }
+
+  // ❌ recognized but not available
+  else if (
+    Object.keys(masterLabMap).some(labKey =>
+      masterLabMap[labKey].some(term => matchTerm(input, term))
+    )
+  ) {
+    response = `
+      <p class="text-blue-400">
+        ℹ️ That lab was not obtained for this patient
+      </p>
+    `;
+  }
+
+  // ⚠️ vague lab request
+  else if (labTerms.some(term => input.includes(term))) {
+    response = `
+      <p class="text-yellow-300">
+        ⚠️ Please specify which lab you want
+        (e.g., A1c, LDL, creatinine, troponin)
+      </p>
+    `;
+  }
+}
+
+  // SOCIAL HISTORY
+else if (socialTerms.some(term => input.includes(term))) {
+
+  if (sessionData.requestedElements.has("social")) {
+    response = `
+      <p class="text-yellow-300">
+        ⚠️ Social history has already been reviewed
+      </p>
+    `;
+  } else {
+
+    const s = currentCase.socialHistory;
+
+    response = `
+      <div class="bg-gray-700 p-2 rounded">
+        <strong>Social History:</strong><br>
+        Tobacco: ${s?.tobacco || "N/A"}<br>
+        Alcohol: ${s?.alcohol || "N/A"}<br>
+        Living: ${s?.livingSituation || "N/A"}
+      </div>
+    `;
+
+    sessionData.requestedElements.add("social");
+  }
+}
+
+
+else if (insuranceTerms.some(term => input.includes(term))) {
+
+  if (sessionData.requestedElements.has("insurance")) {
+
+    response = `
+      <p class="text-yellow-300">
+        ⚠️ Insurance has already been reviewed
+      </p>
+    `;
+
+  } else {
+
+    response = `
+      <div class="bg-gray-700 p-2 rounded">
+        <strong>Insurance:</strong><br>
+        ${currentCase.insurance || "No insurance information available"}
+      </div>
+    `;
+
+    sessionData.requestedElements.add("insurance");
+  }
+}
+else if (immunizationTerms.some(term => input.includes(term))) {
+
+  if (sessionData.requestedElements.has("immunizations")) {
+
+    response = `
+      <p class="text-yellow-300">
+        ⚠️ Immunization history has already been reviewed
+      </p>
+    `;
+
+  } else {
+
+    response = `
+      <div class="bg-gray-700 p-2 rounded">
+        <strong>Immunizations:</strong><br>
+        ${currentCase.immunizations || "No immunization history available"}
+      </div>
+    `;
+
+    sessionData.requestedElements.add("immunizations");
+  }
+}
+else if (familyHistoryTerms.some(term => input.includes(term))) {
+
+  if (sessionData.requestedElements.has("familyHistory")) {
+
+    response = `
+      <p class="text-yellow-300">
+        ⚠️ Family history has already been reviewed
+      </p>
+    `;
+
+  } else {
+
+    response = `
+      <div class="bg-gray-700 p-2 rounded">
+        <strong>Family History:</strong><br>
+        ${currentCase.familyHistory || "No family history available"}
+      </div>
+    `;
+
+    sessionData.requestedElements.add("familyhistory");
+  }
+}
+else if (allergyTerms.some(term => input.includes(term))) {
+
+  if (sessionData.requestedElements.has("allergies")) {
+
+    response = `
+      <p class="text-yellow-300">
+        ⚠️ Allergies have already been reviewed
+      </p>
+    `;
+
+  } else {
+
+    const allergies =
+      currentCase.allergies && currentCase.allergies.length
+        ? currentCase.allergies.join(", ")
+        : "No known allergies";
+
+    response = `
+      <div class="bg-gray-700 p-2 rounded">
+        <strong>Allergies:</strong><br>
+        ${allergies}
+      </div>
+    `;
+
+    sessionData.requestedElements.add("allergies");
+  }
+}
+
+  // ADHERENCE
+  else if (adherenceTerms.some(term => input.includes(term))) {
+    response = `<p><strong>Adherence:</strong> ${currentCase.patientResponses?.adherence || "No data"}</p>`;
+  }
+
+  // DIET
+  else if (dietTerms.some(term => input.includes(term))) {
+    response = `<p><strong>Diet:</strong> ${currentCase.patientResponses?.diet || "No data"}</p>`;
+  }
+
+  // SYMPTOMS / CHIEF COMPLAINT
+  else if (symptomTerms.some(term => input.includes(term))) {
+    if (currentCase.symptoms) {
+      response = `<p><strong>Symptoms:</strong> ${currentCase.symptoms.join("<br>")}</p>`;
+    } else if (currentCase.chiefComplaint) {
+      response = `<p><strong>Chief Complaint:</strong> ${currentCase.chiefComplaint}</p>`;
+    } else {
+      response = `<p>No symptom data available.</p>`;
+    }
+  }
+
+  // FALLBACK
+  else {
+    response = `<p class="text-red-400">❓ Try asking about PMH, medications, labs, vitals, social history, diet, or adherence</p>`;
+  }
+
+
+// ✅ Capture failed or vague queries
+if (response.includes("❓")) {
+  sessionData.failedQueries.push({ query: input, timestamp: new Date() });
+  sessionData.unknownQueryCount++;
+}
+
+else if (response.includes("⚠️ Please specify")) {
+  detectedCategory = "vague";
+  sessionData.failedQueries.push({ query: input, timestamp: new Date() });
+  sessionData.vagueQueryCount++;
+}
+
+if (response.includes("ℹ️ That lab was not obtained") && matchedLabs?.length) {
+  matchedLabs.forEach(lab => {
+    if (!currentCase.labs || !currentCase.labs[lab]) {
+      sessionData.unavailableLabs.push(lab.toLowerCase());
+    }
+  });
+}
+
+// ✅ ALWAYS display response
+document.getElementById("caseDisplay").innerHTML =
+  response +
+  document.getElementById("caseDisplay").innerHTML;
+}
+
+function captureDiagnosisInputs(sessionData) {
+  sessionData.primaryDx = document.getElementById("primaryDx")?.value || "";
+
+  sessionData.secondaryDx1 = document.getElementById("cp_problem1")?.value || "";
+  sessionData.secondaryDx2 = document.getElementById("cp_problem2")?.value || "";
+  sessionData.secondaryDx3 = document.getElementById("cp_problem3")?.value || "";
+  sessionData.secondaryDx4 = document.getElementById("cp_problem4")?.value || "";
+}
+
+function getHint() {
+  if (!currentCase || !currentCase.hints) return;
+
+  if (hintIndex < currentCase.hints.length) {
+
+    const hint = currentCase.hints[hintIndex];
+
+    addCollectedInfo(`
+      <p class="text-yellow-300">💡 Hint: ${hint}</p>
+    `);
+
+    hintIndex++;
+    hintCount++;   // ✅ COUNT EVERY TIME BUTTON IS USED
+
+sessionData.lastActiveTime = Date.now();
+
+sessionData.hintTimestamps.push({
+  timestamp: new Date().toISOString(),
+  secondsFromStart: Math.floor((Date.now() - sessionData.startTime) / 1000)
+});
+
+  } else {
+    addCollectedInfo(`
+      <p class="text-gray-400">No more hints available</p>
+    `);
+
+    hintCount++;   // ✅ STILL counts (they asked for help)
+  }
+}
+
+function submitPlan() {
+
+const planData = [1,2,3].map(i => ({
+  problem: document.getElementById(`cp_problem${i}`).value,
+  plan: document.getElementById(`cp_plan${i}`).value,
+  monitoring: document.getElementById(`cp_monitor${i}`).value
+}));
+
+  sessionData.carePlan = planData;
+
+  // ✅ Calculate score
+  let careScore = 0;
+
+  sessionData.carePlanScore = careScore;
+  document.getElementById("planFeedback").innerHTML = `
+    <p class="text-green-400">✅ Care plan submitted</p>
+    <p class="text-blue-300 font-semibold">Care Plan Score: ${careScore}</p>
+  `;
+
+  // enable export
+  const exportBtn = document.getElementById("exportBtn");
+  exportBtn.disabled = false;
+  exportBtn.classList.remove("opacity-50","cursor-not-allowed");
+}
+
+
+function parseCriticalElements(text) {
+  const lines = text.split(",");
+  const result = {};
+
+  lines.forEach(line => {
+    const parts = line.split(":");
+    if (parts.length >= 2) {
+      const key = parts[0].trim();
+      const explanation = parts.slice(1).join(":").trim();
+      if (key && explanation) {
+        result[key] = explanation;
+      }
+    }
+  });
+
+  return result;
+}
+
+
+function softMatch(studentText, keyword) {
+  const text = studentText.toLowerCase();
+  const key = keyword.toLowerCase();
+
+  // ✅ direct match
+  if (text.includes(key)) return true;
+
+  // ✅ concept match
+  if (conceptMap[key]) {
+    return conceptMap[key].some(term =>
+      text.includes(term)
+    );
+  }
+
+  // ✅ fuzzy fallback
+  const words = text.split(/\s+/);
+  return words.some(word => levenshtein(word, key) <= 2);
+}
+
+
+function levenshtein(a, b) {
+  const matrix = [];
+
+  for (let i = 0; i <= b.length; i++) matrix[i] = [i];
+  for (let j = 0; j <= a.length; j++) matrix[0][j] = j;
+
+  for (let i = 1; i <= b.length; i++) {
+    for (let j = 1; j <= a.length; j++) {
+      if (b.charAt(i - 1) === a.charAt(j - 1)) {
+        matrix[i][j] = matrix[i - 1][j - 1];
+      } else {
+        matrix[i][j] = Math.min(
+          matrix[i - 1][j - 1] + 1,
+          matrix[i][j - 1] + 1,
+          matrix[i - 1][j] + 1
+        );
+      }
+    }
+  }
+
+  return matrix[b.length][a.length];
+}
+
+
+function splitAndFixLinks(inputId) {
+  const raw = document.getElementById(inputId).value;
+
+  return raw
+    .split(",")
+    .map(url => fixImageLink(url.trim()))
+    .filter(url => url);
+}
+
+
+
+function addCaseFull() {
+
+  function splitInput(id) {
+    return document.getElementById(id).value
+      .split(",")
+      .map(x => x.trim())
+      .filter(x => x);
+  }
+
+  // ✅ validation FIRST
+  const titleVal = document.getElementById("newTitle").value;
+  if (!titleVal) {
+    alert("Please enter a case title");
+    return;
+  }
+
+  // ✅ collect labs
+  const labs = {};
+
+function parseLabInput(input) {
+
+  if (!input.includes("|")) return input;
+
+  const [current, historyStr] = input.split("|");
+
+  const history = historyStr.split(",").map(item => {
+    const [value, date] = item.trim().split("(");
+
+    return {
+      value: value.trim(),
+      date: date?.replace(")", "").trim() || ""
+    };
+  });
+
+  return {
+    current: current.trim(),
+    history
+  };
+}
+
+  document.querySelectorAll("#labsContainer > div").forEach(row => {
+    const name = row.querySelector(".labName").value.trim();
+    const value = row.querySelector(".labValue").value.trim();
+
+    if (name && value) {
+ labs[name] = parseLabInput(value);
+    }
+  });
+
+  // ✅ collect home medications
+  const homeMeds = [];
+  document.querySelectorAll("#homeMedsContainer > div").forEach(row => {
+    const name = row.querySelector(".homeMedName").value.trim();
+    const dose = row.querySelector(".homeMedDose").value.trim();
+    const route = row.querySelector(".homeMedRoute").value.trim();
+    const freq = row.querySelector(".homeMedFreq").value.trim();
+const duration =
+    row.querySelector(".homeMedDuration")?.value.trim() || "";
+    if (name) {
+      homeMeds.push({
+        name,
+        dose,
+        route,
+        frequency: freq,
+duration
+      });
+    }
+  });
+  // ✅ collect inpatient medications
+  const inpatientMeds = [];
+  document.querySelectorAll("#inpatientMedsContainer > div").forEach(row => {
+    const name = row.querySelector(".medName").value.trim();
+    const dose = row.querySelector(".medDose").value.trim();
+    const route = row.querySelector(".medRoute").value.trim();
+    const time = row.querySelector(".medTime").value.trim();
+    if (name) {
+      inpatientMeds.push({
+        name,
+        dose,
+        route,
+        lastGiven: time
+      });
+    }
+  });
+  const interviewFactors = {};
+  document.querySelectorAll("#interviewContainer > div").forEach(row => {
+    const key = row.querySelector(".interviewKey").value.trim();
+    const value = row.querySelector(".interviewValue").value.trim();
+    if (key && value) {
+      interviewFactors[key] = value;
+    }
+  });
+  const hints = [];
+  document.querySelectorAll("#hintsContainer .hintText").forEach(input => {
+    if (input.value.trim()) {
+      hints.push(input.value.trim());
+    }
+  });
+  const criticalElements = {};
+  document.querySelectorAll("#criticalContainer > div").forEach(row => {
+    const key = row.querySelector(".criticalKey").value.trim().toLowerCase();
+    const points = Number(row.querySelector(".criticalPoints").value || 0);
+    const value = row.querySelector(".criticalValue").value.trim();
+    if (key) {
+      criticalElements[key] = {
+        points: points,
+        feedback: value
+      };
+    }
+  });
+  const teachingPearls = [];
+  document.querySelectorAll("#pearlsContainer .pearlText").forEach(input => {
+    if (input.value.trim()) {
+      teachingPearls.push(input.value.trim());
+    }
+  });
+  // ✅ Primary diagnosis
+  const primaryDiagnosis =
+    document.getElementById("newPrimaryDiagnosis").value.trim();
+  const acceptableAnswers = document
+    .getElementById("diagnosisList")
+    .value
+    .split(",")
+    .map(x => x.trim().toLowerCase())
+    .filter(x => x);
+  const problems = [];
+  // PRIMARY
+  problems.push({
+    type: "primary",
+    disease: document.getElementById("newPrimaryDiagnosis").value.trim(),
+    points: Number(document.getElementById("newPrimaryPoints").value || 0),
+    acceptableAnswers: acceptableAnswers,
+    plan: {
+expected: document.getElementById("primaryPlanExpected").value
+  .split("\n")
+  .map(x => x.trim().toLowerCase())
+  .filter(x => x),
+
+      points: Number(document.getElementById("primaryPlanPoints").value || 0)
+    },
+
+    monitoring: {
+      expected: document.getElementById("primaryMonitorExpected").value
+  .split("\n")
+  .map(x => x.trim().toLowerCase())
+  .filter(x => x),
+
+      points: Number(document.getElementById("primaryMonitorPoints").value || 0)
+    }
+  });
+
+  // SECONDARY
+  document.querySelectorAll(".problemRow").forEach(row => {
+    const disease = row.querySelector(".secDisease").value.trim();
+    if (!disease) return;
+    problems.push({
+      type: "secondary",
+
+
+      disease,
+
+
+      points: Number(row.querySelector(".secPoints").value || 0),
+
+
+      acceptableAnswers: row.querySelector(".secAnswers").value
+        .split(",")
+        .map(x => x.trim().toLowerCase())
+        .filter(x => x),
+
+
+      plan: {
+        expected: row.querySelector(".secPlan").value
+  .split("\n")
+  .map(x => x.trim().toLowerCase())
+  .filter(x => x),
+
+
+        points: Number(row.querySelector(".secPlanPoints").value || 0)
+      },
+
+
+      monitoring: {
+        expected: row.querySelector(".secMonitor").value
+  .split("\n")
+  .map(x => x.trim().toLowerCase())
+  .filter(x => x),
+
+
+        points: Number(row.querySelector(".secMonitorPoints").value || 0)
+      }
+    });
+
+  });
+const scoring = {
+  primary: Number(document.getElementById("newPrimaryPoints").value || 0),
+  secondary: 0
+};
+
+
+const today = new Date().toISOString().split("T")[0];
+
+const disease = document.getElementById("newPrimaryDiagnosis").value
+  .replace(/\s+/g, "-");
+
+const standardizedTitle = `UB_PharmacyCaseWriter_${today}_${disease}`;
+
+// ✅ SINGLE newCase OBJECT
+const newCase = {
+  id: crypto.randomUUID(),
+
+  title: standardizedTitle,
+  displayTitle: titleVal,
+
+  author: document.getElementById("newAuthor").value,
+
+  institution:
+    document.getElementById("newInstitution").value,
+
+  name: document.getElementById("newName").value || "New Patient",
+
+  setting:
+    document.getElementById("newSetting").value === "other"
+      ? document.getElementById("newSettingOther").value
+      : document.getElementById("newSetting").value,
+
+  age: document.getElementById("newAge").value,
+  gender: document.getElementById("newGender").value,
+  race: document.getElementById("newRace").value,
+
+  insurance: document.getElementById("newInsurance").value,
+  allergies: splitInput("newAllergies"),
+  immunizations: document.getElementById("newImmunizations").value,
+
+  chiefComplaint: document.getElementById("newCC").value,
+  intro: document.getElementById("newIntro").value,
+  hpi: document.getElementById("newHPI").value,
+
+  pmh: splitInput("newPMH"),
+  familyHistory: document.getElementById("newFH").value,
+
+  socialHistory: {
+    maritalStatus: document.getElementById("newMarital").value,
+    children: document.getElementById("newChildren").value,
+    alcohol: document.getElementById("newAlcohol").value,
+    tobacco: document.getElementById("newTobacco").value,
+    caffeine: document.getElementById("newCaffeine").value
+  },
+
+functionalStatus: {
+  mobility:
+    document.getElementById("newMobility").value,
+
+  adl:
+    document.getElementById("newADL").value,
+
+  iadl:
+    document.getElementById("newIADL").value,
+
+  caregiverSupport:
+    document.getElementById("newCaregiver").value,
+
+  fallHistory:
+    document.getElementById("newFalls").value,
+
+  additionalNotes:
+    document.getElementById("newFunctionalNotes").value
+},
+
+intakeOutput: {
+  oralIntake:
+    document.getElementById("newOralIntake").value,
+
+  ivIntake:
+    document.getElementById("newIVIntake").value,
+
+  urineOutput:
+    document.getElementById("newUrineOutput").value,
+
+  netBalance:
+    document.getElementById("newNetBalance").value,
+
+  notes:
+    document.getElementById("newIONotes").value
+},
+
+  physicalExam: {
+    notes: document.getElementById("newPE").value,
+    bp: document.getElementById("newBP").value,
+    hr: document.getElementById("newHR").value,
+    temp: document.getElementById("newTemp").value,
+  spo2: document.getElementById("newSpO2").value,
+    weight: document.getElementById("newWeight").value,
+    height: document.getElementById("newHeight").value,
+    bmi: document.getElementById("newBMI").value
+  },
+
+  medications: homeMeds,
+  inpatientMeds: inpatientMeds,
+  labs: labs,
+diagnosticImages: {
+  ekg: splitAndFixLinks("newEKG"),
+  cgm: splitAndFixLinks("newCGM"),
+  chest_xray: splitAndFixLinks("newCXR"),
+},
+
+
+  interviewFactors: interviewFactors,
+  hints: hints,
+  criticalElements: criticalElements,
+  teachingPearls: teachingPearls,
+
+  diagnosis: primaryDiagnosis,
+  diagnoses: acceptableAnswers,
+
+  scoring: scoring,
+  problems: problems
+};
+
+// ✅ SAVE
+cases.push(newCase);
+localStorage.setItem("cases", JSON.stringify(cases));
+  
+  fetch("https://script.google.com/macros/s/AKfycbwdV8WfMbu634y5zb9Y--nKH2CaBGScStle_iRPyZx1tPD8DvYfI-QkxZ9yewPUmN4l/exec", {
+    method: "POST",
+    body: JSON.stringify(newCase)
+  })
+  .then(res => res.json())
+  .then(data => console.log("✅ Case uploaded:", data))
+  .catch(err => console.error("❌ Upload failed", err));
+
+
+  const blob = new Blob(
+    [JSON.stringify(newCase, null, 2)],
+    { type: "application/json" }
+  );
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `${newCase.title.replace(/\s+/g, "_")}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+
+
+  init();
+
+
+  document.querySelectorAll("#facultySection input, #facultySection textarea")
+    .forEach(el => el.value = "");
+
+  alert("✅ Full case created!");
+}
+
+function addHomeMedRow() {
+  const container = document.getElementById("homeMedsContainer");
+
+  const row = document.createElement("div");
+  row.className = "grid grid-cols-4 gap-2 mb-2";
+
+  row.innerHTML = `
+    <input placeholder="Name" class="homeMedName p-2 bg-gray-600 rounded"/>
+    <input placeholder="Dose" class="homeMedDose p-2 bg-gray-600 rounded"/>
+    <input placeholder="Route" class="homeMedRoute p-2 bg-gray-600 rounded"/>
+    <input placeholder="Frequency" class="homeMedFreq p-2 bg-gray-600 rounded"/>
+<input
+  placeholder="Duration (e.g. 3 months)"
+  class="homeMedDuration p-2 bg-gray-600 rounded"
+/>
+    <button onclick="this.parentElement.remove()" class="bg-red-500 px-2 rounded col-span-4">Remove</button>
+  `;
+
+  container.appendChild(row);
+}
+
+function addInterviewRow() {
+  const container = document.getElementById("interviewContainer");
+
+  const row = document.createElement("div");
+  row.className = "flex gap-2 mb-2";
+
+  row.innerHTML = `
+    <input placeholder="Question (e.g., 'Are you ok with injectables?')" 
+      class="interviewKey w-1/2 p-2 bg-gray-600 rounded"/>
+    <input placeholder="Patient response" 
+      class="interviewValue w-1/2 p-2 bg-gray-600 rounded"/>
+    <button onclick="this.parentElement.remove()" 
+      class="bg-red-500 px-2 rounded">X</button>
+  `;
+
+  container.appendChild(row);
+}
+
+function addPearlRow() {
+  const container = document.getElementById("pearlsContainer");
+
+  const row = document.createElement("div");
+  row.className = "flex gap-2 mb-2";
+
+  row.innerHTML = `
+    <input placeholder="Teaching Pearl" class="pearlText w-full p-2 bg-gray-600 rounded"/>
+    <button onclick="this.parentElement.remove()" class="bg-red-500 px-2 rounded">X</button>
+  `;
+
+  container.appendChild(row);
+}
+
+function addHintRow() {
+  const container = document.getElementById("hintsContainer");
+
+  const row = document.createElement("div");
+  row.className = "flex gap-2 mb-2";
+
+  row.innerHTML = `
+    <input placeholder="Hint text" class="hintText w-full p-2 bg-gray-600 rounded"/>
+    <button onclick="this.parentElement.remove()" class="bg-red-500 px-2 rounded">X</button>
+  `;
+
+  container.appendChild(row);
+}
+
+function addLabRow() {
+  const container = document.getElementById("labsContainer");
+
+  const row = document.createElement("div");
+
+row.className = "grid grid-cols-2 gap-2 mb-2 items-center";
+
+  row.innerHTML = `
+    <input 
+      placeholder="Lab name" 
+      class="labName w-1/2 p-2 bg-gray-600 rounded"
+    />
+
+    <input 
+      placeholder="Result (e.g., 8.2% | 8.7% (3 mo ago))" 
+      class="labValue w-1/2 p-2 bg-gray-600 rounded"
+    />
+
+    <button onclick="this.parentElement.remove()" 
+      class="bg-red-500 px-2 rounded">
+      X
+    </button>
+  `;
+
+  container.appendChild(row);
+}
+
+
+function addInpatientMedRow() {
+  const container = document.getElementById("inpatientMedsContainer");
+
+  const row = document.createElement("div");
+  row.className = "grid grid-cols-4 gap-2 mb-2";
+
+  row.innerHTML = `
+    <input placeholder="Name" class="medName p-2 bg-gray-600 rounded"/>
+    <input placeholder="Dose" class="medDose p-2 bg-gray-600 rounded"/>
+    <input placeholder="Route" class="medRoute p-2 bg-gray-600 rounded"/>
+    <input placeholder="Last Given" class="medTime p-2 bg-gray-600 rounded"/>
+    <button onclick="this.parentElement.remove()" class="bg-red-500 px-2 rounded col-span-4">Remove</button>
+  `;
+
+  container.appendChild(row);
+}
+function addSecondaryRow() {
+  const container = document.getElementById("secondaryContainer");
+
+  const count = container.children.length + 1;
+
+  const row = document.createElement("div");
+  row.className = "border border-gray-600 rounded-xl p-4 mb-4 space-y-2 bg-gray-700 problemRow";
+
+  row.innerHTML = `
+    <p class="text-purple-300 font-semibold">Secondary Problem #${count}</p>
+
+    <input placeholder="Disease State"
+      class="secDisease w-full p-2 bg-gray-600 rounded"/>
+
+    <input placeholder="Diagnosis Points"
+      class="secPoints w-full p-2 bg-gray-600 rounded"/>
+
+    <p class="text-sm text-gray-300 font-semibold">Acceptable Answers</p>
+    <textarea placeholder="e.g., HTN, hypertension"
+      class="secAnswers w-full p-2 bg-gray-600 rounded"></textarea>
+
+    <p class="text-sm text-blue-300 font-semibold">Expected Plan</p>
+    <textarea placeholder="e.g., start ACE inhibitor"
+      class="secPlan w-full p-2 bg-gray-600 rounded"></textarea>
+
+    <input placeholder="Plan Points"
+      class="secPlanPoints w-full p-2 bg-gray-600 rounded"/>
+
+    <p class="text-sm text-green-300 font-semibold">Expected Monitoring</p>
+    <textarea placeholder="e.g., BMP, potassium, BP"
+      class="secMonitor w-full p-2 bg-gray-600 rounded"></textarea>
+
+    <input placeholder="Monitoring Points"
+      class="secMonitorPoints w-full p-2 bg-gray-600 rounded"/>
+
+    <button onclick="this.parentElement.remove()"
+      class="w-full bg-red-600 p-2 rounded mt-2">
+      Remove Problem
+    </button>
+  `;
+
+  container.appendChild(row);
+}
+
+
+function addDiagnosisRow() {
+  const container = document.getElementById("diagnosisContainer");
+
+  const row = document.createElement("div");
+  row.className = "flex gap-2 mb-2";
+
+  row.innerHTML = `
+    <input placeholder="Acceptable answer (e.g., statin)"
+      class="diagnosisText w-full p-2 bg-gray-600 rounded"/>
+    <button onclick="this.parentElement.remove()"
+      class="bg-red-500 px-2 rounded">X</button>
+  `;
+
+  container.appendChild(row);
+}
+
+function addCriticalRow() {
+  const container = document.getElementById("criticalContainer");
+
+  const row = document.createElement("div");
+  row.className = "grid grid-cols-3 gap-2 mb-2";
+
+  row.innerHTML = `
+    <input placeholder="Element (e.g., A1c)" class="criticalKey p-2 bg-gray-600 rounded"/>
+    <input placeholder="Points" class="criticalPoints p-2 bg-gray-600 rounded"/>
+    <input placeholder="Feedback" class="criticalValue p-2 bg-gray-600 rounded col-span-3"/>
+    <button onclick="this.parentElement.remove()" class="bg-red-500 px-2 rounded col-span-3">Remove</button>
+  `;
+
+  container.appendChild(row);
+}
+
+function addPlanKeyRow() {
+  const container = document.getElementById("planKeyContainer");
+
+  const row = document.createElement("div");
+  row.className = "grid grid-cols-4 gap-2 mb-2";
+
+  row.innerHTML = `
+    <input placeholder="Disease (e.g., ASCVD)" class="keyDisease p-2 bg-gray-600 rounded"/>
+    <input placeholder="Expected Plan (comma separated)" class="keyPlan p-2 bg-gray-600 rounded"/>
+    <input placeholder="Expected Monitoring (comma separated)" class="keyMonitor p-2 bg-gray-600 rounded"/>
+    <input placeholder="Points" class="keyPoints p-2 bg-gray-600 rounded"/>
+
+    <button onclick="this.parentElement.remove()" 
+      class="bg-red-500 px-2 rounded col-span-4">Remove</button>
+  `;
+
+  container.appendChild(row);
+}
+
+function unlockFaculty() {
+
+  const password = document.getElementById("facultyPassword").value;
+  const correctPassword = "pharmacy";
+
+  if (password === correctPassword) {
+    document.getElementById("facultySection").classList.remove("hidden");
+    alert("✅ Faculty mode unlocked");
+  } else {
+    alert("❌ Incorrect password");
+  }
+}
+
+function enableTeachingMode() {
+
+  const entered =
+    document.getElementById("teachingPassword").value;
+
+  const correctPassword = "faculty";
+
+  if (entered === correctPassword) {
+
+    isTeachingMode = true;
+
+    document.getElementById(
+      "teachingModeBtn"
+    ).innerText =
+      "✅ Teaching Mode Enabled";
+
+    document.getElementById(
+      "teachingModeBtn"
+    ).classList.remove(
+      "bg-indigo-600",
+      "hover:bg-indigo-700"
+    );
+
+    document.getElementById(
+      "teachingModeBtn"
+    ).classList.add(
+      "bg-green-600"
+    );
+
+    alert("✅ Teaching Mode Enabled");
+
+  } else {
+
+    isTeachingMode = false;
+
+    alert("❌ Incorrect Teaching Mode Password");
+
+  }
+}
+
+function buildTeachingOutput({ problems, missedCritical, teachingPearls }) {
+
+  // ✅ PRIMARY CLINICAL FOCUS
+  const primary = (problems || []).find(p => p.type === "primary");
+
+  const primaryFocus = primary
+    ? primary.disease
+    : "General Clinical Assessment";
+
+  // ✅ MISSED ELEMENTS
+  let missedHTML = "";
+
+  if (missedCritical && missedCritical.length > 0) {
+
+    missedHTML = `
+      <div class="bg-yellow-900 p-3 rounded mt-4 border border-yellow-600">
+        <p class="font-semibold text-yellow-300">⚠️ What You Missed</p>
+        ${missedCritical.map(el => `
+          <p class="text-sm text-gray-200 mt-1">
+            • ${el.toUpperCase()} — important for clinical decision-making
+          </p>
+        `).join("")}
+      </div>
+    `;
+  }
+
+  // ✅ TEACHING PEARLS (already built!)
+  let pearlsHTML = "";
+
+  if (teachingPearls && teachingPearls.length > 0) {
+    pearlsHTML = `
+      <div class="bg-gray-800 p-3 rounded mt-4 border border-gray-600">
+        <p class="font-semibold text-yellow-300">📚 Key Teaching Points</p>
+        <ul class="mt-2">
+          ${teachingPearls.map(p => `
+            <li class="ml-4 list-disc text-gray-300">${p}</li>
+          `).join("")}
+        </ul>
+      </div>
+    `;
+  }
+
+  // ✅ HOW TO APPROACH NEXT TIME (STATIC = NO FACULTY WORK)
+  const strategyHTML = `
+    <div class="bg-blue-900 p-3 rounded mt-4 border border-blue-600">
+      <p class="font-semibold text-blue-300">🔁 How to Approach Similar Cases</p>
+      <ul class="ml-4 list-disc text-gray-200 mt-2">
+        <li>Start with the primary disease state or clinical priority</li>
+        <li>Review labs and trends BEFORE forming a plan</li>
+        <li>Evaluate medications and adherence</li>
+        <li>Use guidelines to guide therapy decisions</li>
+      </ul>
+    </div>
+  `;
+
+  return `
+    ${missedHTML}
+    ${pearlsHTML}
+    ${strategyHTML}
+  `;
+}
+
+function checkAnswer() {
+console.log("CURRENT CASE:", currentCase);
+console.log("PROBLEMS:", currentCase.problems);
+
+
+  const feedbackEl = document.getElementById("feedback");
+  feedbackEl.innerHTML = "";
+
+  if (!currentCase) {
+    feedbackEl.innerHTML = "<p class='text-red-400'>Start a case first</p>";
+    return;
+  }
+
+  attempts++;
+
+  // =========================
+  // ✅ COLLECT INPUTS
+  // =========================
+const dxFields = [
+  "primaryDx",
+  "cp_problem1",
+  "cp_problem2",
+  "cp_problem3",
+  "cp_problem4"
+].map(id => document.getElementById(id)?.value || "");
+
+  const dxArray = dxFields
+    .map(x => x.toLowerCase().trim())
+    .filter(Boolean);
+
+  const userAnswer = dxArray.join(" ");
+
+  if (!userAnswer) {
+    feedbackEl.innerHTML = "<p class='text-yellow-300'>Enter an answer</p>";
+    return;
+  }
+
+  sessionData.diagnosis = dxArray;
+  sessionData.endTime = new Date();
+
+sessionData.confidence =
+  document.getElementById("confidence")?.value || "";
+
+sessionData.reflection =
+  document.getElementById("reflection")?.value || "";
+
+  // normalize diagnoses
+  if (!currentCase.diagnoses && currentCase.diagnosis) {
+    currentCase.diagnoses = [currentCase.diagnosis.toLowerCase()];
+   }
+
+  // =========================
+  // ✅ COLLECT CARE PLAN
+  // =========================
+sessionData.carePlan = [0,1,2,3,4].map(i => ({
+  plan: document.getElementById(i === 0 ? "plan_primary" : `cp_plan${i}`)?.value || "",
+  monitoring: document.getElementById(i === 0 ? "monitor_primary" : `cp_monitor${i}`)?.value || ""
+}));
+
+  // =========================
+  // ✅ DIAGNOSIS CHECK
+  // =========================
+  let isCorrect = false;
+  let partialCorrect = false;
+
+  if (currentCase.diagnoses?.length) {
+    isCorrect = currentCase.diagnoses.some(d => userAnswer.includes(d));
+  }
+
+  if (!isCorrect && currentCase.secondaryDiagnoses) {
+    partialCorrect = currentCase.secondaryDiagnoses.some(sec =>
+      dxArray.some(dx =>
+        sec.answers?.some(ans => dx.includes(ans))
+      )
+    );
+  }
+
+  sessionData.correct = isCorrect;
+  sessionData.partialCorrect = partialCorrect;
+
+// =========================
+// ✅ PROBLEM-BASED SCORING
+// =========================
+let totalScore = 0;
+let feedbackBlocks = "";
+
+const userPlansText = `
+${document.getElementById("plan_primary")?.value || ""}
+${document.getElementById("monitor_primary")?.value || ""}
+${[1,2,3,4].map(i =>
+  (document.getElementById(`cp_plan${i}`)?.value || "") + " " +
+  (document.getElementById(`cp_monitor${i}`)?.value || "")
+).join(" ")}
+`.toLowerCase();
+
+currentCase.problems?.forEach((problem, i) => {
+const matchedDx = dxArray.some(dx =>
+  (problem.acceptableAnswers || []).some(ans => dx.includes(ans))
+);
+
+  let problemFeedback = `<div class="bg-gray-700 p-2 rounded mt-2">`;
+
+  // ✅ Build expected plan list (for display)
+  const planText = (sessionData.carePlan?.[i]?.plan || "").toLowerCase();
+  const monitorText = (sessionData.carePlan?.[i]?.monitoring || "").toLowerCase();
+// ✅ Build display lists (FIX)
+const planList = (problem.plan?.expected || [])
+  .map(p => `<li class="ml-4 list-disc">${p}</li>`)
+  .join("");
+
+const monitorList = (problem.monitoring?.expected || [])
+  .map(m => `<li class="ml-4 list-disc">${m}</li>`)
+  .join("");
+
+
+problemFeedback += `
+  <p class="font-semibold text-white">
+    ${problem.disease}
+  </p>
+`;
+
+// ✅ SHOW RECOMMENDED PLAN
+problemFeedback += `
+  <div class="mt-2">
+    <p class="text-sm font-semibold text-blue-300">Recommended Plan:</p>
+    <ul>
+      ${planList || `<li class="ml-4 text-gray-500">None specified</li>`}
+    </ul>
+  </div>
+`;
+
+// ✅ SHOW RECOMMENDED MONITORING
+problemFeedback += `
+  <div class="mt-2">
+    <p class="text-sm font-semibold text-purple-300">Recommended Monitoring:</p>
+    <ul>
+      ${monitorList || `<li class="ml-4 text-gray-500">None specified</li>`}
+    </ul>
+  </div>
+`;
+
+problemFeedback += `</div>`;
+feedbackBlocks += problemFeedback;
+
+});
+// =========================
+// ✅ AFTER LOOP (FIXED SCOPE)
+// =========================
+sessionData.carePlanScore = totalScore;
+let feedbackHTML = `
+<p class="text-lg font-semibold text-blue-300">
+`;
+
+// =========================
+// ✅ SECONDARY FEEDBACK
+// =========================
+if (currentCase.secondaryDiagnoses?.length) {
+  const identified = [];
+  const missed = [];
+  currentCase.secondaryDiagnoses.forEach(sec => {
+    const hit = sec.answers?.some(a => userAnswer.includes(a));
+    if (hit) identified.push(sec.disease);
+    else missed.push(sec);
+  });
+  feedbackHTML += `
+    <div class="bg-gray-800 p-3 rounded mt-4 border border-gray-600">
+      <p class="font-semibold text-purple-300">Secondary Diagnoses:</p>
+      ${identified.length ? `
+        <p class="text-green-400 mt-2">✅ Identified:</p>
+        <ul>${identified.map(d => `<li class="ml-4 list-disc">${d}</li>`).join("")}</ul>
+      ` : ""}
+      ${missed.length ? `
+        <p class="text-red-400 mt-2">❌ Missed:</p>
+        <ul>
+          ${missed.map(sec => `
+            <li class="ml-4 list-disc">
+              ${sec.disease}
+              ${sec.feedback ? `<br><span class="text-gray-300 text-sm">${sec.feedback}</span>` : ""}
+            </li>
+          `).join("")}
+        </ul>
+      ` : ""}
+    </div>
+  `;
+}
+// =========================
+// ✅ CRITICAL ELEMENTS
+// =========================
+sessionData.missedCritical = Object.keys(currentCase.criticalElements || {})
+  .filter(el => !sessionData.requestedElements.has(el.toLowerCase()));
+if (sessionData.missedCritical.length) {
+  feedbackHTML += `
+    <div class="mt-4">
+<p class="text-yellow-300 font-semibold mt-4">
+  ⚠️ Missed Clinical Elements
+</p>
+      ${sessionData.missedCritical.map(el => {
+        const d = currentCase.criticalElements[el];
+        return `<div class="bg-gray-700 p-2 rounded mt-1">
+          <strong>${el}</strong> (${d?.points || 0} pts): ${d?.feedback || ""}
+        </div>`;
+      }).join("")}
+    </div>
+  `;
+}
+// =========================
+/// ✅ NEW SCORING ENGINE (problems-based)
+let score = 0;
+let totalPossible = 0;
+let breakdown = []
+
+// NEW STRUCTURE
+let correctDx = [];
+let missedDx = [];
+let planItems = [];
+let monitorItems = [];
+let criticalHits = [];
+let criticalMisses = [];
+
+const studentAnswers = dxArray;
+
+
+(currentCase.problems || []).forEach((p, i) => {
+
+  const acceptable = (p.acceptableAnswers || []).map(a => a.toLowerCase());
+
+  const matched = studentAnswers.some(ans =>
+    acceptable.some(acc => ans.includes(acc))
+  );
+
+  totalPossible += p.points || 0;
+
+  if (matched) {
+    score += p.points || 0;
+    correctDx.push(`✅ ${p.disease}`);
+  } else {
+    missedDx.push(`❌ ${p.disease}`);
+  }
+
+  // display only (not scored)
+  planItems.push(`🔍 ${p.disease} → Review below`);
+});
+
+Object.entries(currentCase.criticalElements || {}).forEach(([el, data]) => {
+
+  totalPossible += data.points || 0;
+
+  if (sessionData.requestedElements?.has(el)) {
+
+    score += data.points || 0;
+
+    criticalHits.push(`
+      <div class="bg-green-900 p-2 rounded mt-1">
+        <strong>✅ ${el.toUpperCase()} (+${data.points})</strong><br>
+        ${data.feedback || ""}
+      </div>
+    `);
+
+  } else {
+
+    criticalMisses.push(`
+      <div class="bg-red-900 p-2 rounded mt-1">
+        <strong>❌ ${el.toUpperCase()}</strong><br>
+        ${data.feedback || ""}
+      </div>
+    `);
+  }
+});
+
+// ✅ Save
+sessionData.totalScore = score;
+
+feedbackHTML += `
+<div class="mt-4 border-t border-gray-600 pt-4 space-y-4">
+
+  <!-- SCORE -->
+  <div>
+    <p class="text-xl font-bold text-green-300">
+      📊 Score: ${score} / ${totalPossible}
+    </p>
+  </div>
+
+  <!-- DIAGNOSES -->
+  <div>
+    <p class="text-purple-300 font-semibold">🧠 Diagnoses</p>
+    <div class="text-sm mt-1 space-y-1">
+      ${correctDx.join("<br>") || ""}
+      ${missedDx.join("<br>") || ""}
+    </div>
+  </div>
+
+  <!-- CRITICAL ELEMENTS -->
+  <div>
+    <p class="text-blue-300 font-semibold">🧪 Clinical Data</p>
+    <div class="text-sm mt-1 space-y-1">
+<p class="text-green-300 font-semibold">
+Collected Critical Elements
+</p>
+
+${criticalHits.join("")}
+
+<br>
+
+<p class="text-red-300 font-semibold mt-3">
+Missed Critical Elements
+</p>
+
+${criticalMisses.join("")}
+    </div>
+  </div>
+
+  <!-- CARE PLAN -->
+  <div>
+    <p class="text-yellow-300 font-semibold">📋 Care Plan Review</p>
+    <div class="text-sm mt-1 space-y-1">
+      ${planItems.join("<br>")}
+    </div>
+  </div>
+
+</div>
+`;
+
+
+feedbackHTML += `
+<details class="mt-4 bg-gray-800 rounded border border-gray-600 p-3">
+  
+  <summary class="cursor-pointer text-purple-300 font-semibold flex items-center gap-2 hover:text-purple-200">
+    📋 View Problem Breakdown
+  </summary>
+
+  <div class="mt-3 space-y-2 text-sm text-gray-300">
+    ${feedbackBlocks}
+  </div>
+
+</details>
+`;
+
+const percentScore = totalPossible > 0
+  ? (score / totalPossible) * 100 
+  : 0;
+
+// ✅ GATE FEEDBACK
+if (percentScore < 35) {
+
+  feedbackEl.innerHTML = `
+    <div class="bg-gray-800 p-4 rounded border border-yellow-500">
+      
+      <p class="text-yellow-300 font-semibold text-lg">
+        ⚠️ Keep Working — Feedback Locked
+      </p>
+
+      <p class="text-gray-300 mt-2">
+        You must achieve at least <strong>35%</strong> to unlock full feedback.
+      </p>
+
+      <p class="text-gray-400 mt-2">
+        Try the following:
+      </p>
+
+      <ul class="list-disc ml-5 text-gray-300 mt-2">
+        <li>Re-evaluate key labs and trends</li>
+        <li>Review medications and adherence</li>
+        <li>Use hints to guide your thinking</li>
+        <li>Consider the primary disease state more carefully</li>
+      </ul>
+
+      <button onclick="getHint()" 
+        class="w-full mt-4 bg-yellow-500 hover:bg-yellow-600 p-2 rounded">
+        💡 Use a Hint
+      </button>
+
+    </div>
+  `;
+
+  return; // ✅ HARD STOP — prevents showing full feedback
+}
+
+// ✅ BUILD TEACHING OUTPUT
+const teachingOutput = buildTeachingOutput({
+  problems: currentCase.problems,
+  missedCritical: sessionData.missedCritical,
+  teachingPearls: currentCase.teachingPearls
+});
+
+caseSubmitted = true;
+
+feedbackEl.innerHTML =
+  feedbackHTML +
+  teachingOutput +
+  getDownloadButtons();
+
+
+const avgTimeBetweenQueries =
+  sessionData.querySequence.length > 1
+    ? Math.round(
+        sessionData.querySequence.reduce(
+          (sum, q) => sum + (q.timeSinceLastQuery || 0),
+          0
+        ) / sessionData.querySequence.length / 1000
+      )
+    : 0;
+
+sessionData.status = "submitted";
+sessionData.endTime = Date.now();
+
+const activeDuration =
+  sessionData.lastActiveTime - sessionData.startTime;
+
+const payload = {
+  // ✅ Core
+  studentName: sessionData.studentName,
+  case: sessionData.caseTitle,
+  timestamp_submit: new Date().toISOString(),
+
+  duration_active_seconds: Math.floor(activeDuration / 1000),
+  duration_total_seconds: Math.floor((Date.now() - sessionData.startTime) / 1000),
+  status: "submitted",
+  last_active_time: sessionData.lastActiveTime,
+  attempts: attempts,
+  hintUsage: hintCount,
+
+  // ✅ Performance
+  correct: sessionData.correct ? 1 : 0,
+  total_score: sessionData.totalScore || 0,
+
+  // ✅ Diagnosis
+  diagnosis_primary_text: document.getElementById("primaryDx")?.value || "",
+  secondary_1_text: document.getElementById("cp_problem1")?.value || "",
+  secondary_2_text: document.getElementById("cp_problem2")?.value || "",
+  secondary_3_text: document.getElementById("cp_problem3")?.value || "",
+  secondary_4_text: document.getElementById("cp_problem4")?.value || "",
+
+  // ✅ Care plan
+  plan_text: document.getElementById("plan_primary")?.value || "",
+  monitoring_text: document.getElementById("monitor_primary")?.value || "",
+
+  // ✅ Query analytics
+  total_queries: sessionData.queries?.length || 0,
+  vague_queries_count: sessionData.vagueQueryCount || 0,
+  unknown_queries_count: sessionData.unknownQueryCount || 0,
+  redundant_query_count: sessionData.redundantQueries || 0,
+  avg_time_between_queries: avgTimeBetweenQueries,
+
+  query_style:
+    (sessionData.queries?.length || 0) > 15 ? "shotgun" : "focused",
+
+  // ✅ Critical elements
+  missedCriticalList: (sessionData.missedCritical || []).join(", "),
+  missed_critical_count: (sessionData.missedCritical || []).length,
+
+  // ✅ Meta
+  grading_version: "v2.1",
+  case_difficulty: String(currentCase?.difficulty || ""),
+  confidence: sessionData.confidence || "",
+  session_id: String(sessionData.sessionID || ""),
+
+  // ✅ SAFE (fixed)
+  query_sequence: (sessionData.querySequence || [])
+    .slice(-10)
+    .map(q => q.query)
+    .join(" | "),
+
+  hint_timestamps: (sessionData.hintTimestamps || [])
+    .slice(-5)
+    .map(h => h.timestamp)
+    .join(" | "),
+
+  // ✅ Derived metrics
+  diagnosis_correct: sessionData.correct ? 1 : 0,
+
+  num_diagnoses_entered: [
+    document.getElementById("primaryDx")?.value,
+    document.getElementById("cp_problem1")?.value,
+    document.getElementById("cp_problem2")?.value,
+    document.getElementById("cp_problem3")?.value,
+    document.getElementById("cp_problem4")?.value
+  ].filter(x => x && x.trim() !== "").length,
+
+  plan_elements_count: sessionData.carePlan?.length || 0,
+  monitoring_elements_count: sessionData.carePlan?.length || 0
+};
+
+
+console.log("PAYLOAD OBJECT:", payload);
+console.log("PAYLOAD JSON:", JSON.stringify(payload));
+
+fetch("https://script.google.com/macros/s/AKfycbypAQVZor096VM52kx76zoG7QAk8B-abxdlLobDQ6p0g5aNdoircm_Tp3YrlPuNyHAefA/exec", {
+  method: "POST",
+  body: JSON.stringify(payload)
+});
+
+console.log("✅ Data sent (no-cors)");
+}
+
+function clearCases() {
+  if (confirm("Are you sure? This deletes all saved cases.")) {
+    localStorage.removeItem("cases");
+    location.reload();
+  }
+}
+
+
+
+function generateCaseAI() {
+
+  const userPrompt = document.getElementById("aiPromptInput").value.trim();
+  const difficulty = document.getElementById("aiDifficulty").value;
+  const topic = document.getElementById("aiTopic").value;
+
+
+ const basePrompt = `
+Create a COMPLETE pharmacy patient case in STRICT JSON format that matches this system.
+
+========================
+REQUIRED JSON STRUCTURE
+========================
+
+{
+  "title": "",
+  "name": "",
+  "age": "",
+  "gender": "",
+  "race": "",
+  "address": "",
+  "setting": "inpatient | outpatient-community | outpatient-clinic",
+
+
+
+
+  "chiefComplaint": "",
+  "intro": "",
+  "hpi": "",
+
+  "insurance": "",
+ "allergies": [
+  "Penicillin - rash",
+  "Sulfa - hives"
+],
+  "immunizations": "",
+
+
+  "pmh": [],
+  "familyHistory": "",
+
+  "patientResponses": {
+    "adherence": "",
+    "diet": ""
+  },
+
+
+  "socialHistory": {
+    "maritalStatus": "",
+    "children": "",
+    "alcohol": "",
+    "tobacco": "",
+    "caffeine": ""
+  },
+
+"functionalStatus": {
+  "mobility": "",
+  "adl": "",
+  "iadl": "",
+  "caregiverSupport": "",
+  "fallHistory": "",
+  "additionalNotes": ""
+},
+
+  "medications": [
+    {
+      "name": "",
+      "dose": "",
+      "route": "",
+      "frequency": "",
+"duration": ""
+    }
+  ],
+
+
+  "inpatientMeds": [
+    {
+      "name": "",
+      "dose": "",
+      "route": "",
+      "lastGiven": ""
+    }
+  ],
+
+
+  "physicalExam": {
+    "notes": "",
+    "bp": "",
+    "hr": "",
+    "temp": "",
+"spo2": "",
+    "weight": "",
+    "height": "",
+    "bmi": ""
+  },
+
+"intakeOutput": {
+  "oralIntake": "",
+  "ivIntake": "",
+  "urineOutput": "",
+  "netBalance": "",
+  "notes": ""
+},
+
+"labs": {
+  "A1c": {
+    "current": "8.2%",
+    "history": [
+      { "value": "9.1%", "date": "6 months ago" },
+      { "value": "8.7%", "date": "3 months ago" }
+    ]
+  }
+},
+
+
+  "interviewFactors": {
+    "question": "response"
+  },
+
+  "hints": [],
+
+
+  "teachingPearls": [],
+
+
+  "criticalElements": {
+    "a1c": {
+      "points": 2,
+      "feedback": "Important for glycemic control assessment"
+    }
+  },
+
+
+  "problems": [
+    {
+      "type": "primary",
+      "disease": "",
+      "points": 5,
+      "acceptableAnswers": [],
+      "plan": {
+        "expected": [],
+        "points": 3
+      },
+      "monitoring": {
+        "expected": [],
+        "points": 2
+      }
+    }
+  ]
+}
+
+
+========================
+CRITICAL ALIGNMENT RULES
+========================
+
+- medications MUST be structured objects (NOT strings)
+- interviewFactors must be patient specific such as concern for cost, prefer lifestyle modifications over medications, or additional factors they should influence plan or monitoring.
+- interviewFacotors should be in complete sentences for both the question the student should ask and the output once the question is asked.
+- planKeys define grading for care plans (plans + monitoring separately)
+
+
+========================
+CRITICAL ELEMENT KEYS (STRICT)
+========================
+
+
+Use ONLY these exact keys:
+
+wbc, rbc, hgb, hct, plt, mcv,
+pt, inr, aptt,
+esr, crp,
+sodium, potassium, chloride, bicarbonate,
+bun, creatinine, egfr, glucose, calcium,
+alt, ast, alp, bilirubin, albumin,
+ldl, hdl, triglycerides, totalcholesterol,
+nonHdl, apob,
+tsh, a1c,
+troponin, bnp, ejectionfraction,
+iron, ferritin, tibc, b12, folate,
+psa, hcg, vitals
+intakeoutput,
+urineoutput,
+fluidbalance, functionalstatus
+
+========================
+Only include elements clinically relevant to the case.
+========================
+
+- Labs MUST use one of two formats:
+
+1. Single value:
+"LDL": "142 mg/dL"
+
+2. Trend format (RECOMMENDED for realism):
+"A1c": {
+  "current": "8.2%",
+  "history": [
+    { "value": "8.7%", "date": "3 months ago" },
+    { "value": "9.1%", "date": "6 months ago" }
+  ]
+}
+
+REQUIREMENTS:
+
+- Include 2–3 prior values
+- Dates MUST be human-readable
+- Trends should reflect clinical progression (worsening or improving)
+
+
+PLAN AND MONITORING FORMAT (CRITICAL):
+- Plans and monitoring must be written as CLINICAL ACTION STATEMENTS, not single keywords or drug names
+- Plans should include precise medications with clinically relevant dosage and administration
+- Monitoring should include precise adverse effects to monitor and labs values to collect with appropritate timelines.
+- Each item should describe a meaningful clinical action a pharmacist or provider would take
+- Each expected plan recommendation MUST be stored as its own separate array element.
+- Each expected monitoring recommendation MUST be stored as its own separate array element.
+
+✅ GOOD Plan Examples:
+
+- Provide adherence counseling
+- Recommend lifestyle modifications
+- Initiate atorvastatin 80 mg once daily
+
+❌ BAD Plan Examples (DO NOT USE):
+
+- statin
+- atorvastatin
+- meds
+- labs
+
+✅ GOOD Monitoring Examples:
+- Monitor A1c every 3 months 
+- Monitor blood glucose at leat twice daily
+- Monitor liver function tests in 4 - 12 weeks
+- Monitor LDL cholesterol in 4 - 12 weeks
+
+❌ BAD Monitoring Examples:
+- a1c
+- glucose
+- labs
+
+FORMAT RULES:
+- Each plan and monitoring item must be a COMPLETE phrase starting with a verb
+- Each item must stand alone as a clear clinical recommendation
+- Use 2–4 plan items per problem
+- Use 1–3 monitoring items per problem
+
+CRITICAL JSON ARRAY RULE
+
+Each recommendation must be its own array item.
+
+CORRECT:
+
+"expected": [
+  "Confirm the blood pressure pattern with home monitoring",
+  "Recommend a DASH-style dietary pattern",
+  "Assess cardiovascular risk",
+  "Initiate antihypertensive therapy if indicated"
+]
+
+INCORRECT:
+
+"expected": [
+  "Confirm the blood pressure pattern, recommend a DASH-style dietary pattern, assess cardiovascular risk, initiate antihypertensive therapy if indicated"
+]
+
+ALLERGY RULES
+
+allergies must be an array of strings
+
+GOOD:
+["Penicillin - rash","Sulfa - hives"]
+
+GOOD:
+["No known drug allergies"]
+
+BAD:
+[
+  {
+    "substance":"Penicillin",
+    "reaction":"Rash"
+  }
+]
+
+HPI RULES (STRICT)
+
+The HPI should contain only factual patient history and symptoms.
+
+The HPI must NOT include:
+
+- Assessment statements
+- Probable diagnoses
+- Suspected drug therapy problems
+- Clinical interpretations
+- Recommendations
+- Learning objectives
+- Therapeutic goals
+- Statements about what the student should determine
+- Statements beginning with phrases such as:
+  - "This is consistent with..."
+  - "The patient likely has..."
+  - "The clinician should..."
+  - "Students should..."
+  - "The learner should..."
+  - "Consider..."
+  - "Evaluate whether..."
+
+GOOD HPI:
+
+"The patient reports bilateral ankle swelling beginning 6 weeks after starting amlodipine. The swelling is worse in the evening and improves overnight."
+
+BAD HPI:
+
+"The presentation is consistent with amlodipine-induced peripheral edema."
+
+BAD HPI:
+
+"The student should evaluate whether amlodipine is causing the edema."
+
+BAD HPI:
+
+"The clinician should select an alternative antihypertensive agent."
+
+ADDRESS / LOCATION REQUIREMENT (STRICT):
+- Every case must include a valid 5-digit U.S. ZIP code
+- ZIP codes must resemble real geographic regions
+- Do NOT generate random or invalid ZIP formats
+- Do NOT omit ZIP code under any circumstance
+
+INTRO RULES
+
+The introduction should establish the patient encounter.
+
+The introduction must NOT:
+
+- Reveal diagnoses
+- Reveal drug therapy problems
+- Describe the educational objectives
+- Explain what students should assess
+- Describe expected interventions
+
+
+LAB HISTORY RULES (CRITICAL):
+
+- Labs may be either:
+  1. A string (if no history is needed)
+     Example: "LDL": "142 mg/dL"
+
+  2. An object with current + history
+     Example:
+     "A1c": {
+       "current": "8.2%",
+       "history": [
+         { "value": "9.1%", "date": "6 months ago" },
+         { "value": "8.7%", "date": "3 months ago" }
+       ]
+     }
+
+- Include history for:
+  • chronic diseases (A1c, LDL, creatinine)
+  • conditions where trends matter
+
+- Use 2–3 historical values maximum
+- Dates must be human-readable (e.g., "3 months ago")
+
+========================
+FUNCTIONAL STATUS REQUIREMENTS
+========================
+
+Include realistic functional status information.
+
+Possible examples:
+
+- Independent in all activities of daily living
+- Requires assistance with bathing and dressing
+- Uses a cane or walker
+- Uses a wheelchair
+- History of falls
+- Difficulty managing medications
+- Lives independently but receives caregiver support
+- Difficulty administering injectable medications
+- Limited dexterity affecting inhaler use
+
+Generate all fields:
+
+mobility
+adl
+iadl
+caregiverSupport
+fallHistory
+additionalNotes
+
+Functional status should meaningfully influence therapeutic decision-making when appropriate.
+
+For patients age ≥65 years, include realistic functional status and mobility information.
+
+========================
+CLINICAL QUALITY RULES
+========================
+ADDITIONAL CLINICAL COMPLEXITY REQUIREMENTS
+
+Generate a pharmacy faculty-quality case suitable for a PharmD therapeutics laboratory, pharmacotherapy course, active learning exercise, or objective structured clinical assessment.
+
+Every case must include:
+
+- One primary disease state
+- At least two secondary disease states
+- Multiple medication-related problems
+- At least one adherence, cost, or patient preference barrier
+- Multiple opportunities for medication optimization
+- Multiple clinically relevant abnormal findings
+
+Cases should require learners to:
+
+- Gather information
+- Interpret laboratory values
+- Review medications
+- Prioritize disease states
+- Identify drug therapy problems
+- Develop evidence-based care plans
+
+Simple single-disease cases are not acceptable.
+
+- Must be realistic for pharmacy learners
+- Include 3–6 labs minimum
+- Vitals must align with disease state
+- Diagnoses should be only the disease states such as, "Primary ASCVD Prevention", "Type 2 diabetes mellitus", "Chronic kidney disease", not "Chronic kidney disease needing reduction in metformin dosing"
+- Include 2–4 secondary diagnoses
+- Secondary diagnoses should contribute meaningfully to patient complexity
+- Include medication decision-making challenges
+- Avoid rare diseases unless explicitly requested
+
+For patients with:
+
+- Heart failure
+- Acute kidney injury
+- Chronic kidney disease
+- Sepsis
+- Critical illness
+- Fluid overload
+- Aggressive diuresis
+
+Include realistic intake/output data.
+
+Examples:
+
+Urine Output: 350 mL/day
+Net Balance: +2200 mL
+
+Urine Output: 2.5 L/day
+Net Balance: -1800 mL
+
+Include clinically meaningful volume status information when relevant.
+
+
+HINT DESIGN REQUIREMENTS (CRITICAL)
+
+Each case MUST include 3–5 hints that follow a TIERED (adaptive) structure:
+
+HINT STRUCTURE:
+
+Hints must progress from general → specific → directive:
+
+Level 1 (Broad Guidance):
+- Provide general clinical direction
+- Encourage thinking, not answers
+- Example: "Consider cardiovascular risk factors contributing to this patient's condition"
+
+Level 2 (Focused Clue):
+- Narrow toward the key issue
+- Direct attention to important data
+- Example: "Pay attention to the LDL level and overall ASCVD risk"
+
+Level 3 (Near-Answer Guidance):
+- Almost reveal answer, but still require synthesis
+- Example: "This patient meets criteria for statin therapy for primary prevention"
+
+Level 4–5 (Optional, Advanced Cases Only):
+- Provide actionable clinical insight or guideline reference
+
+REQUIREMENTS:
+
+- Each hint must build upon the previous one
+- Avoid repetition across hint levels
+- Avoid giving the full answer too early
+- Hints must align directly with the primary problem
+- Use clear, concise clinical language
+
+DO NOT:
+
+- Provide the final diagnosis explicitly in early hints
+- Repeat the same concept across levels
+- Use vague or generic language
+
+GOAL:
+
+Hints should simulate a preceptor guiding a learner step-by-step toward clinical reasoning.
+
+
+CASE COMPLETENESS CHECK
+
+Before returning JSON verify:
+
+- One primary disease state exists
+- At least two secondary disease states exist
+- At least five critical elements exist
+- At least five interview factors exist
+- Between three and five hints exist
+- At least three teaching pearls exist
+
+If any element is missing, revise the case before returning JSON.
+
+========================
+FORMATTING RULES (STRICT)
+========================
+
+- VALID JSON ONLY
+- NO markdown
+- NO explanations
+- NO HTML
+- NO trailing commas
+- Use ONLY double quotes
+
+Return ONLY JSON
+`;
+
+
+  let structuredExtras = "";
+
+
+
+
+  if (difficulty) structuredExtras += `
+Difficulty: ${difficulty}`;
+  if (topic) structuredExtras += `
+Topic: ${topic}`;
+
+
+
+ const finalPrompt =
+  basePrompt +
+  structuredExtras +
+  (userPrompt
+    ? "Additional instructions: " + userPrompt
+    : "");
+
+navigator.clipboard.writeText(finalPrompt);
+
+window.open(
+  "https://chatgpt.com",
+  "_blank"
+);
+
+alert(`
+✅ Prompt copied to clipboard!
+
+1. Paste into ChatGPT
+2. Generate the case
+3. Copy the JSON output
+4. Paste it into the "Paste AI JSON" box
+5. Click "✅ Load AI Case"
+`);
+}
+
+
+
+function loadCaseIntoBuilder(c) {
+
+
+
+
+  document.getElementById("facultySection").classList.remove("hidden");
+
+
+
+
+  // ✅ BASIC
+  document.getElementById("newTitle").value = c.title || "";
+  document.getElementById("newName").value = c.name || "";
+  document.getElementById("newAge").value = c.age || "";
+  document.getElementById("newGender").value = c.gender || "";
+document.getElementById("newRace").value = c.race || "";  
+  document.getElementById("newCC").value = c.chiefComplaint || "";
+  document.getElementById("newIntro").value = c.intro || "";
+document.getElementById("newHPI").value = c.hpi || "";
+  
+  // ✅ HISTORY
+  document.getElementById("newPMH").value = (c.pmh || []).join(", ");
+  document.getElementById("newFH").value = c.familyHistory || "";
+
+
+
+
+  // ✅ DEMOGRAPHICS
+  document.getElementById("newInsurance").value = c.insurance || "";
+  document.getElementById("newAllergies").value = (c.allergies || []).join(", ");
+  document.getElementById("newImmunizations").value = c.immunizations || "";
+
+  // ✅ SOCIAL HISTORY
+  if (c.socialHistory) {
+    document.getElementById("newMarital").value = c.socialHistory.maritalStatus || "";
+    document.getElementById("newChildren").value = c.socialHistory.children || "";
+    document.getElementById("newAlcohol").value = c.socialHistory.alcohol || "";
+    document.getElementById("newTobacco").value = c.socialHistory.tobacco || "";
+    document.getElementById("newCaffeine").value = c.socialHistory.caffeine || "";
+  }
+
+if (c.functionalStatus) {
+
+  document.getElementById("newMobility").value =
+    c.functionalStatus.mobility || "";
+
+  document.getElementById("newADL").value =
+    c.functionalStatus.adl || "";
+
+  document.getElementById("newIADL").value =
+    c.functionalStatus.iadl || "";
+
+  document.getElementById("newCaregiver").value =
+    c.functionalStatus.caregiverSupport || "";
+
+  document.getElementById("newFalls").value =
+    c.functionalStatus.fallHistory || "";
+
+  document.getElementById("newFunctionalNotes").value =
+    c.functionalStatus.additionalNotes || "";
+}
+
+  // ✅ PHYSICAL EXAM
+  if (c.physicalExam) {
+    document.getElementById("newPE").value = c.physicalExam.notes || "";
+    document.getElementById("newBP").value = c.physicalExam.bp || "";
+    document.getElementById("newHR").value = c.physicalExam.hr || "";
+    document.getElementById("newTemp").value = c.physicalExam.temp || "";
+document.getElementById("newSpO2").value = c.physicalExam?.spo2 || "";
+    document.getElementById("newWeight").value = c.physicalExam.weight || "";
+    document.getElementById("newHeight").value = c.physicalExam.height || "";
+    document.getElementById("newBMI").value = c.physicalExam.bmi || "";
+  }
+
+if (c.intakeOutput) {
+
+  document.getElementById("newOralIntake").value =
+    c.intakeOutput.oralIntake || "";
+
+  document.getElementById("newIVIntake").value =
+    c.intakeOutput.ivIntake || "";
+
+  document.getElementById("newUrineOutput").value =
+    c.intakeOutput.urineOutput || "";
+
+  document.getElementById("newNetBalance").value =
+    c.intakeOutput.netBalance || "";
+
+  document.getElementById("newIONotes").value =
+    c.intakeOutput.notes || "";
+}
+
+
+  // ✅ LABS
+  document.getElementById("labsContainer").innerHTML = "";
+if (c.labs) {
+  Object.entries(c.labs).forEach(([name, value]) => {
+
+    addLabRow();
+
+    const last = document.querySelector("#labsContainer > div:last-child");
+
+    last.querySelector(".labName").value = name;
+
+    // ✅ FIX: Convert object back to string
+    if (typeof value === "object" && value !== null) {
+
+      let formatted = value.current || "";
+
+      if (value.history && value.history.length > 0) {
+        const historyStr = value.history
+          .map(h => `${h.value} (${h.date})`)
+          .join(", ");
+
+        formatted += ` | ${historyStr}`;
+      }
+
+      last.querySelector(".labValue").value = formatted;
+
+    } else {
+      // ✅ Normal case
+      last.querySelector(".labValue").value = value;
+    }
+  });
+}
+
+
+document.getElementById("newEKG").value = c.diagnosticImages?.ekg || "";
+document.getElementById("newCGM").value = c.diagnosticImages?.cgm || "";
+document.getElementById("newCXR").value = c.diagnosticImages?.chest_xray || "";
+
+
+
+  // ✅ MEDICATIONS
+  document.getElementById("homeMedsContainer").innerHTML = "";
+(c.medications || []).forEach(m => {
+  addHomeMedRow();
+  const last = document.querySelector("#homeMedsContainer > div:last-child");
+
+  if (typeof m === "string") {
+    last.querySelector(".homeMedName").value = m;
+  } else {
+    last.querySelector(".homeMedName").value = m.name || "";
+    last.querySelector(".homeMedDose").value = m.dose || "";
+    last.querySelector(".homeMedRoute").value = m.route || "";
+    last.querySelector(".homeMedFreq").value = m.frequency || "";
+ last.querySelector(".homeMedDuration").value = m.duration || ""; }
+});
+
+
+document.getElementById("interviewContainer").innerHTML = "";
+
+
+if (c.interviewFactors) {
+  Object.entries(c.interviewFactors).forEach(([q, a]) => {
+    addInterviewRow();
+    const rows = document.querySelectorAll("#interviewContainer > div");
+    const last = rows[rows.length - 1];
+last.querySelector(".interviewKey").value = q;
+
+if (typeof a === "object") {
+
+  last.querySelector(".interviewValue").value =
+    `Question: ${a.question || ""}
+
+Response: ${a.response || ""}`;
+
+} else {
+
+  last.querySelector(".interviewValue").value = a;
+}
+  });
+}
+
+
+document.getElementById("inpatientMedsContainer").innerHTML = "";
+
+(c.inpatientMeds || []).forEach(m => {
+  addInpatientMedRow();
+
+  const last = document.querySelector("#inpatientMedsContainer > div:last-child");
+  if (!last) return;
+
+  last.querySelector(".medName").value = m.name || "";
+  last.querySelector(".medDose").value = m.dose || "";
+  last.querySelector(".medRoute").value = m.route || "";
+  last.querySelector(".medTime").value = m.lastGiven || "";
+});
+
+
+
+  // ✅ HINTS
+document.getElementById("hintsContainer").innerHTML = "";
+
+
+(c.hints || []).forEach(h => {
+  addHintRow();
+
+  const rows = document.querySelectorAll("#hintsContainer .hintText");
+  rows[rows.length - 1].value = h;
+});
+
+
+  // ✅ CRITICAL ELEMENTS
+document.getElementById("criticalContainer").innerHTML = "";
+
+if (c.criticalElements) {
+  Object.entries(c.criticalElements).forEach(([key, val]) => {
+    addCriticalRow();
+
+    const rows = document.querySelectorAll("#criticalContainer > div");
+    const last = rows[rows.length - 1];
+
+    last.querySelector(".criticalKey").value = key;
+
+
+    // ✅ SUPPORT BOTH FORMATS
+    if (typeof val === "object") {
+      last.querySelector(".criticalPoints").value = val.points || 0;
+      last.querySelector(".criticalValue").value = val.feedback || "";
+    } else {
+      last.querySelector(".criticalPoints").value = 0;
+      last.querySelector(".criticalValue").value = val;
+    }
+  });
+}
+
+  // ✅ PEARLS
+document.getElementById("pearlsContainer").innerHTML = "";
+
+(c.teachingPearls || []).forEach(p => {
+  addPearlRow();
+
+  const rows = document.querySelectorAll("#pearlsContainer .pearlText");
+  rows[rows.length - 1].value = p;
+});
+
+const primary = (c.problems || []).find(p => p.type === "primary");
+
+console.log("PRIMARY OBJECT:", primary);
+console.log("PRIMARY POINTS:", primary?.points);
+
+if (primary) {
+  document.getElementById("newPrimaryDiagnosis").value = primary.disease || "";
+  document.getElementById("newPrimaryPoints").value = primary.points || "";
+
+  document.getElementById("primaryPlanPoints").value =
+    primary.plan?.points || "";
+
+  document.getElementById("primaryMonitorPoints").value =
+    primary.monitoring?.points || "";
+
+  document.getElementById("primaryPlanExpected").value =
+    (primary.plan?.expected || []).join(", ");
+
+  document.getElementById("primaryMonitorExpected").value =
+    (primary.monitoring?.expected || []).join(", ");
+}
+
+
+document.getElementById("diagnosisList").value =
+  (c.diagnoses && c.diagnoses.length
+    ? c.diagnoses
+    : primary?.acceptableAnswers || [])
+  .join(",");
+
+document.getElementById("secondaryContainer").innerHTML = "";
+
+(c.problems || [])
+  .filter(p => p.type === "secondary")
+  .forEach(sec => {
+
+    addSecondaryRow();
+
+    const last = document.querySelector("#secondaryContainer > div:last-child");
+    if (!last) return;
+
+    last.querySelector(".secDisease").value = sec.disease || "";
+    last.querySelector(".secPoints").value = sec.points || "";
+
+    last.querySelector(".secAnswers").value =
+      (sec.acceptableAnswers || []).join(", ");
+
+    // ✅ expected text
+    if (last.querySelector(".secPlan")) {
+      last.querySelector(".secPlan").value =
+        (sec.plan?.expected || []).join(", ");
+    }
+
+    if (last.querySelector(".secMonitor")) {
+      last.querySelector(".secMonitor").value =
+        (sec.monitoring?.expected || []).join(", ");
+    }
+
+    // ✅ points (NEW)
+    const planPtsField = last.querySelector(".secPlanPoints");
+    if (planPtsField) {
+      planPtsField.value = sec.plan?.points || "";
+    }
+
+    const monitorPtsField = last.querySelector(".secMonitorPoints");
+    if (monitorPtsField) {
+      monitorPtsField.value = sec.monitoring?.points || "";
+    }
+  });
+
+  alert("✅ FULL case loaded successfully!");
+}
+
+function pasteCaseJSON() {
+  const text = document.getElementById("pasteJSON").value.trim();
+
+  if (!text) {
+    alert("Paste JSON first");
+    return;
+  }
+
+  let obj;
+  try {
+    const cleaned = text.replace(/```json|```/g, "").trim();
+    obj = JSON.parse(cleaned);
+  } catch (e) {
+    alert("❌ Invalid JSON — check formatting");
+    console.error(e);
+    return;
+  }
+
+  // ✅ Assign ID
+  obj.id = cases.length + 1;
+
+  // ✅ Normalize labs (lowercase keys)
+  if (obj.labs) {
+    const normalizedLabs = {};
+    Object.entries(obj.labs).forEach(([k, v]) => {
+      normalizedLabs[k.toLowerCase()] = v;
+    });
+    obj.labs = normalizedLabs;
+  }
+
+  // ✅ Ensure diagnoses exist (BACKWARD COMPATIBILITY)
+  if (!obj.diagnoses && obj.problems) {
+    const primary = obj.problems.find(p => p.type === "primary");
+    if (primary) {
+      obj.diagnoses = (primary.acceptableAnswers || []).map(a =>
+        a.toLowerCase().trim()
+      );
+    }
+  }
+
+  // ✅ Normalize acceptable answers
+  if (obj.problems) {
+    obj.problems.forEach(p => {
+      p.acceptableAnswers = (p.acceptableAnswers || []).map(a =>
+        a.toLowerCase().trim()
+      );
+    });
+  }
+
+  cases.push(obj);
+  localStorage.setItem("cases", JSON.stringify(cases));
+
+  init();
+  loadCaseIntoBuilder(obj);
+
+  alert("✅ AI case loaded and ready to edit!");
+}
+
+function openDashboard() {
+
+  const url = "https://script.google.com/macros/s/AKfycbysL1nfSeQV7q0wuJCSKtRJdIo1BtDUqpBkcPf0QS0BwokYRwKB0ua531NkVLU22TWEjg/exec";
+
+  fetch(url)
+    .then(res => res.json())
+    .then(data => {
+
+      if (!data.length) {
+        showDashboard("No data found");
+        return;
+      }
+
+      // ✅ CLEAN DATA
+      const sessions = data.map(row => ({
+        score: Number(row.total_score) || 0,
+        duration: Number(row.duration) || 0,
+        hints: Number(row.hintUsage) || 0,
+        correct: Number(row.correct) === 1,
+        queries: Number(row.total_queries) || 0,
+        missed: row.missedCriticalList || "",
+      }));
+
+      // ✅ METRICS
+      const avgScore = (
+        sessions.reduce((a,b)=>a+b.score,0) / sessions.length
+      ).toFixed(1);
+
+      const avgDuration = (
+        sessions.reduce((a,b)=>a+b.duration,0) / sessions.length
+      ).toFixed(1);
+
+      const avgHints = (
+        sessions.reduce((a,b)=>a+b.hints,0) / sessions.length
+      ).toFixed(1);
+
+      const accuracy = (
+        sessions.filter(s => s.correct).length / sessions.length * 100
+      ).toFixed(1);
+
+      // ✅ QUERY STYLE
+      let focused = 0;
+      let shotgun = 0;
+
+      sessions.forEach(s => {
+        if (s.queries > 15) shotgun++;
+        else focused++;
+      });
+
+      // ✅ MISSED ELEMENTS
+      const missedCounts = {};
+
+      sessions.forEach(s => {
+        s.missed.split(",").forEach(el => {
+          const key = el.trim();
+          if (!key) return;
+          missedCounts[key] = (missedCounts[key] || 0) + 1;
+        });
+      });
+
+      const topMissed = Object.entries(missedCounts)
+        .sort((a,b)=>b[1]-a[1])
+        .slice(0,5)
+        .map(([k,v]) => `${k} (${v})`)
+        .join(", ") || "None";
+
+      // ✅ DISPLAY
+      showDashboard(`
+        <p><strong>📊 Total Sessions:</strong> ${sessions.length}</p>
+        <p><strong>⭐ Avg Score:</strong> ${avgScore}</p>
+        <p><strong>⏱ Avg Duration:</strong> ${avgDuration} sec</p>
+        <p><strong>💡 Avg Hints:</strong> ${avgHints}</p>
+        <p><strong>🧠 Diagnosis Accuracy:</strong> ${accuracy}%</p>
+
+        <div class="mt-3">
+          <p class="text-indigo-300 font-semibold">Query Style</p>
+          <p>Focused: ${Math.round(focused/sessions.length*100)}%</p>
+          <p>Shotgun: ${Math.round(shotgun/sessions.length*100)}%</p>
+        </div>
+
+        <div class="mt-3">
+          <p class="text-yellow-300 font-semibold">Top Missed Elements</p>
+          <p>${topMissed}</p>
+        </div>
+      `);
+
+    })
+    .catch(err => {
+      console.error(err);
+      showDashboard("Failed to load data");
+    });
+}
+
+function openInterviewHelp() {
+  document.getElementById("interviewHelpModal").classList.remove("hidden");
+}
+
+function closeInterviewHelp() {
+  document.getElementById("interviewHelpModal").classList.add("hidden");
+}
+function openLabHelp() {
+  document.getElementById("labHelpModal").classList.remove("hidden");
+}
+
+function closeLabHelp() {
+  document.getElementById("labHelpModal").classList.add("hidden");
+}
+
+
+function openHintGuide() {
+  document.getElementById("hintGuideModal").classList.remove("hidden");
+}
+
+function closeHintGuide() {
+  document.getElementById("hintGuideModal").classList.add("hidden");
+}
+
+function showDashboard(html) {
+  document.getElementById("dashboard").classList.remove("hidden");
+  document.getElementById("dashboardContent").innerHTML = html;
+}
+
+
+function exportDataset() {
+
+  const queryCount = sessionData.queries?.length || 0;
+
+  let queryStyle = "focused";
+  if (queryCount > 20) queryStyle = "shotgun";
+  else if (queryCount > 12) queryStyle = "moderate";
+
+  let durationFormatted = null;
+
+  if (sessionData.endTime && sessionData.startTime) {
+    const totalSeconds = Math.floor(
+      (sessionData.endTime - sessionData.startTime) / 1000
+    );
+
+    const minutes = Math.floor(totalSeconds / 60);
+    const seconds = totalSeconds % 60;
+
+    durationFormatted = `${minutes} min ${seconds} sec`;
+  }
+
+  const exportData = {
+    studentName: sessionData.studentName,
+    case: sessionData.caseTitle,
+
+    totalQuestions: sessionData.queries?.length || 0,
+    duration: durationFormatted,
+    hintUsage: hintCount,
+
+    correct: sessionData.correct ? 1 : 0,
+    diagnosis: sessionData.diagnosis || "",
+
+    missedCritical: (sessionData.missedCritical || []).join(", "),
+
+    queries: (sessionData.queries || []).map(q => q.query).join(" | "),
+
+    categoriesUsed: Array.from(sessionData.categoriesUsed || []).join(", "),
+    categoryCounts: JSON.stringify(sessionData.categoryCounts || {}),
+
+    failedQueries: (sessionData.failedQueries || []).map(q => q.query).join(" | "),
+
+    vagueQueryCount: sessionData.vagueQueryCount || 0,
+    unknownQueryCount: sessionData.unknownQueryCount || 0,
+
+    unavailableLabs: (sessionData.unavailableLabs || []).join(", "),
+
+    carePlan: sessionData.carePlan || "",
+    carePlanScore: sessionData.totalScore || 0,
+
+    query_style: queryStyle,
+    confidence: sessionData.confidence
+  };
+
+  const blob = new Blob(
+    [JSON.stringify(exportData, null, 2)],
+    { type: "application/json" }
+  );
+
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "case_results.json";
+  a.click();
+
+  URL.revokeObjectURL(url);
+}
+
+function downloadSOAP() {
+
+  if (!currentCase || !caseSubmitted) return;
+
+  const studentName =
+    document.getElementById("studentName")?.value || "Student";
+
+  const caseTitle =
+    currentCase.displayTitle ||
+    currentCase.title ||
+    "Clinical Case";
+
+  const confidence =
+    document.getElementById("confidence")?.value || "Not Reported";
+
+  const completionDate =
+    new Date().toLocaleString();
+
+  const durationMinutes =
+    sessionData.startTime
+      ? Math.round(
+          (sessionData.endTime - sessionData.startTime) / 60000
+        )
+      : "N/A";
+
+  // =====================================
+  // SUBJECTIVE
+  // =====================================
+
+  const subjective = currentCase.interviewFactors
+    ? Object.entries(currentCase.interviewFactors)
+        .map(([q, a]) =>
+          `<p><strong>${q}</strong><br>${a}</p>`
+        )
+        .join("")
+    : "<p>No subjective information documented.</p>";
+
+  // =====================================
+  // OBJECTIVE
+  // =====================================
+
+  const objective = currentCase.labs
+    ? Object.entries(currentCase.labs)
+        .map(([lab, value]) => {
+
+          let display = "";
+
+          if (typeof value === "object") {
+            display = value.current || "";
+          } else {
+            display = value;
+          }
+
+          return `<li><strong>${lab}</strong>: ${display}</li>`;
+        })
+        .join("")
+    : "<li>No objective data documented.</li>";
+
+  // =====================================
+  // ASSESSMENT
+  // =====================================
+
+  const diagnoses = [
+    document.getElementById("primaryDx")?.value || "",
+    document.getElementById("cp_problem1")?.value || "",
+    document.getElementById("cp_problem2")?.value || "",
+    document.getElementById("cp_problem3")?.value || "",
+    document.getElementById("cp_problem4")?.value || ""
+  ]
+  .filter(Boolean)
+  .join("<br>");
+
+  // =====================================
+  // PLAN
+  // =====================================
+
+  const plans = [
+    document.getElementById("plan_primary")?.value || "",
+    document.getElementById("cp_plan1")?.value || "",
+    document.getElementById("cp_plan2")?.value || "",
+    document.getElementById("cp_plan3")?.value || "",
+    document.getElementById("cp_plan4")?.value || ""
+  ]
+  .filter(Boolean)
+  .join("<br><br>");
+
+  // =====================================
+  // MONITORING
+  // =====================================
+
+  const monitoring = [
+    document.getElementById("monitor_primary")?.value || "",
+    document.getElementById("cp_monitor1")?.value || "",
+    document.getElementById("cp_monitor2")?.value || "",
+    document.getElementById("cp_monitor3")?.value || "",
+    document.getElementById("cp_monitor4")?.value || ""
+  ]
+  .filter(Boolean)
+  .join("<br><br>");
+
+  // =====================================
+  // PERFORMANCE DATA
+  // =====================================
+
+  const score = sessionData.totalScore || 0;
+
+  const totalPossible =
+    (currentCase.problems || [])
+      .reduce((sum, p) => sum + (p.points || 0), 0) +
+    Object.values(currentCase.criticalElements || {})
+      .reduce((sum, el) => sum + (el.points || 0), 0);
+
+  const percent =
+    totalPossible > 0
+      ? Math.round((score / totalPossible) * 100)
+      : 0;
+
+  const missedCritical =
+    (sessionData.missedCritical || []).length
+      ? sessionData.missedCritical.join(", ")
+      : "None";
+
+  const queryCount =
+    sessionData.queries?.length || 0;
+
+  const hintUse =
+    hintCount || 0;
+
+  // =====================================
+  // BUILD DOCUMENT
+  // =====================================
+
+  const html = `
+<html>
+
+<head>
+
+<meta charset="utf-8">
+
+<style>
+
+body{
+  font-family: Arial, sans-serif;
+  margin:40px;
+  line-height:1.5;
+}
+
+h1{
+  text-align:center;
+}
+
+.section{
+  margin-top:25px;
+}
+
+.section h2{
+  border-bottom:1px solid #ccc;
+  padding-bottom:5px;
+}
+
+.metric{
+  background:#f3f4f6;
+  padding:10px;
+  margin:5px 0;
+  border-left:4px solid #2563eb;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<h1>Clinical SOAP Note</h1>
+
+<p>
+<strong>Student:</strong> ${studentName}<br>
+<strong>Case:</strong> ${caseTitle}<br>
+<strong>Date Completed:</strong> ${completionDate}
+</p>
+
+<div class="section">
+<h2>Subjective</h2>
+${subjective}
+</div>
+
+<div class="section">
+<h2>Objective</h2>
+<ul>
+${objective}
+</ul>
+</div>
+
+<div class="section">
+<h2>Assessment</h2>
+${diagnoses || "None documented"}
+</div>
+
+<div class="section">
+<h2>Plan</h2>
+${plans || "None documented"}
+</div>
+
+<div class="section">
+<h2>Monitoring</h2>
+${monitoring || "None documented"}
+</div>
+
+<hr>
+
+<div class="section">
+<h2>Performance Summary</h2>
+
+<div class="metric">
+<strong>Confidence Level:</strong> ${confidence}
+</div>
+
+<div class="metric">
+<strong>Final Score:</strong> ${score}/${totalPossible} (${percent}%)
+</div>
+
+<div class="metric">
+<strong>Total Queries:</strong> ${queryCount}
+</div>
+
+<div class="metric">
+<strong>Hints Used:</strong> ${hintUse}
+</div>
+
+<div class="metric">
+<strong>Completion Time:</strong> ${durationMinutes} minutes
+</div>
+
+<div class="metric">
+<strong>Missed Critical Elements:</strong><br>
+${missedCritical}
+</div>
+
+</div>
+
+</body>
+</html>
+`;
+
+  const blob = new Blob(
+    [html],
+    { type: "application/msword" }
+  );
+
+  const link = document.createElement("a");
+
+  link.href = URL.createObjectURL(blob);
+
+  link.download =
+    `${studentName.replace(/\s+/g,"_")}_${caseTitle.replace(/\s+/g,"_")}_SOAP.doc`;
+
+  document.body.appendChild(link);
+
+  link.click();
+
+  document.body.removeChild(link);
+}
+
+function previewCase() {
+
+  const tempCase = {
+    id: "preview",
+    displayTitle: document.getElementById("newTitle").value,
+    name: document.getElementById("newName").value,
+    age: document.getElementById("newAge").value,
+    gender: document.getElementById("newGender").value,
+    chiefComplaint: document.getElementById("newCC").value,
+    intro: document.getElementById("newIntro").value
+  };
+
+  currentCase = tempCase;
+
+  document.getElementById("caseIntro").innerHTML = `
+    <div class="bg-blue-900 p-3 rounded">
+      <p class="text-blue-300 font-semibold">🔍 Preview Mode</p>
+    </div>
+
+    <h2 class="text-xl font-bold">${tempCase.displayTitle}</h2>
+    <p><strong>Name:</strong> ${tempCase.name}</p>
+    <p><strong>Age:</strong> ${tempCase.age}</p>
+    <p><strong>Gender:</strong> ${tempCase.gender}</p>
+    <p><strong>Chief Complaint:</strong> ${tempCase.chiefComplaint}</p>
+  `;
+}
+
+function sendToServer(data) {
+  navigator.sendBeacon(
+    "https://script.google.com/macros/s/AKfycbyc-8PSZd7-FRJ_K0MRWAlSLnTK8YaDDXyjCvCpJFzKIEpqCVYIMkoe3AV1RY-1anLvsw/exec",
+    JSON.stringify(data)
+  );
+}
+
+window.addEventListener("beforeunload", () => {
+
+  if (!caseSubmitted && sessionData.startTime) {
+
+    const now = Date.now();
+
+    const payload = {
+      ...sessionData,
+      status: "abandoned",
+      event: "abandon",
+      timestamp: new Date().toISOString(),
+      duration_active_seconds: Math.floor(
+        (sessionData.lastActiveTime - sessionData.startTime) / 1000
+      ),
+      duration_total_seconds: Math.floor(
+        (now - sessionData.startTime) / 1000
+      )
+    };
+
+    navigator.sendBeacon(
+      "https://script.google.com/macros/s/AKfycbyc-8PSZd7-FRJ_K0MRWAlSLnTK8YaDDXyjCvCpJFzKIEpqCVYIMkoe3AV1RY-1anLvsw/exec",
+      JSON.stringify(payload)
+    );
+  }
+
+});
+
+function getDownloadButtons() {
+
+  return `
+    <div class="mt-4">
+
+      <button
+        onclick="downloadSOAP()"
+        class="w-full bg-blue-600 hover:bg-blue-700 p-2 rounded">
+
+        📄 Download SOAP Note
+
+      </button>
+
+    </div>
+  `;
+}
+
+
+function getTimeToEvent(eventTime) {
+  if (!eventTime || !sessionData.startTime) return null;
+
+  const seconds = Math.floor((eventTime - sessionData.startTime) / 1000);
+  const min = Math.floor(seconds / 60);
+  const sec = seconds % 60;
+
+  return `${min} min ${sec} sec`;
+}
+
+let durationFormatted = null;
+
+if (sessionData.endTime && sessionData.startTime) {
+  const totalSeconds = Math.floor(
+    (sessionData.endTime - sessionData.startTime) / 1000
+  );
+
+  const minutes = Math.floor(totalSeconds / 60);
+  const seconds = totalSeconds % 60;
+
+  durationFormatted = `${minutes} min ${seconds} sec`;
+}
+
+// ✅ FIX: move these OUTSIDE the object
+const queryCount = sessionData.queries?.length || 0;
+
+let queryStyle = "focused";
+if (queryCount > 20) queryStyle = "shotgun";
+else if (queryCount > 12) queryStyle = "moderate";
+
+
+
+init();
+loadCasesFromServer();
+
+
+
+document.getElementById("importFile").addEventListener("change", function(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+
+
+
+  const reader = new FileReader();
+
+
+
+
+  reader.onload = function(e) {
+    try {
+      const importedCase = JSON.parse(e.target.result);
+
+
+
+
+      // ✅ assign new ID
+      importedCase.id = cases.length + 1;
+
+
+
+
+cases.push(importedCase);
+init();
+
+
+
+
+// 🔥 auto-load into builder
+loadCaseIntoBuilder(importedCase);
+
+
+
+
+    } catch (error) {
+      alert("❌ Invalid file format");
+    }
+  };
+
+
+
+
+  reader.readAsText(file);
+});
+
+
+
+
+addHintRow();
+addCriticalRow();
+addPearlRow();
+addSecondaryRow();
+
+
+
+
+</script>
+
+
+<div id="dashboard" class="hidden mt-6 bg-gray-800 p-4 rounded-xl space-y-3 border border-gray-600">
+
+  <h2 class="text-xl font-bold text-indigo-300">
+    Faculty Analytics Dashboard
+  </h2>
+
+  <div id="dashboardContent" class="text-sm space-y-2"></div>
+
+</div>
+
+<div id="interviewHelpModal"
+  onclick="if (event.target.id === 'interviewHelpModal') closeInterviewHelp()"
+  class="hidden fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50">
+
+  <div class="bg-gray-800 max-w-lg w-full p-6 rounded-xl space-y-3">
+
+    <h2 class="text-lg font-bold text-yellow-300">🗣 Case Parameters to Obtain Via Interview</h2>
+
+    <p class="text-sm text-gray-300">
+      Include key subjective information that would be obtained during a patient interview. In the first column, write the question or word that a student would need to ask to trigger the patient's response in the second column.
+    </p>
+
+    <div class="bg-gray-900 p-3 rounded text-sm text-gray-200">
+      ✅ Examples:<br><br>
+
+      <strong>Adherence:</strong><br>
+      <code>Misses doses 2–3 times per week due to forgetfulness</code><br><br>
+
+      <strong>Symptoms:</strong><br>
+      <code>Reports increased fatigue and nocturia</code><br><br>
+
+      <strong>Lifestyle:</strong><br>
+      <code>Diet high in processed foods, exercises rarely</code><br><br>
+
+      <strong>Barriers:</strong><br>
+      <code>States cost is preventing medication adherence</code>
+    </div>
+
+    <p class="text-sm text-gray-300">
+      • Focus on clinically relevant details<br>
+      • Write in short, clear statements<br>
+      • Avoid full paragraphs<br>
+    </p>
+
+    <button onclick="closeInterviewHelp()"
+      class="w-full bg-yellow-500 hover:bg-yellow-600 p-2 rounded mt-3">
+      Close
+    </button>
+
+  </div>
+</div>
+
+<div id="labHelpModal"
+  onclick="if (event.target.id === 'labHelpModal') closeLabHelp()"
+  class="hidden fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50">
+
+  <div class="bg-gray-800 max-w-lg w-full p-6 rounded-xl space-y-3">
+
+    <h2 class="text-lg font-bold text-yellow-300">🧪 Lab Entry Format</h2>
+
+    <p class="text-sm text-gray-300">
+      Enter lab values with current value first, followed by previous values.
+    </p>
+
+    <div class="bg-gray-900 p-3 rounded text-sm text-gray-200">
+      ✅ Example:<br>
+      <code>8.2% | 8.7% (3 months ago), 9.1% (6 months ago)</code>
+    </div>
+
+    <p class="text-sm text-gray-300">
+      • Use <strong>|</strong> to separate current from past<br>
+      • Include timeframes when possible<br>
+      • Keep units consistent (%, mg/dL, etc.)
+    </p>
+
+    <button onclick="closeLabHelp()"
+      class="w-full bg-yellow-500 hover:bg-yellow-600 p-2 rounded mt-3">
+      Close
+    </button>
+
+  </div>
+</div>
+<!-- ✅ HINT GUIDE MODAL -->
+<div id="hintGuideModal" 
+  class="hidden fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50">
+
+  <div class="bg-gray-800 max-w-lg w-full p-6 rounded-xl shadow-lg space-y-3">
+
+    <h2 class="text-lg font-bold text-yellow-300">💡 Writing Effective Hints</h2>
+
+    <p class="text-sm text-gray-300">
+      Hints should guide student <strong>thinking</strong>, not give away answers.
+    </p>
+
+    <div class="space-y-2 text-sm">
+
+      <p><strong>🔹 Hint 1 — Broad Direction</strong><br>
+      <span class="text-gray-300">Encourage general clinical thinking</span></p>
+
+      <p><strong>🔹 Hint 2 — Focus Attention</strong><br>
+      <span class="text-gray-300">Direct toward key labs or findings</span></p>
+
+      <p><strong>🔹 Hint 3 — Near Answer</strong><br>
+      <span class="text-gray-300">Guide toward diagnosis or plan</span></p>
+
+      <p><strong>🔹 Hint 4+ (Optional)</strong><br>
+      <span class="text-gray-300">Reinforce guidelines or decision points</span></p>
+
+    </div>
+
+    <div class="text-sm text-gray-300 mt-2">
+      <strong>✅ Tips:</strong><br>
+      • Build each hint step-by-step<br>
+      • Be clear and specific<br>
+      • Think like a preceptor guiding a learner<br><br>
+
+      <strong>⚠️ Avoid:</strong><br>
+      • Giving the answer too early<br>
+      • Repeating the same idea<br>
+      • Vague hints like “look carefully”
+    </div>
+
+    <button onclick="closeHintGuide()" 
+      class="w-full bg-yellow-500 hover:bg-yellow-600 p-2 rounded mt-3">
+      Close
+    </button>
+ </div>
+
+
+
+  
+</div>
+ <div class="text-center">
+    <h1 class="text-4xl font-bold tracking-tight">EMeRsion Learning</h1>
+    <p class="text-slate-400">© The Research Foundation for the State University of New York, 2026</p>
+ </div>
+</body>
+</html>
