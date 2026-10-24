@@ -1,0 +1,33 @@
+# EMeRsion Development Roadmap
+
+## Immediate
+
+- Functional status
+- Intake / Output
+- Oxygen saturation
+- Ejection fraction
+- Website deployment
+
+## Near-Term
+
+- Faculty notes
+- Therapy duration
+- Better plan breakdown formatting
+- Lab dropdown menus
+- Critical element dropdowns
+- Interview factor templates
+
+## Mid-Term
+
+- Student authentication
+- Faculty authentication
+- Firebase database
+- Case sharing
+
+## Long-Term
+
+- Medication Administration Record (MAR)
+- Competency tracking
+- Faculty analytics dashboards
+- AI case generation integration
+- Multi-school implementation
