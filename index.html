@@ -3515,22 +3515,22 @@ const matchedDx = dxArray.some(dx =>
 const planList = (problem.plan?.expected || [])
   .flatMap(item =>
     item
-      .split(/\.,\s*/)
+      .split(".,")
       .map(x => x.trim())
       .filter(x => x)
   )
-  .map(p => `<li>${p}</li>`)
-  .join("");
+  .map(item => `<li>${item}</li>`)
+  .join("")
 
 const monitorList = (problem.monitoring?.expected || [])
   .flatMap(item =>
     item
-      .split(/\.,\s*/)
+      .split(".,")
       .map(x => x.trim())
       .filter(x => x)
   )
-  .map(m => `<li>${m}</li>`)
-  .join("");
+  .map(item => `<li>${item}</li>`)
+  .join("")
 
 
 problemFeedback += `
