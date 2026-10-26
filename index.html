@@ -3514,7 +3514,7 @@ const matchedDx = dxArray.some(dx =>
 // ✅ Build display lists (FIX)
 const planList = (problem.plan?.expected || [])
   .flatMap(item =>
-    item.split(/\.\,\s*/g)
+    item.split(/\.\s+(?=[A-Z])/)
   )
   .map(item => item.trim())
   .filter(Boolean)
@@ -3523,13 +3523,12 @@ const planList = (problem.plan?.expected || [])
 
 const monitorList = (problem.monitoring?.expected || [])
   .flatMap(item =>
-    item.split(/\.\,\s*/g)
+    item.split(/\.\s+(?=[A-Z])/)
   )
   .map(item => item.trim())
   .filter(Boolean)
   .map(item => `<li class="ml-4 list-disc">${item}</li>`)
   .join("");
-
 
 problemFeedback += `
   <p class="font-semibold text-white">
