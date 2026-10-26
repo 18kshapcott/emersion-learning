@@ -4738,10 +4738,10 @@ if (primary) {
     primary.monitoring?.points || "";
 
   document.getElementById("primaryPlanExpected").value =
-    (primary.plan?.expected || []).join(", ");
+    (primary.plan?.expected || []).join("\n");
 
   document.getElementById("primaryMonitorExpected").value =
-    (primary.monitoring?.expected || []).join(", ");
+    (primary.monitoring?.expected || []).join("\n");
 }
 
 
@@ -4771,12 +4771,12 @@ document.getElementById("secondaryContainer").innerHTML = "";
     // ✅ expected text
     if (last.querySelector(".secPlan")) {
       last.querySelector(".secPlan").value =
-        (sec.plan?.expected || []).join(", ");
+        (sec.plan?.expected || []).join("\n");
     }
 
     if (last.querySelector(".secMonitor")) {
       last.querySelector(".secMonitor").value =
-        (sec.monitoring?.expected || []).join(", ");
+        (sec.monitoring?.expected || []).join("\n");
     }
 
     // ✅ points (NEW)
