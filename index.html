@@ -3513,11 +3513,23 @@ const matchedDx = dxArray.some(dx =>
   const monitorText = (sessionData.carePlan?.[i]?.monitoring || "").toLowerCase();
 // ✅ Build display lists (FIX)
 const planList = (problem.plan?.expected || [])
-  .map(p => `<li class="ml-4 list-disc">${p}</li>`)
+  .flatMap(item =>
+    item
+      .split(/\.,\s*/)
+      .map(x => x.trim())
+      .filter(x => x)
+  )
+  .map(p => `<li>${p}</li>`)
   .join("");
 
 const monitorList = (problem.monitoring?.expected || [])
-  .map(m => `<li class="ml-4 list-disc">${m}</li>`)
+  .flatMap(item =>
+    item
+      .split(/\.,\s*/)
+      .map(x => x.trim())
+      .filter(x => x)
+  )
+  .map(m => `<li>${m}</li>`)
   .join("");
 
 
