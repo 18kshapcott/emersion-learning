@@ -1073,6 +1073,7 @@ sessionData = {
   categoriesUsed: new Set(),
   categoryCounts: {},
   requestedElements: new Set(),
+  requestedInterviewFactors: [],
   missedCritical: [],
   vagueQueryCount: 0,
   unknownQueryCount: 0,
@@ -1909,9 +1910,24 @@ else if (currentCase.interviewFactors) {
 
     }
 
-    sessionData.requestedElements.add(
-      "interview"
-    );
+sessionData.requestedElements.add(
+  "interview"
+);
+
+sessionData.requestedInterviewFactors =
+  sessionData.requestedInterviewFactors || [];
+
+if (
+  !sessionData.requestedInterviewFactors.includes(
+    bestMatch.key
+  )
+) {
+
+  sessionData.requestedInterviewFactors.push(
+    bestMatch.key
+  );
+
+}
 
     detectedCategory =
       "interview";
@@ -4816,8 +4832,10 @@ document.getElementById("newCXR").value = c.diagnosticImages?.chest_xray || "";
     last.querySelector(".homeMedDose").value = m.dose || "";
     last.querySelector(".homeMedRoute").value = m.route || "";
     last.querySelector(".homeMedFreq").value = m.frequency || "";
- last.querySelector(".homeMedDuration").value = m.duration || ""; }
-});
+last.querySelector(".homeMedDuration").value =
+  m.therapyDuration ||
+  m.duration ||
+  "";
 
 
 document.getElementById("interviewContainer").innerHTML = "";
@@ -5283,14 +5301,58 @@ function downloadSOAP() {
   // SUBJECTIVE
   // =====================================
 
-  const subjective = currentCase.interviewFactors
-    ? Object.entries(currentCase.interviewFactors)
-        .map(([q, a]) =>
-          `<p><strong>${q}</strong><br>${a}</p>`
-        )
-        .join("")
-    : "<p>No subjective information documented.</p>";
+const subjective =
+  currentCase.interviewFactors
+    ? Object.entries(
+        currentCase.interviewFactors
+      )
 
+      .filter(([key]) =>
+        (
+          sessionData.requestedInterviewFactors || []
+        ).includes(key)
+      )
+
+      .map(([key, factor]) => {
+
+        if (typeof factor === "object") {
+
+          return `
+            <p>
+
+              <strong>
+                ${factor.question}
+              </strong>
+
+              <br>
+
+              ${factor.response}
+
+            </p>
+          `;
+
+        }
+
+        return `
+          <p>
+
+            <strong>
+              ${key}
+            </strong>
+
+            <br>
+
+            ${factor}
+
+          </p>
+        `;
+
+      })
+
+      .join("")
+
+    : "<p>No subjective information documented.</p>";
+  
   // =====================================
   // OBJECTIVE
   // =====================================
