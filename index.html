@@ -256,7 +256,7 @@ Use this section to customize the case:
 
 <button onclick="pasteCaseJSON()"
   class="w-full bg-green-500 p-2 rounded mt-2">
-  ✅ Load AI Case
+  ✅ Upload AI-Generated Case
 </button>
 
 <button onclick="cloneCase()"
@@ -388,29 +388,29 @@ Functional Status
   <input id="newBMI" placeholder="BMI" class="w-full p-2 bg-gray-600 rounded"/>
   <div>
 
-<p class="font-semibold text-blue-300 mt-4">
-Intake / Output
+<p class="font-semibold mt-4 text-blue-300">
+  Intake / Output
 </p>
 
 <input id="newOralIntake"
   placeholder="Oral Intake (e.g., 1200 mL/day)"
-  class="w-full p-2 bg-gray-600 rounded"/>
+  class="w-full p-2 bg-gray-600 rounded mb-2"/>
 
 <input id="newIVIntake"
   placeholder="IV Intake (e.g., 1000 mL/day)"
-  class="w-full p-2 bg-gray-600 rounded"/>
+  class="w-full p-2 bg-gray-600 rounded mb-2"/>
 
 <input id="newUrineOutput"
   placeholder="Urine Output (e.g., 400 mL/day)"
-  class="w-full p-2 bg-gray-600 rounded"/>
+  class="w-full p-2 bg-gray-600 rounded mb-2"/>
 
 <input id="newNetBalance"
   placeholder="Net Balance (e.g., +1800 mL)"
-  class="w-full p-2 bg-gray-600 rounded"/>
+  class="w-full p-2 bg-gray-600 rounded mb-2"/>
 
 <textarea id="newIONotes"
   placeholder="Additional I/O Notes"
-  class="w-full p-2 bg-gray-600 rounded">
+  class="w-full p-2 bg-gray-600 rounded mb-2">
 </textarea>
 
   <!-- ✅ PHYSICAL EXAM -->
@@ -1073,6 +1073,7 @@ sessionData = {
   categoriesUsed: new Set(),
   categoryCounts: {},
   requestedElements: new Set(),
+  requestedInterviewFactors: [],
   missedCritical: [],
   vagueQueryCount: 0,
   unknownQueryCount: 0,
@@ -1199,28 +1200,31 @@ if (isTeachingMode) {
       .map(h => `<li>${h}</li>`)
       .join("");
 
-  const homeMeds =
-    (currentCase.medications || [])
-      .map(m => `
+const homeMeds =
+  (currentCase.medications || [])
+    .map(m => `
 
-        <li>
+      <li>
 
-          <strong>${m.name || ""}</strong>
+        <strong>${m.name || ""}</strong><br>
 
-          ${m.dose || ""}
+        Dose: ${m.dose || "N/A"}<br>
 
-          ${m.route || ""}
+        Route: ${m.route || "N/A"}<br>
 
-          ${m.frequency || ""}
+        Frequency: ${m.frequency || "N/A"}<br>
 
-          ${m.duration
-            ? `(${m.duration})`
-            : ""}
+        Duration: ${
+          m.therapyDuration ||
+          m.duration ||
+          "Unknown"
+        }
 
-        </li>
+      </li>
 
-      `)
-      .join("");
+    `)
+    .join("");
+
 
   const inpatientMeds =
     (currentCase.inpatientMeds || [])
@@ -1709,7 +1713,7 @@ if (
           Dose: ${m.dose || "N/A"}<br>
           Route: ${m.route || "N/A"}<br>
           Frequency: ${m.frequency || "N/A"}
-Duration: ${m.duration || "Unknown"}
+Duration: ${m.therapyDuration || m.duration || "Unknown"}
         </div>
       `).join("");
 
@@ -1825,46 +1829,109 @@ else if (raceTerms.some(term => input.includes(term))) {
 // ✅ PATIENT INTERVIEW — GUIDED MATCHING (NO AUTO-DUMP)
 else if (currentCase.interviewFactors) {
 
-  const clean = str => str.toLowerCase().replace(/[^a-z0-9 ]/g, "");
-  const inputWords = clean(input).split(" ").filter(Boolean);
+  const clean = str =>
+    String(str)
+      .toLowerCase()
+      .replace(/[^a-z0-9 ]/g, "");
+
+  const inputWords =
+    clean(input).split(" ").filter(Boolean);
 
   let bestMatch = null;
   let bestScore = 0;
 
-  Object.keys(currentCase.interviewFactors).forEach(q => {
-    const qWords = clean(q).split(" ").filter(Boolean);
+  Object.entries(
+    currentCase.interviewFactors
+  ).forEach(([key, factor]) => {
+
+    const question =
+      typeof factor === "object"
+        ? factor.question || ""
+        : key;
+
+    const qWords =
+      clean(question)
+        .split(" ")
+        .filter(Boolean);
 
     let overlap = 0;
 
     inputWords.forEach(w => {
-      if (qWords.includes(w)) overlap++;
+      if (qWords.includes(w))
+        overlap++;
     });
 
-    const score = overlap / Math.max(qWords.length, 1);
+    const score =
+      overlap /
+      Math.max(qWords.length, 1);
 
-if (
-  clean(input).includes(clean(q)) ||
-  clean(q).includes(clean(input)) ||
-  score >= 0.2
-) {
-  if (score > bestScore) {
-    bestScore = score;
-    bestMatch = q;
-  }
-}
+    if (
+      clean(question).includes(clean(input)) ||
+      clean(input).includes(clean(question)) ||
+      score >= 0.2
+    ) {
+
+      if (score > bestScore) {
+
+        bestScore = score;
+
+        bestMatch = {
+          key,
+          factor
+        };
+
+      }
+
+    }
 
   });
 
   if (bestMatch && bestScore >= 0.2) {
-    response = `
-      <div class="bg-gray-700 p-2 rounded">
-        <strong>${bestMatch}</strong><br>
-        ${currentCase.interviewFactors[bestMatch]}
-      </div>
-    `;
 
-    sessionData.requestedElements.add("interview");
-    detectedCategory = "interview";
+    const factor = bestMatch.factor;
+
+    if (typeof factor === "object") {
+
+      response = `
+        <div class="bg-gray-700 p-2 rounded">
+          <strong>${factor.question}</strong><br><br>
+          ${factor.response}
+        </div>
+      `;
+
+    } else {
+
+      response = `
+        <div class="bg-gray-700 p-2 rounded">
+          <strong>${bestMatch.key}</strong><br>
+          ${factor}
+        </div>
+      `;
+
+    }
+
+sessionData.requestedElements.add(
+  "interview"
+);
+
+sessionData.requestedInterviewFactors =
+  sessionData.requestedInterviewFactors || [];
+
+if (
+  !sessionData.requestedInterviewFactors.includes(
+    bestMatch.key
+  )
+) {
+
+  sessionData.requestedInterviewFactors.push(
+    bestMatch.key
+  );
+
+}
+
+    detectedCategory =
+      "interview";
+
   }
 
   else if (
@@ -1872,6 +1939,7 @@ if (
     input.includes("preference") ||
     input.includes("concern")
   ) {
+
     response = `
       <p class="text-yellow-300">
         ⚠️ Try asking a more specific patient-centered question
@@ -1879,29 +1947,22 @@ if (
       </p>
     `;
 
-    detectedCategory = "vague";
+    detectedCategory =
+      "vague";
   }
 
+  if (response) {
 
-if (response) {
-  addCollectedInfo(`
-    <div class="mb-2">
-      ${response}
-    </div>
-  `);
-  return;  // ✅ STOP execution so it doesn’t get overwritten
+    addCollectedInfo(`
+      <div class="mb-2">
+        ${response}
+      </div>
+    `);
+
+    return;
+  }
 }
 
-
-if (response) {
-  addCollectedInfo(`
-    <div class="mb-2">
-      ${response}
-    </div>
-  `);
-  return;
-}
-}
 
  if (inpatientMedTerms.some(term => input.includes(term))) {
 
@@ -2787,16 +2848,16 @@ function parseLabInput(input) {
     const dose = row.querySelector(".homeMedDose").value.trim();
     const route = row.querySelector(".homeMedRoute").value.trim();
     const freq = row.querySelector(".homeMedFreq").value.trim();
-const duration =
-    row.querySelector(".homeMedDuration")?.value.trim() || "";
+const therapyDuration =
+  row.querySelector(".homeMedDuration")?.value.trim() || "";
     if (name) {
-      homeMeds.push({
-        name,
-        dose,
-        route,
-        frequency: freq,
-duration
-      });
+homeMeds.push({
+  name,
+  dose,
+  route,
+  frequency: freq,
+  therapyDuration
+});
     }
   });
   // ✅ collect inpatient medications
@@ -2815,14 +2876,30 @@ duration
       });
     }
   });
-  const interviewFactors = {};
-  document.querySelectorAll("#interviewContainer > div").forEach(row => {
-    const key = row.querySelector(".interviewKey").value.trim();
-    const value = row.querySelector(".interviewValue").value.trim();
-    if (key && value) {
-      interviewFactors[key] = value;
-    }
-  });
+const interviewFactors = {};
+
+let factorCount = 1;
+
+document.querySelectorAll("#interviewContainer > div").forEach(row => {
+
+  const question =
+    row.querySelector(".interviewKey").value.trim();
+
+  const response =
+    row.querySelector(".interviewValue").value.trim();
+
+  if (question && response) {
+
+    interviewFactors[`factor${factorCount}`] = {
+      question,
+      response
+    };
+
+    factorCount++;
+
+  }
+
+});
   const hints = [];
   document.querySelectorAll("#hintsContainer .hintText").forEach(input => {
     if (input.value.trim()) {
@@ -3513,13 +3590,22 @@ const matchedDx = dxArray.some(dx =>
   const monitorText = (sessionData.carePlan?.[i]?.monitoring || "").toLowerCase();
 // ✅ Build display lists (FIX)
 const planList = (problem.plan?.expected || [])
-  .map(p => `<li class="ml-4 list-disc">${p}</li>`)
+  .flatMap(item =>
+    item.split(/\.\s+(?=[A-Z])/)
+  )
+  .map(item => item.trim())
+  .filter(Boolean)
+  .map(item => `<li class="ml-4 list-disc">${item}</li>`)
   .join("");
 
 const monitorList = (problem.monitoring?.expected || [])
-  .map(m => `<li class="ml-4 list-disc">${m}</li>`)
+  .flatMap(item =>
+    item.split(/\.\s+(?=[A-Z])/)
+  )
+  .map(item => item.trim())
+  .filter(Boolean)
+  .map(item => `<li class="ml-4 list-disc">${item}</li>`)
   .join("");
-
 
 problemFeedback += `
   <p class="font-semibold text-white">
@@ -3917,6 +4003,35 @@ function generateCaseAI() {
 
 
  const basePrompt = `
+
+========================
+OUTPUT FORMAT (CRITICAL)
+========================
+
+Return ONLY ONE valid JSON object.
+
+DO NOT:
+
+- Add explanations
+- Add notes
+- Add markdown
+- Add commentary
+- Add headings
+- Add code fences
+- Add introductory text
+- Add closing text
+- Add HTML entities
+- Add escaped characters
+- Add anything outside the JSON object
+
+The response must:
+
+- Begin with {
+- End with }
+- Be directly importable into EMeRsion without modification
+
+If any output would not be valid JSON, regenerate it before responding.
+ 
 Create a COMPLETE pharmacy patient case in STRICT JSON format that matches this system.
 
 ========================
@@ -3979,7 +4094,7 @@ REQUIRED JSON STRUCTURE
       "dose": "",
       "route": "",
       "frequency": "",
-"duration": ""
+"therapyDuration": ""
     }
   ],
 
@@ -4024,10 +4139,15 @@ REQUIRED JSON STRUCTURE
 },
 
 
-  "interviewFactors": {
-    "question": "response"
-  },
+"interviewFactors": {
+  "factor1": {
+    "question": "",
+    "response": ""
+  }
+},
 
+"facultyNotes": "",
+  
   "hints": [],
 
 
@@ -4066,10 +4186,64 @@ CRITICAL ALIGNMENT RULES
 ========================
 
 - medications MUST be structured objects (NOT strings)
-- interviewFactors must be patient specific such as concern for cost, prefer lifestyle modifications over medications, or additional factors they should influence plan or monitoring.
-- interviewFacotors should be in complete sentences for both the question the student should ask and the output once the question is asked.
-- planKeys define grading for care plans (plans + monitoring separately)
+INTERVIEW FACTOR RULES (STRICT)
 
+Use ONLY the following format:
+
+"interviewFactors": {
+  "factor1": {
+    "question": "",
+    "response": ""
+  }
+}
+
+Requirements:
+
+- Generate at least 5 interview factors
+- Each factor must contain BOTH:
+  - question
+  - response
+- Questions should represent information a student must ask to optimize patient care
+- Responses should represent what the patient would say
+
+Examples of topics include:
+
+- Cost concerns
+- Medication adherence
+- Treatment preferences
+- Home monitoring
+- Health literacy
+- Transportation barriers
+- Injection concerns
+- Caregiver support
+- Adverse effect concerns
+- Lifestyle barriers
+
+GOOD:
+
+"interviewFactors": {
+  "factor1": {
+    "question": "Are medication costs a concern when choosing treatment?",
+    "response": "Yes. I prefer generic medications and would like to keep my monthly cost below $20."
+  },
+  "factor2": {
+    "question": "How often do you miss doses of your medications?",
+    "response": "I occasionally miss doses when traveling."
+  }
+}
+
+BAD:
+
+"interviewFactors": {
+  "Cost concerns": "Patient prefers generics"
+}
+
+BAD:
+
+"interviewFactors": {
+  "question": "Are medication costs a concern?",
+  "response": "Patient prefers generics."
+}
 
 ========================
 CRITICAL ELEMENT KEYS (STRICT)
@@ -4159,41 +4333,57 @@ FORMAT RULES:
 
 CRITICAL JSON ARRAY RULE
 
-Each recommendation must be its own array item.
+Each recommendation MUST be its own array element.
 
-CORRECT:
+Every recommendation must occupy its own line in the JSON array.
+
+GOOD:
 
 "expected": [
-  "Confirm the blood pressure pattern with home monitoring",
   "Recommend a DASH-style dietary pattern",
-  "Assess cardiovascular risk",
-  "Initiate antihypertensive therapy if indicated"
+  "Initiate amlodipine 5 mg orally once daily",
+  "Provide adherence counseling",
+  "Reduce sodium intake below 2300 mg daily"
 ]
-
-INCORRECT:
-
-"expected": [
-  "Confirm the blood pressure pattern, recommend a DASH-style dietary pattern, assess cardiovascular risk, initiate antihypertensive therapy if indicated"
-]
-
-ALLERGY RULES
-
-allergies must be an array of strings
-
-GOOD:
-["Penicillin - rash","Sulfa - hives"]
-
-GOOD:
-["No known drug allergies"]
 
 BAD:
-[
-  {
-    "substance":"Penicillin",
-    "reaction":"Rash"
-  }
+
+"expected": [
+  "Recommend a DASH-style dietary pattern, initiate amlodipine 5 mg orally once daily, provide adherence counseling, reduce sodium intake below 2300 mg daily"
 ]
 
+BAD:
+
+"expected": [
+  "Recommendation 1. Recommendation 2. Recommendation 3."
+]
+
+Validation Requirements:
+
+- plan.expected must contain 2-8 separate array elements
+- monitoring.expected must contain 1-5 separate array elements
+
+Never combine multiple recommendations into one array element.
+
+FACULTY NOTES REQUIREMENTS
+
+facultyNotes is faculty-only information.
+
+Include:
+
+- Primary learning objectives
+- Secondary learning objectives
+- Major drug therapy problems
+- Important therapeutic dilemmas
+- Key teaching points
+
+facultyNotes should NOT be visible to students.
+
+Do NOT place educational objectives into:
+- Intro
+- HPI
+- Patient-facing content
+  
 HPI RULES (STRICT)
 
 The HPI should contain only factual patient history and symptoms.
@@ -4433,7 +4623,27 @@ FORMATTING RULES (STRICT)
 - NO trailing commas
 - Use ONLY double quotes
 
-Return ONLY JSON
+========================
+FINAL VALIDATION (MANDATORY)
+========================
+
+Before returning the response confirm:
+
+- Output contains exactly one JSON object
+- Output is valid JSON
+- Output can be parsed using JSON.parse()
+- No markdown is present
+- No code fences are present
+- No HTML is present
+- No HTML entities are present
+- No explanatory text is present
+- No comments are present
+- No trailing commas exist
+- All interview factors use question/response objects
+- All plans are separate array items
+- All monitoring recommendations are separate array items
+
+Return ONLY the JSON object.
 `;
 
 
@@ -4622,32 +4832,61 @@ document.getElementById("newCXR").value = c.diagnosticImages?.chest_xray || "";
     last.querySelector(".homeMedDose").value = m.dose || "";
     last.querySelector(".homeMedRoute").value = m.route || "";
     last.querySelector(".homeMedFreq").value = m.frequency || "";
- last.querySelector(".homeMedDuration").value = m.duration || ""; }
-});
+last.querySelector(".homeMedDuration").value =
+  m.therapyDuration ||
+  m.duration ||
+  "";
 
 
 document.getElementById("interviewContainer").innerHTML = "";
 
 
 if (c.interviewFactors) {
+
   Object.entries(c.interviewFactors).forEach(([q, a]) => {
+
     addInterviewRow();
-    const rows = document.querySelectorAll("#interviewContainer > div");
-    const last = rows[rows.length - 1];
-last.querySelector(".interviewKey").value = q;
 
-if (typeof a === "object") {
+    const rows =
+      document.querySelectorAll(
+        "#interviewContainer > div"
+      );
 
-  last.querySelector(".interviewValue").value =
-    `Question: ${a.question || ""}
+    const last =
+      rows[rows.length - 1];
 
-Response: ${a.response || ""}`;
+    // NEW FORMAT
+    if (typeof a === "object") {
 
-} else {
+      last.querySelector(
+        ".interviewKey"
+      ).value =
+        a.question || "";
 
-  last.querySelector(".interviewValue").value = a;
-}
+      last.querySelector(
+        ".interviewValue"
+      ).value =
+        a.response || "";
+
+    }
+
+    // OLD FORMAT
+    else {
+
+      last.querySelector(
+        ".interviewKey"
+      ).value =
+        q;
+
+      last.querySelector(
+        ".interviewValue"
+      ).value =
+        a;
+
+    }
+
   });
+
 }
 
 
@@ -4729,10 +4968,10 @@ if (primary) {
     primary.monitoring?.points || "";
 
   document.getElementById("primaryPlanExpected").value =
-    (primary.plan?.expected || []).join(", ");
+    (primary.plan?.expected || []).join("\n");
 
   document.getElementById("primaryMonitorExpected").value =
-    (primary.monitoring?.expected || []).join(", ");
+    (primary.monitoring?.expected || []).join("\n");
 }
 
 
@@ -4762,12 +5001,12 @@ document.getElementById("secondaryContainer").innerHTML = "";
     // ✅ expected text
     if (last.querySelector(".secPlan")) {
       last.querySelector(".secPlan").value =
-        (sec.plan?.expected || []).join(", ");
+        (sec.plan?.expected || []).join("\n");
     }
 
     if (last.querySelector(".secMonitor")) {
       last.querySelector(".secMonitor").value =
-        (sec.monitoring?.expected || []).join(", ");
+        (sec.monitoring?.expected || []).join("\n");
     }
 
     // ✅ points (NEW)
@@ -5062,14 +5301,58 @@ function downloadSOAP() {
   // SUBJECTIVE
   // =====================================
 
-  const subjective = currentCase.interviewFactors
-    ? Object.entries(currentCase.interviewFactors)
-        .map(([q, a]) =>
-          `<p><strong>${q}</strong><br>${a}</p>`
-        )
-        .join("")
-    : "<p>No subjective information documented.</p>";
+const subjective =
+  currentCase.interviewFactors
+    ? Object.entries(
+        currentCase.interviewFactors
+      )
 
+      .filter(([key]) =>
+        (
+          sessionData.requestedInterviewFactors || []
+        ).includes(key)
+      )
+
+      .map(([key, factor]) => {
+
+        if (typeof factor === "object") {
+
+          return `
+            <p>
+
+              <strong>
+                ${factor.question}
+              </strong>
+
+              <br>
+
+              ${factor.response}
+
+            </p>
+          `;
+
+        }
+
+        return `
+          <p>
+
+            <strong>
+              ${key}
+            </strong>
+
+            <br>
+
+            ${factor}
+
+          </p>
+        `;
+
+      })
+
+      .join("")
+
+    : "<p>No subjective information documented.</p>";
+  
   // =====================================
   // OBJECTIVE
   // =====================================
