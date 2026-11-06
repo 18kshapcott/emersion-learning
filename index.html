@@ -3926,6 +3926,37 @@ function generateCaseAI() {
 
 
  const basePrompt = `
+
+========================
+OUTPUT FORMAT (CRITICAL)
+========================
+
+Return ONLY ONE valid JSON object.
+
+DO NOT:
+
+- Add explanations
+- Add notes
+- Add markdown
+- Add commentary
+- Add headings
+- Add code fences
+- Add ```json
+- Add introductory text
+- Add closing text
+- Add HTML entities
+- Add escaped characters
+- Add anything outside the JSON object
+
+The response must:
+
+- Begin with {
+- End with }
+- Be directly parseable by JSON.parse()
+- Be directly importable into EMeRsion without modification
+
+If any output would not be valid JSON, regenerate it before responding.
+ 
 Create a COMPLETE pharmacy patient case in STRICT JSON format that matches this system.
 
 ========================
@@ -4033,10 +4064,15 @@ REQUIRED JSON STRUCTURE
 },
 
 
-  "interviewFactors": {
-    "question": "response"
-  },
+"interviewFactors": {
+  "factor1": {
+    "question": "",
+    "response": ""
+  }
+},
 
+"facultyNotes": "",
+  
   "hints": [],
 
 
@@ -4075,8 +4111,40 @@ CRITICAL ALIGNMENT RULES
 ========================
 
 - medications MUST be structured objects (NOT strings)
-- interviewFactors must be patient specific such as concern for cost, prefer lifestyle modifications over medications, or additional factors they should influence plan or monitoring.
-- interviewFacotors should be in complete sentences for both the question the student should ask and the output once the question is asked.
+INTERVIEW FACTOR RULES (STRICT)
+
+Use ONLY the following format:
+
+"interviewFactors": {
+  "factor1": {
+    "question": "",
+    "response": ""
+  }
+}
+
+DO NOT use:
+
+{
+  "Cost concerns": "Patient prefers generics"
+}
+
+Requirements:
+
+- At least five interview factors
+- Each factor must contain both:
+  - question
+  - response
+- Questions must represent information the student should ask
+- Responses must represent what the patient would say
+- Questions and responses must be complete clinical sentences
+- Factors should include barriers such as:
+  - adherence
+  - cost
+  - health literacy
+  - caregiver support
+  - administration concerns
+  - transportation
+  - treatment preferences
 - planKeys define grading for care plans (plans + monitoring separately)
 
 
@@ -4168,41 +4236,57 @@ FORMAT RULES:
 
 CRITICAL JSON ARRAY RULE
 
-Each recommendation must be its own array item.
+Each recommendation MUST be its own array element.
 
-CORRECT:
+Every recommendation must occupy its own line in the JSON array.
+
+GOOD:
 
 "expected": [
-  "Confirm the blood pressure pattern with home monitoring",
   "Recommend a DASH-style dietary pattern",
-  "Assess cardiovascular risk",
-  "Initiate antihypertensive therapy if indicated"
+  "Initiate amlodipine 5 mg orally once daily",
+  "Provide adherence counseling",
+  "Reduce sodium intake below 2300 mg daily"
 ]
-
-INCORRECT:
-
-"expected": [
-  "Confirm the blood pressure pattern, recommend a DASH-style dietary pattern, assess cardiovascular risk, initiate antihypertensive therapy if indicated"
-]
-
-ALLERGY RULES
-
-allergies must be an array of strings
-
-GOOD:
-["Penicillin - rash","Sulfa - hives"]
-
-GOOD:
-["No known drug allergies"]
 
 BAD:
-[
-  {
-    "substance":"Penicillin",
-    "reaction":"Rash"
-  }
+
+"expected": [
+  "Recommend a DASH-style dietary pattern, initiate amlodipine 5 mg orally once daily, provide adherence counseling, reduce sodium intake below 2300 mg daily"
 ]
 
+BAD:
+
+"expected": [
+  "Recommendation 1. Recommendation 2. Recommendation 3."
+]
+
+Validation Requirements:
+
+- plan.expected must contain 2-8 separate array elements
+- monitoring.expected must contain 1-5 separate array elements
+
+Never combine multiple recommendations into one array element.
+
+FACULTY NOTES REQUIREMENTS
+
+facultyNotes is faculty-only information.
+
+Include:
+
+- Primary learning objectives
+- Secondary learning objectives
+- Major drug therapy problems
+- Important therapeutic dilemmas
+- Key teaching points
+
+facultyNotes should NOT be visible to students.
+
+Do NOT place educational objectives into:
+- Intro
+- HPI
+- Patient-facing content
+  
 HPI RULES (STRICT)
 
 The HPI should contain only factual patient history and symptoms.
@@ -4442,7 +4526,27 @@ FORMATTING RULES (STRICT)
 - NO trailing commas
 - Use ONLY double quotes
 
-Return ONLY JSON
+========================
+FINAL VALIDATION (MANDATORY)
+========================
+
+Before returning the response confirm:
+
+- Output contains exactly one JSON object
+- Output is valid JSON
+- Output can be parsed using JSON.parse()
+- No markdown is present
+- No code fences are present
+- No HTML is present
+- No HTML entities are present
+- No explanatory text is present
+- No comments are present
+- No trailing commas exist
+- All interview factors use question/response objects
+- All plans are separate array items
+- All monitoring recommendations are separate array items
+
+Return ONLY the JSON object.
 `;
 
 
