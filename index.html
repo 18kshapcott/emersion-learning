@@ -1828,46 +1828,94 @@ else if (raceTerms.some(term => input.includes(term))) {
 // ✅ PATIENT INTERVIEW — GUIDED MATCHING (NO AUTO-DUMP)
 else if (currentCase.interviewFactors) {
 
-  const clean = str => str.toLowerCase().replace(/[^a-z0-9 ]/g, "");
-  const inputWords = clean(input).split(" ").filter(Boolean);
+  const clean = str =>
+    String(str)
+      .toLowerCase()
+      .replace(/[^a-z0-9 ]/g, "");
+
+  const inputWords =
+    clean(input).split(" ").filter(Boolean);
 
   let bestMatch = null;
   let bestScore = 0;
 
-  Object.values(currentCase.interviewFactors).forEach(q => {
-    const qWords = clean(q).split(" ").filter(Boolean);
+  Object.entries(
+    currentCase.interviewFactors
+  ).forEach(([key, factor]) => {
+
+    const question =
+      typeof factor === "object"
+        ? factor.question || ""
+        : key;
+
+    const qWords =
+      clean(question)
+        .split(" ")
+        .filter(Boolean);
 
     let overlap = 0;
 
     inputWords.forEach(w => {
-      if (qWords.includes(w)) overlap++;
+      if (qWords.includes(w))
+        overlap++;
     });
 
-    const score = overlap / Math.max(qWords.length, 1);
+    const score =
+      overlap /
+      Math.max(qWords.length, 1);
 
-if (
-  clean(input).includes(clean(q)) ||
-  clean(q).includes(clean(input)) ||
-  score >= 0.2
-) {
-  if (score > bestScore) {
-    bestScore = score;
-    bestMatch = q;
-  }
-}
+    if (
+      clean(question).includes(clean(input)) ||
+      clean(input).includes(clean(question)) ||
+      score >= 0.2
+    ) {
+
+      if (score > bestScore) {
+
+        bestScore = score;
+
+        bestMatch = {
+          key,
+          factor
+        };
+
+      }
+
+    }
 
   });
 
   if (bestMatch && bestScore >= 0.2) {
-    response = `
-      <div class="bg-gray-700 p-2 rounded">
-        <strong>${bestMatch}</strong><br>
-        ${currentCase.interviewFactors[bestMatch]}
-      </div>
-    `;
 
-    sessionData.requestedElements.add("interview");
-    detectedCategory = "interview";
+    const factor = bestMatch.factor;
+
+    if (typeof factor === "object") {
+
+      response = `
+        <div class="bg-gray-700 p-2 rounded">
+          <strong>${factor.question}</strong><br><br>
+          ${factor.response}
+        </div>
+      `;
+
+    } else {
+
+      response = `
+        <div class="bg-gray-700 p-2 rounded">
+          <strong>${bestMatch.key}</strong><br>
+          ${factor}
+        </div>
+      `;
+
+    }
+
+    sessionData.requestedElements.add(
+      "interview"
+    );
+
+    detectedCategory =
+      "interview";
+
   }
 
   else if (
@@ -1875,6 +1923,7 @@ if (
     input.includes("preference") ||
     input.includes("concern")
   ) {
+
     response = `
       <p class="text-yellow-300">
         ⚠️ Try asking a more specific patient-centered question
@@ -1882,29 +1931,22 @@ if (
       </p>
     `;
 
-    detectedCategory = "vague";
+    detectedCategory =
+      "vague";
   }
 
+  if (response) {
 
-if (response) {
-  addCollectedInfo(`
-    <div class="mb-2">
-      ${response}
-    </div>
-  `);
-  return;  // ✅ STOP execution so it doesn’t get overwritten
+    addCollectedInfo(`
+      <div class="mb-2">
+        ${response}
+      </div>
+    `);
+
+    return;
+  }
 }
 
-
-if (response) {
-  addCollectedInfo(`
-    <div class="mb-2">
-      ${response}
-    </div>
-  `);
-  return;
-}
-}
 
  if (inpatientMedTerms.some(term => input.includes(term))) {
 
