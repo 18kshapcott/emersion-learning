@@ -1199,28 +1199,31 @@ if (isTeachingMode) {
       .map(h => `<li>${h}</li>`)
       .join("");
 
-  const homeMeds =
-    (currentCase.medications || [])
-      .map(m => `
+const homeMeds =
+  (currentCase.medications || [])
+    .map(m => `
 
-        <li>
+      <li>
 
-          <strong>${m.name || ""}</strong>
+        <strong>${m.name || ""}</strong><br>
 
-          ${m.dose || ""}
+        Dose: ${m.dose || "N/A"}<br>
 
-          ${m.route || ""}
+        Route: ${m.route || "N/A"}<br>
 
-          ${m.frequency || ""}
+        Frequency: ${m.frequency || "N/A"}<br>
 
-          ${m.duration
-            ? `(${m.duration})`
-            : ""}
+        Duration: ${
+          m.therapyDuration ||
+          m.duration ||
+          "Unknown"
+        }
 
-        </li>
+      </li>
 
-      `)
-      .join("");
+    `)
+    .join("");
+
 
   const inpatientMeds =
     (currentCase.inpatientMeds || [])
@@ -1709,7 +1712,7 @@ if (
           Dose: ${m.dose || "N/A"}<br>
           Route: ${m.route || "N/A"}<br>
           Frequency: ${m.frequency || "N/A"}
-Duration: ${m.duration || "Unknown"}
+Duration: ${m.therapyDuration || m.duration || "Unknown"}
         </div>
       `).join("");
 
@@ -1831,7 +1834,7 @@ else if (currentCase.interviewFactors) {
   let bestMatch = null;
   let bestScore = 0;
 
-  Object.keys(currentCase.interviewFactors).forEach(q => {
+  Object.values(currentCase.interviewFactors).forEach(q => {
     const qWords = clean(q).split(" ").filter(Boolean);
 
     let overlap = 0;
@@ -2787,16 +2790,16 @@ function parseLabInput(input) {
     const dose = row.querySelector(".homeMedDose").value.trim();
     const route = row.querySelector(".homeMedRoute").value.trim();
     const freq = row.querySelector(".homeMedFreq").value.trim();
-const duration =
-    row.querySelector(".homeMedDuration")?.value.trim() || "";
+const therapyDuration =
+  row.querySelector(".homeMedDuration")?.value.trim() || "";
     if (name) {
-      homeMeds.push({
-        name,
-        dose,
-        route,
-        frequency: freq,
-duration
-      });
+homeMeds.push({
+  name,
+  dose,
+  route,
+  frequency: freq,
+  therapyDuration
+});
     }
   });
   // ✅ collect inpatient medications
@@ -2815,14 +2818,30 @@ duration
       });
     }
   });
-  const interviewFactors = {};
-  document.querySelectorAll("#interviewContainer > div").forEach(row => {
-    const key = row.querySelector(".interviewKey").value.trim();
-    const value = row.querySelector(".interviewValue").value.trim();
-    if (key && value) {
-      interviewFactors[key] = value;
-    }
-  });
+const interviewFactors = {};
+
+let factorCount = 1;
+
+document.querySelectorAll("#interviewContainer > div").forEach(row => {
+
+  const question =
+    row.querySelector(".interviewKey").value.trim();
+
+  const response =
+    row.querySelector(".interviewValue").value.trim();
+
+  if (question && response) {
+
+    interviewFactors[`factor${factorCount}`] = {
+      question,
+      response
+    };
+
+    factorCount++;
+
+  }
+
+});
   const hints = [];
   document.querySelectorAll("#hintsContainer .hintText").forEach(input => {
     if (input.value.trim()) {
@@ -4017,7 +4036,7 @@ REQUIRED JSON STRUCTURE
       "dose": "",
       "route": "",
       "frequency": "",
-"duration": ""
+"therapyDuration": ""
     }
   ],
 
@@ -4120,31 +4139,53 @@ Use ONLY the following format:
   }
 }
 
-DO NOT use:
+Requirements:
 
-{
+- Generate at least 5 interview factors
+- Each factor must contain BOTH:
+  - question
+  - response
+- Questions should represent information a student must ask to optimize patient care
+- Responses should represent what the patient would say
+
+Examples of topics include:
+
+- Cost concerns
+- Medication adherence
+- Treatment preferences
+- Home monitoring
+- Health literacy
+- Transportation barriers
+- Injection concerns
+- Caregiver support
+- Adverse effect concerns
+- Lifestyle barriers
+
+GOOD:
+
+"interviewFactors": {
+  "factor1": {
+    "question": "Are medication costs a concern when choosing treatment?",
+    "response": "Yes. I prefer generic medications and would like to keep my monthly cost below $20."
+  },
+  "factor2": {
+    "question": "How often do you miss doses of your medications?",
+    "response": "I occasionally miss doses when traveling."
+  }
+}
+
+BAD:
+
+"interviewFactors": {
   "Cost concerns": "Patient prefers generics"
 }
 
-Requirements:
+BAD:
 
-- At least five interview factors
-- Each factor must contain both:
-  - question
-  - response
-- Questions must represent information the student should ask
-- Responses must represent what the patient would say
-- Questions and responses must be complete clinical sentences
-- Factors should include barriers such as:
-  - adherence
-  - cost
-  - health literacy
-  - caregiver support
-  - administration concerns
-  - transportation
-  - treatment preferences
-- planKeys define grading for care plans (plans + monitoring separately)
-
+"interviewFactors": {
+  "question": "Are medication costs a concern?",
+  "response": "Patient prefers generics."
+}
 
 ========================
 CRITICAL ELEMENT KEYS (STRICT)
@@ -4741,24 +4782,51 @@ document.getElementById("interviewContainer").innerHTML = "";
 
 
 if (c.interviewFactors) {
+
   Object.entries(c.interviewFactors).forEach(([q, a]) => {
+
     addInterviewRow();
-    const rows = document.querySelectorAll("#interviewContainer > div");
-    const last = rows[rows.length - 1];
-last.querySelector(".interviewKey").value = q;
 
-if (typeof a === "object") {
+    const rows =
+      document.querySelectorAll(
+        "#interviewContainer > div"
+      );
 
-  last.querySelector(".interviewValue").value =
-    `Question: ${a.question || ""}
+    const last =
+      rows[rows.length - 1];
 
-Response: ${a.response || ""}`;
+    // NEW FORMAT
+    if (typeof a === "object") {
 
-} else {
+      last.querySelector(
+        ".interviewKey"
+      ).value =
+        a.question || "";
 
-  last.querySelector(".interviewValue").value = a;
-}
+      last.querySelector(
+        ".interviewValue"
+      ).value =
+        a.response || "";
+
+    }
+
+    // OLD FORMAT
+    else {
+
+      last.querySelector(
+        ".interviewKey"
+      ).value =
+        q;
+
+      last.querySelector(
+        ".interviewValue"
+      ).value =
+        a;
+
+    }
+
   });
+
 }
 
 
