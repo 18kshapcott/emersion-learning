@@ -1898,26 +1898,72 @@ else if (currentCase.interviewFactors) {
     currentCase.interviewFactors
   ).forEach(([key, factor]) => {
 
-    const question =
-      typeof factor === "object"
-        ? factor.question || ""
-        : key;
+Object.entries(
+  currentCase.interviewFactors
+).forEach(([key, factor]) => {
 
-    const qWords =
-      clean(question)
-        .split(" ")
-        .filter(Boolean);
+  const question =
+    typeof factor === "object"
+      ? factor.question || ""
+      : key;
 
-    let overlap = 0;
+  const keywords =
+    typeof factor === "object"
+      ? (factor.keywords || [])
+      : [];
 
-    inputWords.forEach(w => {
-      if (qWords.includes(w))
-        overlap++;
-    });
+  const searchableText = [
+    question,
+    ...keywords
+  ].join(" ");
 
-    const score =
-      overlap /
-      Math.max(qWords.length, 1);
+  const searchableWords =
+    clean(searchableText)
+      .split(" ")
+      .filter(Boolean);
+
+  let overlap = 0;
+
+  inputWords.forEach(w => {
+    if (
+      searchableWords.includes(w)
+    ) {
+      overlap++;
+    }
+  });
+
+  const score =
+    overlap /
+    Math.max(
+      searchableWords.length,
+      1
+    );
+
+  if (
+    clean(searchableText).includes(
+      clean(input)
+    ) ||
+    clean(input).includes(
+      clean(searchableText)
+    ) ||
+    score >= 0.2
+  ) {
+
+    if (score > bestScore) {
+
+      bestScore = score;
+
+      bestMatch = {
+        key,
+        factor
+      };
+
+    }
+
+  }
+
+});
+
 
     if (
       clean(question).includes(clean(input)) ||
@@ -3255,8 +3301,16 @@ const interviewTemplates = {
       "Are medication costs a concern when choosing treatment?",
     response:
       "The patient prefers affordable generic medications.",
-    keywords:
-      "cost,price,copay,insurance,coverage,afford,expense,financial"
+    keywords: [
+      "cost",
+      "price",
+      "copay",
+      "insurance",
+      "coverage",
+      "afford",
+      "expense",
+      "financial"
+    ]
   },
 
   adherence: {
@@ -3264,8 +3318,14 @@ const interviewTemplates = {
       "How often do you miss doses of your medications?",
     response:
       "The patient occasionally forgets medications while traveling.",
-    keywords:
-      "adherence,compliance,miss doses,forget,taking medications,taking meds"
+    keywords: [
+      "adherence",
+      "compliance",
+      "miss doses",
+      "forget",
+      "taking medications",
+      "taking meds"
+    ]
   },
 
   homebp: {
@@ -3273,8 +3333,15 @@ const interviewTemplates = {
       "Do you monitor your blood pressure at home?",
     response:
       "The patient records home blood pressure readings twice daily.",
-    keywords:
-      "blood pressure,bp,bp readings,home blood pressure,home monitoring,blood pressure log,home readings"
+    keywords: [
+      "blood pressure",
+      "bp",
+      "bp readings",
+      "home blood pressure",
+      "home monitoring",
+      "blood pressure log",
+      "home readings"
+    ]
   },
 
   adverseEffects: {
@@ -3282,8 +3349,13 @@ const interviewTemplates = {
       "Have you experienced any medication side effects?",
     response:
       "The patient reports concern regarding possible adverse effects.",
-    keywords:
-      "side effects,adverse effects,reaction,medication problems,tolerability"
+    keywords: [
+      "side effects",
+      "adverse effects",
+      "reaction",
+      "medication problems",
+      "tolerability"
+    ]
   },
 
   caregiver: {
@@ -3291,8 +3363,12 @@ const interviewTemplates = {
       "Do you have anyone who helps with medications or appointments?",
     response:
       "The patient has caregiver support available.",
-    keywords:
-      "caregiver,caregiver support,assistance,help at home"
+    keywords: [
+      "caregiver",
+      "caregiver support",
+      "assistance",
+      "help at home"
+    ]
   },
 
   injectables: {
@@ -3300,8 +3376,14 @@ const interviewTemplates = {
       "Would you be comfortable using injectable medications?",
     response:
       "The patient has concerns regarding injectable therapies.",
-    keywords:
-      "injectable,injection,needle,insulin,glp1,pen"
+    keywords: [
+      "injectable",
+      "injection",
+      "needle",
+      "insulin",
+      "glp1",
+      "pen"
+    ]
   },
 
   transportation: {
@@ -3309,8 +3391,13 @@ const interviewTemplates = {
       "Do you have difficulty attending appointments or obtaining medications?",
     response:
       "Transportation occasionally limits healthcare access.",
-    keywords:
-      "transportation,ride,travel,access,get medications"
+    keywords: [
+      "transportation",
+      "ride",
+      "travel",
+      "access",
+      "get medications"
+    ]
   },
 
   healthLiteracy: {
@@ -3318,8 +3405,12 @@ const interviewTemplates = {
       "How comfortable are you managing medications independently?",
     response:
       "The patient benefits from simplified instructions.",
-    keywords:
-      "health literacy,understand medications,instructions,education"
+    keywords: [
+      "health literacy",
+      "understand medications",
+      "instructions",
+      "education"
+    ]
   },
 
   lifestyle: {
@@ -3327,8 +3418,219 @@ const interviewTemplates = {
       "How willing are you to make lifestyle changes?",
     response:
       "The patient is willing to make gradual lifestyle changes.",
-    keywords:
-      "diet,lifestyle,exercise,nutrition,weight loss"
+    keywords: [
+      "diet",
+      "lifestyle",
+      "exercise",
+      "nutrition",
+      "weight loss"
+    ]
+  },
+
+  medAccess: {
+    question:
+      "Have you ever had difficulty obtaining or refilling medications?",
+    response:
+      "The patient occasionally delays refills because the pharmacy is difficult to reach during work hours.",
+    keywords: [
+      "medication access",
+      "refills",
+      "pharmacy",
+      "obtain medications",
+      "pick up prescriptions",
+      "get medications"
+    ]
+  },
+
+  homeGlucose: {
+    question:
+      "Do you monitor your blood sugars at home?",
+    response:
+      "The patient checks fasting blood glucose most mornings and records the results.",
+    keywords: [
+      "blood sugar",
+      "glucose",
+      "cgm",
+      "dexcom",
+      "freestyle libre",
+      "monitor sugars",
+      "home glucose",
+      "checking sugars"
+    ]
+  },
+
+  hypoglycemia: {
+    question:
+      "Have you experienced any episodes of low blood sugar?",
+    response:
+      "The patient reports several episodes of shakiness and sweating over the past month.",
+    keywords: [
+      "hypoglycemia",
+      "low blood sugar",
+      "lows",
+      "shaky",
+      "sweating",
+      "dizzy from sugar"
+    ]
+  },
+
+  dailyWeights: {
+    question:
+      "Do you monitor your weight at home?",
+    response:
+      "The patient weighs himself every morning and keeps a written record.",
+    keywords: [
+      "weight",
+      "daily weights",
+      "home weight",
+      "weight monitoring",
+      "fluid retention"
+    ]
+  },
+
+  sodiumIntake: {
+    question:
+      "How much sodium do you think is in your diet?",
+    response:
+      "The patient frequently eats processed and restaurant foods and has not been actively limiting sodium.",
+    keywords: [
+      "sodium",
+      "salt",
+      "dietary sodium",
+      "salt intake",
+      "processed food",
+      "restaurant food"
+    ]
+  },
+
+  exerciseTolerance: {
+    question:
+      "What physical activity are you able to perform without symptoms?",
+    response:
+      "The patient becomes short of breath after climbing one flight of stairs.",
+    keywords: [
+      "exercise tolerance",
+      "stairs",
+      "activity tolerance",
+      "walking distance",
+      "shortness of breath with activity"
+    ]
+  },
+
+  alcoholDetail: {
+    question:
+      "Can you describe your alcohol intake in more detail?",
+    response:
+      "The patient drinks approximately 3-4 beers every Friday and Saturday evening.",
+    keywords: [
+      "alcohol",
+      "drinking",
+      "beer",
+      "wine",
+      "liquor",
+      "etoh"
+    ]
+  },
+
+  smokingCessation: {
+    question:
+      "Have you considered quitting tobacco or nicotine use?",
+    response:
+      "The patient is interested in quitting within the next six months.",
+    keywords: [
+      "smoking",
+      "quit smoking",
+      "tobacco",
+      "vaping",
+      "nicotine",
+      "cessation"
+    ]
+  },
+
+  pregnancyPlanning: {
+    question:
+      "Are you currently pregnant, trying to become pregnant, or breastfeeding?",
+    response:
+      "The patient reports she is actively planning a pregnancy within the next year.",
+    keywords: [
+      "pregnancy",
+      "pregnant",
+      "breastfeeding",
+      "trying to conceive",
+      "family planning"
+    ]
+  },
+
+  inhalerTechnique: {
+    question:
+      "Can you describe how you use your inhaler?",
+    response:
+      "The patient reports difficulty coordinating inhaler activation and inhalation.",
+    keywords: [
+      "inhaler",
+      "mdi",
+      "spacer",
+      "inhaler technique",
+      "albuterol",
+      "advair"
+    ]
+  },
+
+  vaccineConcern: {
+    question:
+      "Do you have any concerns about receiving recommended vaccines?",
+    response:
+      "The patient is worried about adverse effects and prefers additional education before vaccination.",
+    keywords: [
+      "vaccines",
+      "immunizations",
+      "flu shot",
+      "covid vaccine",
+      "vaccine concerns"
+    ]
+  },
+
+  fallsRisk: {
+    question:
+      "Have you fallen recently or felt unsteady while walking?",
+    response:
+      "The patient reports two falls during the past year and occasional unsteadiness.",
+    keywords: [
+      "falls",
+      "fall history",
+      "fall risk",
+      "unsteady",
+      "balance",
+      "mobility"
+    ]
+  },
+
+  medManagement: {
+    question:
+      "How do you keep track of your medications?",
+    response:
+      "The patient uses a weekly pill organizer and occasionally needs assistance from a family member.",
+    keywords: [
+      "medication management",
+      "pill organizer",
+      "remember medications",
+      "tracking medications"
+    ]
+  },
+
+  hfSymptoms: {
+    question:
+      "Have you noticed swelling, shortness of breath, or needing to sleep propped up?",
+    response:
+      "The patient reports worsening leg swelling and needing two pillows to sleep comfortably.",
+    keywords: [
+      "edema",
+      "swelling",
+      "orthopnea",
+      "pnd",
+      "shortness of breath",
+      "heart failure symptoms"
+    ]
   }
 
 };
@@ -3375,7 +3677,7 @@ function addInterviewTemplate() {
     last.querySelector(
       ".interviewKeywords"
     ).value =
-      template.keywords;
+      template.keywords.join(", ");
   }
 
 }
