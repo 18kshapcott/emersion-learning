@@ -1898,76 +1898,50 @@ else if (currentCase.interviewFactors) {
     currentCase.interviewFactors
   ).forEach(([key, factor]) => {
 
-Object.entries(
-  currentCase.interviewFactors
-).forEach(([key, factor]) => {
+    const question =
+      typeof factor === "object"
+        ? factor.question || ""
+        : key;
 
-  const question =
-    typeof factor === "object"
-      ? factor.question || ""
-      : key;
+    const keywords =
+      typeof factor === "object"
+        ? (factor.keywords || [])
+        : [];
 
-  const keywords =
-    typeof factor === "object"
-      ? (factor.keywords || [])
-      : [];
+    const searchableText = [
+      question,
+      ...keywords
+    ].join(" ");
 
-  const searchableText = [
-    question,
-    ...keywords
-  ].join(" ");
-
-  const searchableWords =
-    clean(searchableText)
-      .split(" ")
-      .filter(Boolean);
-
-  let overlap = 0;
-
-  inputWords.forEach(w => {
-    if (
-      searchableWords.includes(w)
-    ) {
-      overlap++;
-    }
-  });
-
-  const score =
-    overlap /
-    Math.max(
-      searchableWords.length,
-      1
-    );
-
-  if (
-    clean(searchableText).includes(
-      clean(input)
-    ) ||
-    clean(input).includes(
+    const searchableWords =
       clean(searchableText)
-    ) ||
-    score >= 0.2
-  ) {
+        .split(" ")
+        .filter(Boolean);
 
-    if (score > bestScore) {
+    let overlap = 0;
 
-      bestScore = score;
+    inputWords.forEach(w => {
+      if (
+        searchableWords.includes(w)
+      ) {
+        overlap++;
+      }
+    });
 
-      bestMatch = {
-        key,
-        factor
-      };
-
-    }
-
-  }
-
-});
-
+    const score =
+      overlap /
+      Math.max(
+        searchableWords.length,
+        1
+      );
 
     if (
-      clean(question).includes(clean(input)) ||
-      clean(input).includes(clean(question)) ||
+      clean(searchableText).includes(
+        clean(input)
+      ) ||
+      clean(input).includes(
+        clean(searchableText)
+      ) ||
       score >= 0.2
     ) {
 
@@ -1988,51 +1962,46 @@ Object.entries(
 
   if (bestMatch && bestScore >= 0.2) {
 
-    const factor = bestMatch.factor;
+    const factor =
+      bestMatch.factor;
 
-    if (typeof factor === "object") {
+    response = `
+      <div class="bg-gray-700 p-2 rounded">
 
-      response = `
-        <div class="bg-gray-700 p-2 rounded">
-          <strong>${factor.question}</strong><br><br>
-          ${factor.response}
-        </div>
-      `;
+        <strong>
+          ${factor.question}
+        </strong>
 
-    } else {
+        <br><br>
 
-      response = `
-        <div class="bg-gray-700 p-2 rounded">
-          <strong>${bestMatch.key}</strong><br>
-          ${factor}
-        </div>
-      `;
+        ${factor.response}
+
+      </div>
+    `;
+
+    sessionData.requestedElements.add(
+      "interview"
+    );
+
+    sessionData.requestedInterviewFactors =
+      sessionData.requestedInterviewFactors || [];
+
+    if (
+      !sessionData.requestedInterviewFactors.includes(
+        bestMatch.key
+      )
+    ) {
+
+      sessionData.requestedInterviewFactors.push(
+        bestMatch.key
+      );
 
     }
-
-sessionData.requestedElements.add(
-  "interview"
-);
-
-sessionData.requestedInterviewFactors =
-  sessionData.requestedInterviewFactors || [];
-
-if (
-  !sessionData.requestedInterviewFactors.includes(
-    bestMatch.key
-  )
-) {
-
-  sessionData.requestedInterviewFactors.push(
-    bestMatch.key
-  );
-
-}
 
     detectedCategory =
       "interview";
 
-  }
+}
 
   else if (
     input.includes("interview") ||
