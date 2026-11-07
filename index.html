@@ -1894,71 +1894,71 @@ else if (currentCase.interviewFactors) {
   let bestMatch = null;
   let bestScore = 0;
 
-  Object.entries(
-    currentCase.interviewFactors
-  ).forEach(([key, factor]) => {
+Object.entries(
+  currentCase.interviewFactors
+).forEach(([key, factor]) => {
 
-    const question =
-      typeof factor === "object"
-        ? factor.question || ""
-        : key;
+  const question =
+    typeof factor === "object"
+      ? factor.question || ""
+      : key;
 
-    const keywords =
-      typeof factor === "object"
-        ? (factor.keywords || [])
-        : [];
+  const keywords =
+    typeof factor === "object"
+      ? (factor.keywords || [])
+      : [];
 
-    const searchableText = [
-      question,
-      ...keywords
-    ].join(" ");
+  const searchableText = [
+    question,
+    ...keywords
+  ].join(" ");
 
-    const searchableWords =
-      clean(searchableText)
-        .split(" ")
-        .filter(Boolean);
+  const searchableWords =
+    clean(searchableText)
+      .split(" ")
+      .filter(Boolean);
 
-    let overlap = 0;
+  let overlap = 0;
 
-    inputWords.forEach(w => {
-      if (
-        searchableWords.includes(w)
-      ) {
-        overlap++;
-      }
-    });
-
-    const score =
-      overlap /
-      Math.max(
-        searchableWords.length,
-        1
-      );
-
+  inputWords.forEach(w => {
     if (
-      clean(searchableText).includes(
-        clean(input)
-      ) ||
-      clean(input).includes(
-        clean(searchableText)
-      ) ||
-      score >= 0.2
+      searchableWords.includes(w)
     ) {
+      overlap++;
+    }
+  });
 
-      if (score > bestScore) {
+  const score =
+    overlap /
+    Math.max(
+      searchableWords.length,
+      1
+    );
 
-        bestScore = score;
+  if (
+    keywords.some(k =>
+      clean(k).includes(clean(input)) ||
+      clean(input).includes(clean(k))
+    ) ||
+    clean(question).includes(clean(input)) ||
+    clean(input).includes(clean(question)) ||
+    score >= 0.2
+  ) {
 
-        bestMatch = {
-          key,
-          factor
-        };
+    if (score > bestScore) {
 
-      }
+      bestScore = score;
+
+      bestMatch = {
+        key,
+        factor
+      };
 
     }
 
-  });
+  }
+
+});
 
   if (bestMatch && bestScore >= 0.2) {
 
@@ -5341,19 +5341,25 @@ if (c.interviewFactors) {
       rows[rows.length - 1];
 
     // NEW FORMAT
-    if (typeof a === "object") {
+if (typeof a === "object") {
 
-      last.querySelector(
-        ".interviewKey"
-      ).value =
-        a.question || "";
+  last.querySelector(
+    ".interviewKey"
+  ).value =
+    a.question || "";
 
-      last.querySelector(
-        ".interviewValue"
-      ).value =
-        a.response || "";
+  last.querySelector(
+    ".interviewValue"
+  ).value =
+    a.response || "";
 
-    }
+  last.querySelector(
+    ".interviewKeywords"
+  ).value =
+    (a.keywords || [])
+      .join(", ");
+
+}
 
     // OLD FORMAT
     else {
