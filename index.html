@@ -474,6 +474,60 @@ Paste a direct image link. Google Drive links will be converted automatically.
   </button>
 </div>
 
+<select
+  id="interviewTemplate"
+  class="w-full p-2 bg-gray-600 rounded mb-2">
+
+  <option value="">
+    Select Interview Template
+  </option>
+
+  <option value="cost">
+    Cost Concern
+  </option>
+
+  <option value="adherence">
+    Medication Adherence
+  </option>
+
+  <option value="homebp">
+    Home BP Monitoring
+  </option>
+
+  <option value="adverseEffects">
+    Adverse Effects
+  </option>
+
+  <option value="caregiver">
+    Caregiver Support
+  </option>
+
+  <option value="injectables">
+    Injection Preference
+  </option>
+
+  <option value="transportation">
+    Transportation
+  </option>
+
+  <option value="healthLiteracy">
+    Health Literacy
+  </option>
+
+  <option value="lifestyle">
+    Lifestyle Readiness
+  </option>
+
+</select>
+
+<button
+  onclick="addInterviewTemplate()"
+  class="bg-green-500 px-3 py-1 rounded mb-2">
+
+  Add Interview Template
+
+</button>
+  
 <div id="interviewContainer"></div>
 
 <button onclick="addInterviewRow()" 
@@ -2880,19 +2934,31 @@ const interviewFactors = {};
 
 let factorCount = 1;
 
-document.querySelectorAll("#interviewContainer > div").forEach(row => {
+document.querySelectorAll(
+  "#interviewContainer > div"
+).forEach(row => {
 
   const question =
-    row.querySelector(".interviewKey").value.trim();
+    row.querySelector(".interviewKey")
+      .value.trim();
 
   const response =
-    row.querySelector(".interviewValue").value.trim();
+    row.querySelector(".interviewValue")
+      .value.trim();
+
+  const keywords =
+    row.querySelector(".interviewKeywords")
+      ?.value
+      .split(",")
+      .map(x => x.trim())
+      .filter(Boolean) || [];
 
   if (question && response) {
 
     interviewFactors[`factor${factorCount}`] = {
       question,
-      response
+      response,
+      keywords
     };
 
     factorCount++;
@@ -3182,20 +3248,166 @@ function addHomeMedRow() {
   container.appendChild(row);
 }
 
+const interviewTemplates = {
+
+  cost: {
+    question:
+      "Are medication costs a concern when choosing treatment?",
+    response:
+      "The patient prefers affordable generic medications.",
+    keywords:
+      "cost,price,copay,insurance,coverage,afford,expense,financial"
+  },
+
+  adherence: {
+    question:
+      "How often do you miss doses of your medications?",
+    response:
+      "The patient occasionally forgets medications while traveling.",
+    keywords:
+      "adherence,compliance,miss doses,forget,taking medications,taking meds"
+  },
+
+  homebp: {
+    question:
+      "Do you monitor your blood pressure at home?",
+    response:
+      "The patient records home blood pressure readings twice daily.",
+    keywords:
+      "blood pressure,bp,bp readings,home blood pressure,home monitoring,blood pressure log,home readings"
+  },
+
+  adverseEffects: {
+    question:
+      "Have you experienced any medication side effects?",
+    response:
+      "The patient reports concern regarding possible adverse effects.",
+    keywords:
+      "side effects,adverse effects,reaction,medication problems,tolerability"
+  },
+
+  caregiver: {
+    question:
+      "Do you have anyone who helps with medications or appointments?",
+    response:
+      "The patient has caregiver support available.",
+    keywords:
+      "caregiver,caregiver support,assistance,help at home"
+  },
+
+  injectables: {
+    question:
+      "Would you be comfortable using injectable medications?",
+    response:
+      "The patient has concerns regarding injectable therapies.",
+    keywords:
+      "injectable,injection,needle,insulin,glp1,pen"
+  },
+
+  transportation: {
+    question:
+      "Do you have difficulty attending appointments or obtaining medications?",
+    response:
+      "Transportation occasionally limits healthcare access.",
+    keywords:
+      "transportation,ride,travel,access,get medications"
+  },
+
+  healthLiteracy: {
+    question:
+      "How comfortable are you managing medications independently?",
+    response:
+      "The patient benefits from simplified instructions.",
+    keywords:
+      "health literacy,understand medications,instructions,education"
+  },
+
+  lifestyle: {
+    question:
+      "How willing are you to make lifestyle changes?",
+    response:
+      "The patient is willing to make gradual lifestyle changes.",
+    keywords:
+      "diet,lifestyle,exercise,nutrition,weight loss"
+  }
+
+};
+
+function addInterviewTemplate() {
+
+  const selected =
+    document.getElementById(
+      "interviewTemplate"
+    ).value;
+
+  if (!selected) return;
+
+  addInterviewRow();
+
+  const rows =
+    document.querySelectorAll(
+      "#interviewContainer > div"
+    );
+
+  const last =
+    rows[rows.length - 1];
+
+  const template =
+    interviewTemplates[selected];
+
+  if (!template) return;
+
+  last.querySelector(
+    ".interviewKey"
+  ).value =
+    template.question;
+
+  last.querySelector(
+    ".interviewValue"
+  ).value =
+    template.response;
+
+  if (
+    last.querySelector(
+      ".interviewKeywords"
+    )
+  ) {
+    last.querySelector(
+      ".interviewKeywords"
+    ).value =
+      template.keywords;
+  }
+
+}
+  
 function addInterviewRow() {
   const container = document.getElementById("interviewContainer");
 
   const row = document.createElement("div");
   row.className = "flex gap-2 mb-2";
 
-  row.innerHTML = `
-    <input placeholder="Question (e.g., 'Are you ok with injectables?')" 
-      class="interviewKey w-1/2 p-2 bg-gray-600 rounded"/>
-    <input placeholder="Patient response" 
-      class="interviewValue w-1/2 p-2 bg-gray-600 rounded"/>
-    <button onclick="this.parentElement.remove()" 
-      class="bg-red-500 px-2 rounded">X</button>
-  `;
+row.innerHTML = `
+
+  <input
+    placeholder="Interview Question"
+    class="interviewKey w-1/3 p-2 bg-gray-600 rounded"/>
+
+  <input
+    placeholder="Patient Response"
+    class="interviewValue w-1/3 p-2 bg-gray-600 rounded"/>
+
+  <input
+    placeholder="Keywords"
+    class="interviewKeywords w-1/3 p-2 bg-gray-600 rounded"/>
+
+  <button
+    onclick="this.parentElement.remove()"
+    class="bg-red-500 px-2 rounded">
+
+    X
+
+  </button>
+`;
 
   container.appendChild(row);
 }
