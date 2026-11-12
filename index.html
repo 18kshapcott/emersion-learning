@@ -2379,9 +2379,15 @@ else if (
         ? Object.keys(currentCase.labs).find(k => {
             const normalizedLabName = k.toLowerCase().trim();
 
-            return masterLabMap[labKey].some(term =>
-              normalizedLabName.includes(term)
-            );
+return (
+  normalizedLabName === labKey.toLowerCase()
+  ||
+  masterLabMap[labKey].some(term =>
+    normalizedLabName.includes(
+      term.toLowerCase()
+    )
+  )
+);
           })
         : null;
 
