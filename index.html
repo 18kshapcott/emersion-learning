@@ -1836,8 +1836,10 @@ else if (raceTerms.some(term => input.includes(term))) {
 }
 
 // ✅ PATIENT INTERVIEW — GUIDED MATCHING (NO AUTO-DUMP)
-else if (currentCase.interviewFactors) {
-
+else if (
+  currentCase.interviewFactors &&
+  detectedCategory === "other"
+) {
   const clean = str =>
     String(str)
       .toLowerCase()
