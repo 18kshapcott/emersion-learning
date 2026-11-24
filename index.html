@@ -474,6 +474,60 @@ Paste a direct image link. Google Drive links will be converted automatically.
   </button>
 </div>
 
+<select
+  id="interviewTemplate"
+  class="w-full p-2 bg-gray-600 rounded mb-2">
+
+  <option value="">
+    Select Interview Template
+  </option>
+
+  <option value="cost">
+    Cost Concern
+  </option>
+
+  <option value="adherence">
+    Medication Adherence
+  </option>
+
+  <option value="homebp">
+    Home BP Monitoring
+  </option>
+
+  <option value="adverseEffects">
+    Adverse Effects
+  </option>
+
+  <option value="caregiver">
+    Caregiver Support
+  </option>
+
+  <option value="injectables">
+    Injection Preference
+  </option>
+
+  <option value="transportation">
+    Transportation
+  </option>
+
+  <option value="healthLiteracy">
+    Health Literacy
+  </option>
+
+  <option value="lifestyle">
+    Lifestyle Readiness
+  </option>
+
+</select>
+
+<button
+  onclick="addInterviewTemplate()"
+  class="bg-green-500 px-3 py-1 rounded mb-2">
+
+  Add Interview Template
+
+</button>
+  
 <div id="interviewContainer"></div>
 
 <button onclick="addInterviewRow()" 
@@ -1839,6 +1893,7 @@ else if (raceTerms.some(term => input.includes(term))) {
 else if (
   currentCase.interviewFactors &&
   detectedCategory === "other"
+)
 ) {
   const clean = str =>
     String(str)
@@ -1851,99 +1906,114 @@ else if (
   let bestMatch = null;
   let bestScore = 0;
 
-  Object.entries(
-    currentCase.interviewFactors
-  ).forEach(([key, factor]) => {
+Object.entries(
+  currentCase.interviewFactors
+).forEach(([key, factor]) => {
 
-    const question =
-      typeof factor === "object"
-        ? factor.question || ""
-        : key;
+  const question =
+    typeof factor === "object"
+      ? factor.question || ""
+      : key;
 
-    const qWords =
-      clean(question)
-        .split(" ")
-        .filter(Boolean);
+  const keywords =
+    typeof factor === "object"
+      ? (factor.keywords || [])
+      : [];
 
-    let overlap = 0;
+  const searchableText = [
+    question,
+    ...keywords
+  ].join(" ");
 
-    inputWords.forEach(w => {
-      if (qWords.includes(w))
-        overlap++;
-    });
+  const searchableWords =
+    clean(searchableText)
+      .split(" ")
+      .filter(Boolean);
 
-    const score =
-      overlap /
-      Math.max(qWords.length, 1);
+  let overlap = 0;
 
+  inputWords.forEach(w => {
     if (
-      clean(question).includes(clean(input)) ||
-      clean(input).includes(clean(question)) ||
-      score >= 0.2
+      searchableWords.includes(w)
     ) {
+      overlap++;
+    }
+  });
 
-      if (score > bestScore) {
+  const score =
+    overlap /
+    Math.max(
+      searchableWords.length,
+      1
+    );
 
-        bestScore = score;
+  if (
+    keywords.some(k =>
+      clean(k).includes(clean(input)) ||
+      clean(input).includes(clean(k))
+    ) ||
+    clean(question).includes(clean(input)) ||
+    clean(input).includes(clean(question)) ||
+    score >= 0.2
+  ) {
 
-        bestMatch = {
-          key,
-          factor
-        };
+    if (score > bestScore) {
 
-      }
+      bestScore = score;
+
+      bestMatch = {
+        key,
+        factor
+      };
 
     }
 
-  });
+  }
+
+});
 
   if (bestMatch && bestScore >= 0.2) {
 
-    const factor = bestMatch.factor;
+    const factor =
+      bestMatch.factor;
 
-    if (typeof factor === "object") {
+    response = `
+      <div class="bg-gray-700 p-2 rounded">
 
-      response = `
-        <div class="bg-gray-700 p-2 rounded">
-          <strong>${factor.question}</strong><br><br>
-          ${factor.response}
-        </div>
-      `;
+        <strong>
+          ${factor.question}
+        </strong>
 
-    } else {
+        <br><br>
 
-      response = `
-        <div class="bg-gray-700 p-2 rounded">
-          <strong>${bestMatch.key}</strong><br>
-          ${factor}
-        </div>
-      `;
+        ${factor.response}
+
+      </div>
+    `;
+
+    sessionData.requestedElements.add(
+      "interview"
+    );
+
+    sessionData.requestedInterviewFactors =
+      sessionData.requestedInterviewFactors || [];
+
+    if (
+      !sessionData.requestedInterviewFactors.includes(
+        bestMatch.key
+      )
+    ) {
+
+      sessionData.requestedInterviewFactors.push(
+        bestMatch.key
+      );
 
     }
-
-sessionData.requestedElements.add(
-  "interview"
-);
-
-sessionData.requestedInterviewFactors =
-  sessionData.requestedInterviewFactors || [];
-
-if (
-  !sessionData.requestedInterviewFactors.includes(
-    bestMatch.key
-  )
-) {
-
-  sessionData.requestedInterviewFactors.push(
-    bestMatch.key
-  );
-
-}
 
     detectedCategory =
       "interview";
 
-  }
+}
 
   else if (
     input.includes("interview") ||
@@ -2897,19 +2967,31 @@ const interviewFactors = {};
 
 let factorCount = 1;
 
-document.querySelectorAll("#interviewContainer > div").forEach(row => {
+document.querySelectorAll(
+  "#interviewContainer > div"
+).forEach(row => {
 
   const question =
-    row.querySelector(".interviewKey").value.trim();
+    row.querySelector(".interviewKey")
+      .value.trim();
 
   const response =
-    row.querySelector(".interviewValue").value.trim();
+    row.querySelector(".interviewValue")
+      .value.trim();
+
+  const keywords =
+    row.querySelector(".interviewKeywords")
+      ?.value
+      .split(",")
+      .map(x => x.trim())
+      .filter(Boolean) || [];
 
   if (question && response) {
 
     interviewFactors[`factor${factorCount}`] = {
       question,
-      response
+      response,
+      keywords
     };
 
     factorCount++;
@@ -3199,20 +3281,411 @@ function addHomeMedRow() {
   container.appendChild(row);
 }
 
+const interviewTemplates = {
+
+  cost: {
+    question:
+      "Are medication costs a concern when choosing treatment?",
+    response:
+      "The patient prefers affordable generic medications.",
+    keywords: [
+      "cost",
+      "price",
+      "copay",
+      "coverage",
+      "afford",
+      "expense",
+      "financial"
+    ]
+  },
+
+  adherence: {
+    question:
+      "How often do you miss doses of your medications?",
+    response:
+      "The patient occasionally forgets medications while traveling.",
+    keywords: [
+      "adherence",
+      "compliance",
+      "miss doses",
+      "forget",
+      "taking medications",
+      "taking meds"
+    ]
+  },
+
+  homebp: {
+    question:
+      "Do you monitor your blood pressure at home?",
+    response:
+      "The patient records home blood pressure readings twice daily.",
+    keywords: [
+      "bp readings",
+      "home blood pressure",
+      "home monitoring",
+      "blood pressure log",
+      "home readings"
+    ]
+  },
+
+  adverseEffects: {
+    question:
+      "Have you experienced any medication side effects?",
+    response:
+      "The patient reports concern regarding possible adverse effects.",
+    keywords: [
+      "side effects",
+      "adverse effects",
+      "reaction",
+      "problems",
+      "tolerability"
+    ]
+  },
+
+  caregiver: {
+    question:
+      "Do you have anyone who helps with medications or appointments?",
+    response:
+      "The patient has caregiver support available.",
+    keywords: [
+      "caregiver",
+      "caregiver support",
+      "assistance",
+    ]
+  },
+
+  injectables: {
+    question:
+      "Would you be comfortable using injectable medications?",
+    response:
+      "The patient has concerns regarding injectable therapies.",
+    keywords: [
+      "injectable",
+      "injection",
+      "needle",
+      "insulin",
+      "glp1",
+      "pen"
+    ]
+  },
+
+  transportation: {
+    question:
+      "Do you have difficulty attending appointments or obtaining medications?",
+    response:
+      "Transportation occasionally limits healthcare access.",
+    keywords: [
+      "transportation",
+      "ride",
+      "travel",
+    ]
+  },
+
+  healthLiteracy: {
+    question:
+      "How comfortable are you managing medications independently?",
+    response:
+      "The patient benefits from simplified instructions.",
+    keywords: [
+      "health literacy",
+      "understand medications",
+      "instructions",
+      "education"
+    ]
+  },
+
+  lifestyle: {
+    question:
+      "How willing are you to make lifestyle changes?",
+    response:
+      "The patient is willing to make gradual lifestyle changes.",
+    keywords: [
+      "diet",
+      "lifestyle",
+      "exercise",
+      "nutrition",
+      "weight loss"
+    ]
+  },
+
+  medAccess: {
+    question:
+      "Have you ever had difficulty obtaining or refilling medications?",
+    response:
+      "The patient occasionally delays refills because the pharmacy is difficult to reach during work hours.",
+    keywords: [
+      "access",
+      "refills",
+      "pharmacy",
+      "obtain medications",
+      "pick up prescriptions",
+    ]
+  },
+
+  homeGlucose: {
+    question:
+      "Do you monitor your blood sugars at home?",
+    response:
+      "The patient checks fasting blood glucose most mornings and records the results.",
+    keywords: [
+      "cgm",
+      "dexcom",
+      "freestyle libre",
+      "monitor sugars",
+      "home glucose",
+      "checking sugars"
+    ]
+  },
+
+  hypoglycemia: {
+    question:
+      "Have you experienced any episodes of low blood sugar?",
+    response:
+      "The patient reports several episodes of shakiness and sweating over the past month.",
+    keywords: [
+      "hypoglycemia",
+      "low blood sugar",
+      "lows",
+      "shaky",
+      "sweating",
+      "dizzy from sugar"
+    ]
+  },
+
+  dailyWeights: {
+    question:
+      "Do you monitor your weight at home?",
+    response:
+      "The patient weighs himself every morning and keeps a written record.",
+    keywords: [
+      "daily weights",
+      "home weight",
+      "weight monitoring",
+      "fluid retention"
+    ]
+  },
+
+  sodiumIntake: {
+    question:
+      "How much sodium do you think is in your diet?",
+    response:
+      "The patient frequently eats processed and restaurant foods and has not been actively limiting sodium.",
+    keywords: [
+      "salt",
+      "dietary sodium",
+      "salt intake",
+      "processed food",
+      "restaurant food"
+    ]
+  },
+
+  exerciseTolerance: {
+    question:
+      "What physical activity are you able to perform without symptoms?",
+    response:
+      "The patient becomes short of breath after climbing one flight of stairs.",
+    keywords: [
+      "exercise tolerance",
+      "stairs",
+      "activity tolerance",
+      "walking distance",
+      "shortness of breath with activity"
+    ]
+  },
+
+  alcoholDetail: {
+    question:
+      "Can you describe your alcohol intake in more detail?",
+    response:
+      "The patient drinks approximately 3-4 beers every Friday and Saturday evening.",
+    keywords: [
+      "alcohol",
+      "drinking",
+      "beer",
+      "wine",
+      "liquor",
+      "etoh"
+    ]
+  },
+
+  smokingCessation: {
+    question:
+      "Have you considered quitting tobacco or nicotine use?",
+    response:
+      "The patient is interested in quitting within the next six months.",
+    keywords: [
+      "stop smoking",
+      "quit smoking",
+      "tobacco",
+      "vaping",
+      "nicotine",
+      "cessation"
+    ]
+  },
+
+  pregnancyPlanning: {
+    question:
+      "Are you currently pregnant, trying to become pregnant, or breastfeeding?",
+    response:
+      "The patient reports she is actively planning a pregnancy within the next year.",
+    keywords: [
+      "pregnancy",
+      "pregnant",
+      "breastfeeding",
+      "trying to conceive",
+      "family planning"
+    ]
+  },
+
+  inhalerTechnique: {
+    question:
+      "Can you describe how you use your inhaler?",
+    response:
+      "The patient reports difficulty coordinating inhaler activation and inhalation.",
+    keywords: [
+      "inhaler",
+      "mdi",
+      "spacer",
+      "inhaler technique",
+      "albuterol",
+      "advair"
+    ]
+  },
+
+  vaccineConcern: {
+    question:
+      "Do you have any concerns about receiving recommended vaccines?",
+    response:
+      "The patient is worried about adverse effects and prefers additional education before vaccination.",
+    keywords: [
+      "vaccines",
+      "immunizations",
+      "flu shot",
+      "covid",
+      "vaccine concerns"
+    ]
+  },
+
+  fallsRisk: {
+    question:
+      "Have you fallen recently or felt unsteady while walking?",
+    response:
+      "The patient reports two falls during the past year and occasional unsteadiness.",
+    keywords: [
+      "falls",
+      "fall history",
+      "fall risk",
+      "unsteady",
+      "balance",
+      "mobility"
+    ]
+  },
+
+  medManagement: {
+    question:
+      "How do you keep track of your medications?",
+    response:
+      "The patient uses a weekly pill organizer and occasionally needs assistance from a family member.",
+    keywords: [
+      "management",
+      "pill organizer",
+      "remember",
+      "tracking"
+    ]
+  },
+
+  hfSymptoms: {
+    question:
+      "Have you noticed swelling, shortness of breath, or needing to sleep propped up?",
+    response:
+      "The patient reports worsening leg swelling and needing two pillows to sleep comfortably.",
+    keywords: [
+      "edema",
+      "swelling",
+      "orthopnea",
+      "pnd",
+      "shortness of breath",
+      "heart failure symptoms"
+    ]
+  }
+
+};
+
+function addInterviewTemplate() {
+
+  const selected =
+    document.getElementById(
+      "interviewTemplate"
+    ).value;
+
+  if (!selected) return;
+
+  addInterviewRow();
+
+  const rows =
+    document.querySelectorAll(
+      "#interviewContainer > div"
+    );
+
+  const last =
+    rows[rows.length - 1];
+
+  const template =
+    interviewTemplates[selected];
+
+  if (!template) return;
+
+  last.querySelector(
+    ".interviewKey"
+  ).value =
+    template.question;
+
+  last.querySelector(
+    ".interviewValue"
+  ).value =
+    template.response;
+
+  if (
+    last.querySelector(
+      ".interviewKeywords"
+    )
+  ) {
+    last.querySelector(
+      ".interviewKeywords"
+    ).value =
+      template.keywords.join(", ");
+  }
+
+}
+  
 function addInterviewRow() {
   const container = document.getElementById("interviewContainer");
 
   const row = document.createElement("div");
   row.className = "flex gap-2 mb-2";
 
-  row.innerHTML = `
-    <input placeholder="Question (e.g., 'Are you ok with injectables?')" 
-      class="interviewKey w-1/2 p-2 bg-gray-600 rounded"/>
-    <input placeholder="Patient response" 
-      class="interviewValue w-1/2 p-2 bg-gray-600 rounded"/>
-    <button onclick="this.parentElement.remove()" 
-      class="bg-red-500 px-2 rounded">X</button>
-  `;
+row.innerHTML = `
+
+  <input
+    placeholder="Interview Question"
+    class="interviewKey w-1/3 p-2 bg-gray-600 rounded"/>
+
+  <input
+    placeholder="Patient Response"
+    class="interviewValue w-1/3 p-2 bg-gray-600 rounded"/>
+
+  <input
+    placeholder="Keywords"
+    class="interviewKeywords w-1/3 p-2 bg-gray-600 rounded"/>
+
+  <button
+    onclick="this.parentElement.remove()"
+    class="bg-red-500 px-2 rounded">
+
+    X
+
+  </button>
+`;
 
   container.appendChild(row);
 }
@@ -4875,19 +5348,25 @@ if (c.interviewFactors) {
       rows[rows.length - 1];
 
     // NEW FORMAT
-    if (typeof a === "object") {
+if (typeof a === "object") {
 
-      last.querySelector(
-        ".interviewKey"
-      ).value =
-        a.question || "";
+  last.querySelector(
+    ".interviewKey"
+  ).value =
+    a.question || "";
 
-      last.querySelector(
-        ".interviewValue"
-      ).value =
-        a.response || "";
+  last.querySelector(
+    ".interviewValue"
+  ).value =
+    a.response || "";
 
-    }
+  last.querySelector(
+    ".interviewKeywords"
+  ).value =
+    (a.keywords || [])
+      .join(", ");
+
+}
 
     // OLD FORMAT
     else {
