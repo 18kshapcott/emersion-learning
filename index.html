@@ -661,6 +661,7 @@ const masterLabMap = {
   egfr: ["egfr", "gfr", "estimated gfr", "glomerular filtration rate"],
   glucose: ["glucose", "blood glucose", "serum glucose"],
   calcium: ["calcium", "serum calcium"],
+  magnesium: ["magnesium", "mag", "mg", "serum magnesium"],
  
     // Liver
   alt: ["alt", "alanine aminotransferase"],
@@ -699,8 +700,16 @@ const masterLabMap = {
   troponin: ["troponin", "troponin i", "troponin t"],
   bnp: ["bnp", "brain natriuretic peptide"],
   ntprobnp: ["ntprobnp", "nt pro bnp"],
+  digoxin: [
+  "digoxin",
+  "dig level",
+  "digoxin level",
+  "serum digoxin",
+  "dig"
+],
 ejectionfraction: [
   "ef",
+  "ejectionfraction",
   "ejection fraction",
   "left ventricular ejection fraction",
   "lvef"
@@ -1885,6 +1894,7 @@ else if (
   currentCase.interviewFactors &&
   detectedCategory === "other"
 )
+) {
   const clean = str =>
     String(str)
       .toLowerCase()
@@ -2441,10 +2451,16 @@ else if (
         ? Object.keys(currentCase.labs).find(k => {
             const normalizedLabName = k.toLowerCase().trim();
 
-            return masterLabMap[labKey].some(term =>
-              normalizedLabName.includes(term)
-            );
-          })
+return (
+  normalizedLabName === labKey.toLowerCase()
+  ||
+  masterLabMap[labKey].some(term =>
+    normalizedLabName.includes(
+      term.toLowerCase()
+    )
+  )
+);
+  })
         : null;
 
       if (actualLab) {
