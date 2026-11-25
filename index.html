@@ -460,9 +460,15 @@ Functional Status
 
 <input id="newCXR" placeholder="Chest X-ray URL (seperate multiple images with commas)"
   class="w-full p-2 bg-gray-600 rounded mb-2"/>
-
+  
 <p class="text-xs text-gray-400">
 Paste a direct image link. Google Drive links will be converted automatically.
+
+  <textarea
+  id="newCXRReport"
+  placeholder="Chest X-ray interpretation / radiology report"
+  class="w-full p-2 bg-gray-600 rounded mb-2">
+</textarea>
 </p>
 
 
@@ -1635,6 +1641,28 @@ addCollectedInfo(renderImages(images.chest_xray, "Chest X-ray"));
   return;
 }
 
+  if (
+  input.includes("xray report") ||
+  input.includes("cxr report") ||
+  input.includes("radiology report") ||
+  input.includes("impression") ||
+  input.includes("xray interpretation")
+) {
+
+  addCollectedInfo(`
+    <div class="bg-gray-700 p-2 rounded">
+      <strong>Chest X-Ray Report:</strong><br>
+      ${
+        images.chest_xray_report ||
+        "No report available."
+      }
+    </div>
+  `);
+
+  return;
+
+}
+
   // ===== SYNONYM GROUPS =====
 const addressTerms = ["address", "where does the patient live", "location"];
 const complaintTerms = ["chief complaint", "cc", "reason for visit", "why are they here"];
@@ -1658,10 +1686,7 @@ const allergyTerms = [
 ];
 const intakeOutputTerms = [
   "i&o",
-  "io",
   "ins and outs",
-  "intake",
-  "output",
   "intake output",
   "urine output",
   "uop",
@@ -2149,8 +2174,13 @@ SpO₂: ${e.spo2 || "N/A"}<br>
         BMI: ${e.bmi || currentCase.bmi || "N/A"}
       </div>
     `;
-
-    sessionData.requestedElements.add("vitals");
+sessionData.requestedElements.add("vitals");
+sessionData.requestedElements.add("bp");
+sessionData.requestedElements.add("hr");
+sessionData.requestedElements.add("temp");
+sessionData.requestedElements.add("spo2");
+sessionData.requestedElements.add("physical");
+    
   }
 }
 else if (raceTerms.some(term => input.includes(term))) {
@@ -3210,6 +3240,8 @@ diagnosticImages: {
   ekg: splitAndFixLinks("newEKG"),
   cgm: splitAndFixLinks("newCGM"),
   chest_xray: splitAndFixLinks("newCXR"),
+  chest_xray_report:
+    document.getElementById("newCXRReport").value
 },
 
 
