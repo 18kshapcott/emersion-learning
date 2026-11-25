@@ -815,7 +815,47 @@ const conceptMap = {
   oxygen: ["oxygen", "o2"],
   transfusion: ["packed red blood cells", "prbc"]
 };
+const criticalElementOptions = [
 
+  "pmh",
+  "medications",
+  "interview",
+  "allergies",
+  "insurance",
+  "social",
+
+  "vitals",
+  "functionalstatus",
+
+  "intakeoutput",
+  "urineoutput",
+  "fluidbalance",
+
+  "a1c",
+  "ldl",
+  "hdl",
+  "triglycerides",
+
+  "sodium",
+  "potassium",
+  "magnesium",
+  "calcium",
+
+  "bun",
+  "creatinine",
+  "egfr",
+
+  "alt",
+  "ast",
+  "albumin",
+
+  "troponin",
+  "bnp",
+  "digoxin",
+  "ejectionfraction"
+"custom"
+];
+  
 const cases = [
   {
     id: 1,
@@ -3793,6 +3833,34 @@ function addInpatientMedRow() {
 
   container.appendChild(row);
 }
+function handleCriticalDropdown(select) {
+
+  if (
+    select.value !== "custom"
+  ) return;
+
+  const custom =
+    prompt(
+      "Enter custom critical element"
+    );
+
+  if (!custom) return;
+
+  const option =
+    document.createElement("option");
+
+  option.value =
+    custom.toLowerCase();
+
+  option.textContent =
+    custom;
+
+  option.selected = true;
+
+  select.appendChild(option);
+
+}
+  
 function addSecondaryRow() {
   const container = document.getElementById("secondaryContainer");
 
@@ -3855,19 +3923,61 @@ function addDiagnosisRow() {
 }
 
 function addCriticalRow() {
-  const container = document.getElementById("criticalContainer");
 
-  const row = document.createElement("div");
-  row.className = "grid grid-cols-3 gap-2 mb-2";
+  const container =
+    document.getElementById(
+      "criticalContainer"
+    );
+
+  const row =
+    document.createElement("div");
+
+  row.className =
+    "grid grid-cols-3 gap-2 mb-2";
+
+  const options =
+    criticalElementOptions
+      .map(opt =>
+        `<option value="${opt}">
+          ${opt}
+        </option>`
+      )
+      .join("");
 
   row.innerHTML = `
-    <input placeholder="Element (e.g., A1c)" class="criticalKey p-2 bg-gray-600 rounded"/>
-    <input placeholder="Points" class="criticalPoints p-2 bg-gray-600 rounded"/>
-    <input placeholder="Feedback" class="criticalValue p-2 bg-gray-600 rounded col-span-3"/>
-    <button onclick="this.parentElement.remove()" class="bg-red-500 px-2 rounded col-span-3">Remove</button>
+
+<select
+  class="criticalKey p-2 bg-gray-600 rounded"
+  onchange="handleCriticalDropdown(this)">
+
+      <option value="">
+        Select Element
+      </option>
+
+      ${options}
+
+    </select>
+
+    <input
+      placeholder="Points"
+      class="criticalPoints p-2 bg-gray-600 rounded"/>
+
+    <input
+      placeholder="Feedback"
+      class="criticalValue p-2 bg-gray-600 rounded col-span-3"/>
+
+    <button
+      onclick="this.parentElement.remove()"
+      class="bg-red-500 px-2 rounded col-span-3">
+
+      Remove
+
+    </button>
+
   `;
 
   container.appendChild(row);
+
 }
 
 function addPlanKeyRow() {
