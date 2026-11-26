@@ -721,6 +721,54 @@ const labBundles = {
   ]
 
 };
+
+  function addLabBundle() {
+
+  const selected =
+    document.getElementById(
+      "labBundle"
+    ).value;
+
+  if (!selected) return;
+
+  const bundle =
+    labBundles[selected];
+
+  if (!bundle) return;
+
+bundle.forEach(lab => {
+
+  const existing =
+    Array.from(
+      document.querySelectorAll(
+        ".labName"
+      )
+    ).some(
+      x => x.value === lab
+    );
+
+  if (existing) return;
+
+    addLabRow();
+
+    const rows =
+      document.querySelectorAll(
+        "#labsContainer > div"
+      );
+
+    const last =
+      rows[rows.length - 1];
+
+    const select =
+      last.querySelector(
+        ".labName"
+      );
+
+    select.value = lab;
+
+  });
+
+}
   
 const masterLabMap = {
   // CBC
