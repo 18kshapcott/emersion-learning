@@ -519,6 +519,44 @@ Paste a direct image link. Google Drive links will be converted automatically.
 </div>
 
 <select
+  id="interviewBundle"
+  class="w-full p-2 bg-gray-600 rounded mb-2">
+
+  <option value="">
+    Select Interview Bundle
+  </option>
+
+  <option value="heartfailure">
+    Heart Failure
+  </option>
+
+  <option value="diabetes">
+    Diabetes
+  </option>
+
+  <option value="hypertension">
+    Hypertension
+  </option>
+
+  <option value="afib">
+    Atrial Fibrillation
+  </option>
+
+  <option value="hyperlipidemia">
+    Hyperlipidemia
+  </option>
+
+</select>
+
+<button
+  onclick="addInterviewBundle()"
+  class="bg-green-500 px-3 py-1 rounded mb-2">
+
+  Add Interview Bundle
+
+</button>
+  
+<select
   id="interviewTemplate"
   class="w-full p-2 bg-gray-600 rounded mb-2">
 
@@ -3859,6 +3897,48 @@ const interviewTemplates = {
     ]
   }
 
+const interviewBundles = {
+
+  heartfailure: [
+    "dailyWeights",
+    "hfSymptoms",
+    "adherence",
+    "sodiumIntake",
+    "caregiver"
+  ],
+
+  diabetes: [
+    "homeGlucose",
+    "hypoglycemia",
+    "adherence",
+    "injectables",
+    "cost",
+    "lifestyle"
+  ],
+
+  hypertension: [
+    "homebp",
+    "adherence",
+    "cost",
+    "lifestyle",
+    "sodiumIntake"
+  ],
+
+  afib: [
+    "adherence",
+    "caregiver",
+    "fallsRisk",
+    "cost"
+  ],
+
+  hyperlipidemia: [
+    "cost",
+    "adherence",
+    "lifestyle"
+  ]
+
+};
+  
 };
 
 function addInterviewTemplate() {
@@ -3905,6 +3985,72 @@ function addInterviewTemplate() {
     ).value =
       template.keywords.join(", ");
   }
+
+}
+
+function addInterviewBundle() {
+
+  const selected =
+    document.getElementById(
+      "interviewBundle"
+    ).value;
+
+  if (!selected) {
+    alert("Select a bundle first");
+    return;
+  }
+
+  const bundle =
+    interviewBundles[selected];
+
+  if (!bundle) return;
+
+bundle.forEach(templateKey => {
+
+  const template =
+    interviewTemplates[templateKey];
+
+  const alreadyExists =
+    Array.from(
+      document.querySelectorAll(
+        ".interviewKey"
+      )
+    ).some(
+      input =>
+        input.value ===
+        template.question
+    );
+
+  if (alreadyExists) {
+    return;
+  }
+
+    addInterviewRow();
+
+    const rows =
+      document.querySelectorAll(
+        "#interviewContainer > div"
+      );
+
+    const last =
+      rows[rows.length - 1];
+
+    last.querySelector(
+      ".interviewKey"
+    ).value =
+      template.question;
+
+    last.querySelector(
+      ".interviewValue"
+    ).value =
+      template.response;
+
+    last.querySelector(
+      ".interviewKeywords"
+    ).value =
+      template.keywords.join(", ");
+
+  });
 
 }
   
