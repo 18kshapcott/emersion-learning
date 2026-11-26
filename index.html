@@ -667,7 +667,7 @@ const masterLabMap = {
   egfr: ["egfr", "gfr", "estimated gfr", "glomerular filtration rate"],
   glucose: ["glucose", "blood glucose", "serum glucose"],
   calcium: ["calcium", "serum calcium"],
-  magnesium: ["magnesium", "mag", "mg", "serum magnesium"],
+  magnesium: ["magnesium", "mag", "serum magnesium"],
  
     // Liver
   alt: ["alt", "alanine aminotransferase"],
@@ -3881,26 +3881,36 @@ row.innerHTML = `
 
   <select
     class="labName w-full p-2 bg-gray-600 rounded"
+    onchange="handleLabDropdown(this)"
   >
 
-    <input
-      placeholder="Result (e.g., 8.2% | 8.7% (3 mo ago))"
-      class="labValue w-full p-2 bg-gray-600 rounded"
-    />
+    <option value="">
+      Select Lab or Diagnostic
+    </option>
 
-    <input
-      placeholder="Enter custom lab or diagnostic name"
-      class="customLabName hidden w-full p-2 bg-gray-600 rounded md:col-span-2"
-    />
+    ${options}
 
-    <button
-      type="button"
-      onclick="this.parentElement.remove()"
-      class="bg-red-500 px-2 py-2 rounded md:col-span-2"
-    >
-      Remove
-    </button>
-  `;
+  </select>
+
+  <input
+    placeholder="Result (e.g., 8.2% | 8.7% (3 mo ago))"
+    class="labValue w-full p-2 bg-gray-600 rounded"
+  />
+
+  <input
+    placeholder="Custom Lab or Diagnostic"
+    class="customLabName hidden w-full p-2 bg-gray-600 rounded"
+  />
+
+  <button
+    type="button"
+    onclick="this.parentElement.remove()"
+    class="bg-red-500 px-2 py-2 rounded"
+  >
+    Remove
+  </button>
+
+`;
 
   container.appendChild(row);
 }
