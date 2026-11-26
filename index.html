@@ -446,6 +446,44 @@ Functional Status
   </button>
 </div>
 
+<select
+  id="labBundle"
+  class="w-full p-2 bg-gray-600 rounded mb-2">
+
+  <option value="">
+    Select Lab Bundle
+  </option>
+
+  <option value="heartfailure">
+    Heart Failure
+  </option>
+
+  <option value="diabetes">
+    Diabetes
+  </option>
+
+  <option value="afib">
+    Atrial Fibrillation
+  </option>
+
+  <option value="hyperlipidemia">
+    Hyperlipidemia
+  </option>
+
+  <option value="aki">
+    Acute Kidney Injury
+  </option>
+
+</select>
+
+<button
+  onclick="addLabBundle()"
+  class="bg-green-500 px-3 py-1 rounded mb-2">
+
+  Add Lab Bundle
+
+</button>
+    
     <div id="labsContainer"></div>
     <button onclick="addLabRow()" class="bg-blue-500 px-3 py-1 rounded mt-2">+ Add Lab or Diagnostic </button>
  </div>
@@ -639,6 +677,51 @@ Paste a direct image link. Google Drive links will be converted automatically.
 
 <script>
 
+const labBundles = {
+
+  heartfailure: [
+    "sodium",
+    "potassium",
+    "magnesium",
+    "bun",
+    "creatinine",
+    "egfr",
+    "bnp",
+    "ejectionfraction"
+  ],
+
+  diabetes: [
+    "a1c",
+    "creatinine",
+    "egfr",
+    "uacr",
+    "ldl"
+  ],
+
+  afib: [
+    "potassium",
+    "magnesium",
+    "tsh"
+  ],
+
+  hyperlipidemia: [
+    "ldl",
+    "hdl",
+    "triglycerides",
+    "totalcholesterol",
+    "apob"
+  ],
+
+  aki: [
+    "bun",
+    "creatinine",
+    "egfr",
+    "potassium",
+    "sodium"
+  ]
+
+};
+  
 const masterLabMap = {
   // CBC
   wbc: ["wbc", "white blood cell", "white blood cell count", "leukocyte count", "white count"],
