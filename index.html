@@ -2988,14 +2988,25 @@ function parseLabInput(input) {
   };
 }
 
-  document.querySelectorAll("#labsContainer > div").forEach(row => {
-    const name = row.querySelector(".labName").value.trim();
-    const value = row.querySelector(".labValue").value.trim();
+document.querySelectorAll("#labsContainer > div").forEach(row => {
+  const selectedName =
+    row.querySelector(".labName")?.value.trim() || "";
 
-    if (name && value) {
- labs[name] = parseLabInput(value);
-    }
-  });
+  const customName =
+    row.querySelector(".customLabName")?.value.trim() || "";
+
+  const value =
+    row.querySelector(".labValue")?.value.trim() || "";
+
+  const name =
+    selectedName === "__custom__"
+      ? customName
+      : selectedName;
+
+  if (name && value) {
+    labs[name] = parseLabInput(value);
+  }
+});
 
   // ✅ collect home medications
   const homeMeds = [];
@@ -3788,35 +3799,121 @@ function addHintRow() {
 
   container.appendChild(row);
 }
+const labOptions = [
+  { value: "wbc", label: "WBC" },
+  { value: "rbc", label: "RBC" },
+  { value: "hgb", label: "Hemoglobin" },
+  { value: "hct", label: "Hematocrit" },
+  { value: "plt", label: "Platelets" },
+  { value: "mcv", label: "MCV" },
 
+  { value: "pt", label: "PT" },
+  { value: "inr", label: "INR" },
+  { value: "aptt", label: "aPTT" },
+
+  { value: "sodium", label: "Sodium" },
+  { value: "potassium", label: "Potassium" },
+  { value: "chloride", label: "Chloride" },
+  { value: "bicarbonate", label: "Bicarbonate / CO2" },
+  { value: "magnesium", label: "Magnesium" },
+  { value: "calcium", label: "Calcium" },
+  { value: "bun", label: "BUN" },
+  { value: "creatinine", label: "Serum Creatinine" },
+  { value: "egfr", label: "eGFR" },
+  { value: "glucose", label: "Glucose" },
+
+  { value: "alt", label: "ALT" },
+  { value: "ast", label: "AST" },
+  { value: "alp", label: "Alkaline Phosphatase" },
+  { value: "bilirubin", label: "Total Bilirubin" },
+  { value: "albumin", label: "Albumin" },
+
+  { value: "ldl", label: "LDL Cholesterol" },
+  { value: "hdl", label: "HDL Cholesterol" },
+  { value: "triglycerides", label: "Triglycerides" },
+  { value: "totalcholesterol", label: "Total Cholesterol" },
+  { value: "nonHdl", label: "Non-HDL Cholesterol" },
+  { value: "apob", label: "Apolipoprotein B" },
+
+  { value: "a1c", label: "Hemoglobin A1c" },
+  { value: "tsh", label: "TSH" },
+
+  { value: "troponin", label: "Troponin" },
+  { value: "bnp", label: "BNP" },
+  { value: "ntprobnp", label: "NT-proBNP" },
+  { value: "digoxin", label: "Digoxin Level" },
+  { value: "ejectionfraction", label: "Ejection Fraction / LVEF" },
+
+  { value: "iron", label: "Serum Iron" },
+  { value: "ferritin", label: "Ferritin" },
+  { value: "tibc", label: "TIBC" },
+  { value: "b12", label: "Vitamin B12" },
+  { value: "folate", label: "Folate" },
+
+  { value: "uacr", label: "Urine Albumin-Creatinine Ratio" },
+
+  { value: "__custom__", label: "Custom Lab or Diagnostic..." }
+];
+  
 function addLabRow() {
   const container = document.getElementById("labsContainer");
 
   const row = document.createElement("div");
+  row.className =
+    "grid grid-cols-1 md:grid-cols-2 gap-2 mb-2 items-center";
 
-row.className = "grid grid-cols-2 gap-2 mb-2 items-center";
+  const options = labOptions
+    .map(option => `
+      <option value="${option.value}">
+        ${option.label}
+      </option>
+    `)
+    .join("");
 
   row.innerHTML = `
-    <input 
-      placeholder="Lab name" 
-      class="labName w-1/2 p-2 bg-gray-600 rounded"
+    <select
+      class="labName w-full p-2 bg-gray-600 rounded"
+      onchange="handleLabDropdown(this)"
+    >
+      <option value="">Select lab or diagnostic</option>
+      ${options}
+    </select>
+
+    <input
+      placeholder="Result (e.g., 8.2% | 8.7% (3 mo ago))"
+      class="labValue w-full p-2 bg-gray-600 rounded"
     />
 
-    <input 
-      placeholder="Result (e.g., 8.2% | 8.7% (3 mo ago))" 
-      class="labValue w-1/2 p-2 bg-gray-600 rounded"
+    <input
+      placeholder="Enter custom lab or diagnostic name"
+      class="customLabName hidden w-full p-2 bg-gray-600 rounded md:col-span-2"
     />
 
-    <button onclick="this.parentElement.remove()" 
-      class="bg-red-500 px-2 rounded">
-      X
+    <button
+      type="button"
+      onclick="this.parentElement.remove()"
+      class="bg-red-500 px-2 py-2 rounded md:col-span-2"
+    >
+      Remove
     </button>
   `;
 
   container.appendChild(row);
 }
+  
+function handleLabDropdown(select) {
+  const row = select.closest("div");
+  const customInput = row.querySelector(".customLabName");
 
-
+  if (select.value === "__custom__") {
+    customInput.classList.remove("hidden");
+    customInput.focus();
+  } else {
+    customInput.classList.add("hidden");
+    customInput.value = "";
+  }
+}
+  
 function addInpatientMedRow() {
   const container = document.getElementById("inpatientMedsContainer");
 
@@ -5419,7 +5516,21 @@ if (c.labs) {
 
     const last = document.querySelector("#labsContainer > div:last-child");
 
-    last.querySelector(".labName").value = name;
+const labSelect = last.querySelector(".labName");
+const customLabInput = last.querySelector(".customLabName");
+
+const hasStandardOption = Array.from(labSelect.options)
+  .some(option => option.value === name);
+
+if (hasStandardOption) {
+  labSelect.value = name;
+  customLabInput.classList.add("hidden");
+  customLabInput.value = "";
+} else {
+  labSelect.value = "__custom__";
+  customLabInput.classList.remove("hidden");
+  customLabInput.value = name;
+}
 
     // ✅ FIX: Convert object back to string
     if (typeof value === "object" && value !== null) {
