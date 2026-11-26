@@ -3870,14 +3870,18 @@ function addLabRow() {
     `)
     .join("");
 
-  row.innerHTML = `
-    <select
-      class="labName w-full p-2 bg-gray-600 rounded"
-      onchange="handleLabDropdown(this)"
-    >
-      <option value="">Select lab or diagnostic</option>
-      ${options}
-    </select>
+row.innerHTML = `
+
+  <input
+    type="text"
+    class="labSearch w-full p-2 bg-gray-600 rounded"
+    placeholder="Search Labs..."
+    oninput="filterLabOptions(this)"
+  />
+
+  <select
+    class="labName w-full p-2 bg-gray-600 rounded"
+  >
 
     <input
       placeholder="Result (e.g., 8.2% | 8.7% (3 mo ago))"
@@ -3912,6 +3916,32 @@ function handleLabDropdown(select) {
     customInput.classList.add("hidden");
     customInput.value = "";
   }
+}
+function filterLabOptions(input) {
+
+  const searchText =
+    input.value.toLowerCase();
+
+  const row =
+    input.closest("div");
+
+  const select =
+    row.querySelector(".labName");
+
+  Array.from(select.options)
+    .forEach(option => {
+
+      if (
+        option.value === ""
+      ) return;
+
+      option.hidden =
+        !option.textContent
+          .toLowerCase()
+          .includes(searchText);
+
+    });
+
 }
   
 function addInpatientMedRow() {
