@@ -1942,7 +1942,7 @@ const intakeOutputTerms = [
 ];
 
 
-  const pmhTerms = ["pmh", "history", "medical history", "conditions"];
+const pmhTerms = ["pmh", "past medical history", "medical history", "medical conditions", "chronic conditions", "past conditions"];
 const hpiTerms = ["hpi", "history of present illness", "current illness", "present illness"];
   
 const medTerms = ["med", "medication", "medications", "rx"];
@@ -2152,7 +2152,15 @@ const vitalTerms = [
   if (labTerms.some(t => input.includes(t))) {
     detectedCategory = "labs";
   }
-  else if (pmhTerms.some(t => input.includes(t))) {
+  else if (
+  pmhTerms.some(t =>
+    input.includes(t)
+  )
+  &&
+  !input.includes("social history")
+  &&
+  !input.includes("family history")
+) {
     detectedCategory = "pmh";
   }
 
