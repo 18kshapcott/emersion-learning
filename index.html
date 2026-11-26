@@ -3945,10 +3945,16 @@ function filterLabOptions(input) {
         option.value === ""
       ) return;
 
+      const searchableText = (
+        option.textContent +
+        " " +
+        option.value
+      ).toLowerCase();
+
       option.hidden =
-        !option.textContent
-          .toLowerCase()
-          .includes(searchText);
+        !searchableText.includes(
+          searchText
+        );
 
     });
 
