@@ -815,45 +815,82 @@ const conceptMap = {
   oxygen: ["oxygen", "o2"],
   transfusion: ["packed red blood cells", "prbc"]
 };
+  
 const criticalElementOptions = [
 
-  "pmh",
-  "medications",
-  "interview",
-  "allergies",
-  "insurance",
-  "social",
+  {
+    group: "Patient Information",
+    items: [
+      "pmh",
+      "medications",
+      "interview",
+      "allergies",
+      "insurance",
+      "social"
+    ]
+  },
 
-  "vitals",
-  "functionalstatus",
+  {
+    group: "Clinical Assessment",
+    items: [
+      "vitals",
+      "functionalstatus",
+      "intakeoutput",
+      "urineoutput",
+      "fluidbalance"
+    ]
+  },
 
-  "intakeoutput",
-  "urineoutput",
-  "fluidbalance",
+  {
+    group: "Chemistry / Renal",
+    items: [
+      "sodium",
+      "potassium",
+      "magnesium",
+      "calcium",
+      "bun",
+      "creatinine",
+      "egfr"
+    ]
+  },
 
-  "a1c",
-  "ldl",
-  "hdl",
-  "triglycerides",
+  {
+    group: "Endocrine / Lipids",
+    items: [
+      "a1c",
+      "tsh",
+      "ldl",
+      "hdl",
+      "triglycerides"
+    ]
+  },
 
-  "sodium",
-  "potassium",
-  "magnesium",
-  "calcium",
+  {
+    group: "Cardiology",
+    items: [
+      "troponin",
+      "bnp",
+      "digoxin",
+      "ejectionfraction"
+    ]
+  },
 
-  "bun",
-  "creatinine",
-  "egfr",
+  {
+    group: "Liver",
+    items: [
+      "alt",
+      "ast",
+      "albumin"
+    ]
+  },
 
-  "alt",
-  "ast",
-  "albumin",
+  {
+    group: "Custom",
+    items: [
+      "custom"
+    ]
+  }
 
-  "troponin",
-  "bnp",
-  "digoxin",
-  "ejectionfraction",
-  "custom"
 ];
   
 const cases = [
@@ -4078,14 +4115,28 @@ function addCriticalRow() {
   row.className =
     "grid grid-cols-3 gap-2 mb-2";
 
-  const options =
-    criticalElementOptions
-      .map(opt =>
-        `<option value="${opt}">
-          ${opt}
-        </option>`
-      )
-      .join("");
+const options =
+  criticalElementOptions
+    .map(group => `
+
+      <optgroup
+        label="${group.group}">
+
+        ${group.items
+          .map(item => `
+
+            <option value="${item}">
+              ${item}
+            </option>
+
+          `)
+          .join("")}
+
+      </optgroup>
+
+    `)
+    .join("");
+
 
   row.innerHTML = `
 
