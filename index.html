@@ -4694,9 +4694,9 @@ const matchedDx = dxArray.some(dx =>
 
   let problemFeedback = `<div class="bg-gray-700 p-2 rounded mt-2">`;
 
-  // ✅ Build expected plan list (for display)
-  const planText = (sessionData.carePlan?.[i]?.plan || "").toLowerCase();
-  const monitorText = (sessionData.carePlan?.[i]?.monitoring || "").toLowerCase();
+  // ✅ Build expected plan list (for display)
+  const planText = (sessionData.carePlan?.[i]?.plan || "").toLowerCase();
+  const monitorText = (sessionData.carePlan?.[i]?.monitoring || "").toLowerCase();
 // ✅ Build display lists (FIX)
 const planList = (problem.plan?.expected || [])
   .flatMap(item =>
