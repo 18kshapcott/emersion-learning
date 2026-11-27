@@ -285,7 +285,35 @@ Use this section to customize the case:
 <p class="font-semibold">Case Title</p>
 <input id="newTitle" placeholder="Students see the case title, avoid using the disease states assessed in the case." class="w-full p-2 bg-gray-600 rounded"/>
 
+<p class="font-semibold">
+Disease State Tags
+</p>
 
+<select
+  id="tagSelector"
+  class="w-full p-2 bg-gray-600 rounded">
+
+  <option value="">
+    Select Disease State
+  </option>
+
+</select>
+
+<button
+  type="button"
+  onclick="addTag()"
+  class="bg-blue-500 px-3 py-1 rounded mt-2">
+
+  Add Tag
+
+</button>
+
+<div
+  id="tagContainer"
+  class="flex flex-wrap gap-2 mt-2">
+
+</div>
+  
 <p class="font-semibold">Case Author</p>
 
 <input
@@ -1074,6 +1102,54 @@ const criticalElementOptions = [
   }
 
 ];
+
+const diseaseStateTags = [
+
+  // Cardiology
+  "Heart Failure",
+  "Hypertension",
+  "Hyperlipidemia",
+  "ASCVD Prevention",
+  "Coronary Artery Disease",
+  "Atrial Fibrillation",
+  "Acute Coronary Syndrome",
+
+  // Endocrine
+  "Type 2 Diabetes",
+  "Type 1 Diabetes",
+  "Hypothyroidism",
+  "Hyperthyroidism",
+
+  // Renal
+  "CKD",
+  "AKI",
+
+  // Pulmonary
+  "COPD",
+  "Asthma",
+
+  // Infectious Disease
+  "Community Acquired Pneumonia",
+  "Urinary Tract Infection",
+  "Sepsis",
+
+  // Women's Health
+  "Pregnancy",
+  "Nausea and Vomiting of Pregnancy",
+
+  // Neurology/Psych
+  "Stroke",
+  "Depression",
+  "Anxiety",
+
+  // GI
+  "GERD",
+
+  // General
+  "Medication Safety",
+  "Transitions of Care"
+
+];
   
 const cases = [
   {
@@ -1218,6 +1294,7 @@ if (savedCases) {
 let currentCase = null;
 let caseSubmitted = false;
 let attempts = 0;
+let selectedTags = [];
 let hintIndex = 0;
 let hintCount = 0;
 let isTeachingMode = false; 
@@ -1305,12 +1382,32 @@ function loadCasesFromServer() {
 function filterCases() {
   const query = document.getElementById("caseSearch").value.toLowerCase();
 
-const filtered = cases.filter(c =>
-  (c.title || "").toLowerCase().includes(query) ||
-  (c.displayTitle || "").toLowerCase().includes(query) ||
-  (c.author || "").toLowerCase().includes(query) ||
-  (c.institution || "").toLowerCase().includes(query)
-);
+const filtered = cases.filter(c => {
+  const searchableTags =
+    Array.isArray(c.tags)
+      ? c.tags.join(" ").toLowerCase()
+      : "";
+
+  return (
+    (c.title || "")
+      .toLowerCase()
+      .includes(query) ||
+
+    (c.displayTitle || "")
+      .toLowerCase()
+      .includes(query) ||
+
+    (c.author || "")
+      .toLowerCase()
+      .includes(query) ||
+
+    (c.institution || "")
+      .toLowerCase()
+      .includes(query) ||
+
+    searchableTags.includes(query)
+  );
+});
 
   const select = document.getElementById("caseSelect");
   select.innerHTML = "";
@@ -1318,7 +1415,14 @@ const filtered = cases.filter(c =>
   filtered.forEach(c => {
     const option = document.createElement("option");
     option.value = c.id;
-    option.textContent = c.displayTitle || c.title;
+const tagLabel =
+  Array.isArray(c.tags) &&
+  c.tags.length > 0
+    ? ` [${c.tags.join(" • ")}]`
+    : "";
+
+option.textContent =
+  `${c.displayTitle || c.title}${tagLabel}`;
     select.appendChild(option);
   });
 }
@@ -1346,7 +1450,124 @@ function fixImageLink(url) {
   return url;
 }
 
+function populateTagSelector() {
 
+  const select =
+    document.getElementById(
+      "tagSelector"
+    );
+
+if (!select) return;
+
+select.innerHTML = `
+  <option value="">
+    Select Disease State
+  </option>
+`;
+
+  diseaseStateTags.forEach(tag => {
+
+    const option =
+      document.createElement(
+        "option"
+      );
+
+    option.value = tag;
+    option.textContent = tag;
+
+    select.appendChild(option);
+
+  });
+
+}
+
+function addTag() {
+  const selector =
+    document.getElementById("tagSelector");
+
+  if (!selector) return;
+
+  const tag = selector.value;
+
+  if (!tag) {
+    alert("Select a disease state first.");
+    return;
+  }
+
+  if (selectedTags.includes(tag)) {
+    alert("That disease-state tag has already been added.");
+    return;
+  }
+
+  selectedTags.push(tag);
+
+  renderTags();
+
+  selector.value = "";
+}
+
+function renderTags() {
+  const container =
+    document.getElementById("tagContainer");
+
+  if (!container) return;
+
+  container.innerHTML = "";
+
+  if (selectedTags.length === 0) {
+    container.innerHTML = `
+      <p class="text-sm text-gray-400">
+        No disease-state tags selected.
+      </p>
+    `;
+
+    return;
+  }
+
+  selectedTags.forEach(tag => {
+    const chip = document.createElement("div");
+
+    chip.className =
+      "inline-flex items-center gap-2 rounded-full bg-indigo-600 px-3 py-1 text-sm text-white";
+
+    const label = document.createElement("span");
+    label.textContent = tag;
+
+    const removeButton =
+      document.createElement("button");
+
+    removeButton.type = "button";
+    removeButton.textContent = "×";
+    removeButton.title = `Remove ${tag}`;
+    removeButton.setAttribute(
+      "aria-label",
+      `Remove ${tag}`
+    );
+
+    removeButton.className =
+      "rounded-full px-1 font-bold text-indigo-100 hover:bg-indigo-500 hover:text-white focus:outline-none focus:ring-2 focus:ring-white";
+
+    removeButton.addEventListener(
+      "click",
+      () => removeTag(tag)
+    );
+
+    chip.appendChild(label);
+    chip.appendChild(removeButton);
+    container.appendChild(chip);
+  });
+}
+
+function removeTag(tag) {
+  selectedTags =
+    selectedTags.filter(
+      selectedTag =>
+        selectedTag !== tag
+    );
+
+  renderTags();
+}
+  
 function init() {
   const select = document.getElementById("caseSelect");
   select.innerHTML = "";
@@ -1354,11 +1575,20 @@ function init() {
   cases.forEach(c => {
     const option = document.createElement("option");
     option.value = c.id;
-    option.textContent = c.displayTitle || c.title;
+const tagLabel =
+  Array.isArray(c.tags) &&
+  c.tags.length > 0
+    ? ` [${c.tags.join(" • ")}]`
+    : "";
+
+option.textContent =
+  `${c.displayTitle || c.title}${tagLabel}`;
     select.appendChild(option);
   });
 
 ;
+populateTagSelector();
+  
 }
 
 function normalize(str) {
@@ -3428,6 +3658,7 @@ const newCase = {
   title: standardizedTitle,
   displayTitle: titleVal,
 
+  tags: [...selectedTags],
   author: document.getElementById("newAuthor").value,
 
   institution:
@@ -5162,6 +5393,7 @@ REQUIRED JSON STRUCTURE
 
 {
   "title": "",
+  "tags": [],
   "name": "",
   "age": "",
   "gender": "",
@@ -5367,6 +5599,36 @@ BAD:
   "response": "Patient prefers generics."
 }
 
+
+DISEASE-STATE TAG RULES
+
+The tags field must be an array of standardized disease-state or clinical-topic strings.
+
+Include 1–5 tags that best describe the case.
+
+Use only tags from the approved EMeRsion disease-state list.
+
+Do not create alternate abbreviations, spelling variations, or new labels.
+
+GOOD:
+
+"tags": [
+  "Heart Failure",
+  "Hypertension",
+  "Cardiology"
+]
+
+BAD:
+
+"tags": "Heart Failure, Hypertension"
+
+BAD:
+
+"tags": [
+  "HF",
+  "CHF",
+  "heart failure"
+]
 ========================
 CRITICAL ELEMENT KEYS (STRICT)
 ========================
@@ -5821,6 +6083,11 @@ function loadCaseIntoBuilder(c) {
   // ✅ BASIC
   document.getElementById("newTitle").value = c.title || "";
   document.getElementById("newName").value = c.name || "";
+  selectedTags = Array.isArray(c.tags)
+  ? [...c.tags]
+  : [];
+
+renderTags();
   document.getElementById("newAge").value = c.age || "";
   document.getElementById("newGender").value = c.gender || "";
 document.getElementById("newRace").value = c.race || "";  
@@ -6185,7 +6452,14 @@ function pasteCaseJSON() {
     console.error(e);
     return;
   }
+if (!Array.isArray(obj.tags)) {
+  obj.tags = [];
+}
 
+obj.tags = obj.tags
+  .map(tag => String(tag).trim())
+  .filter(Boolean);
+  
   // ✅ Assign ID
   obj.id = cases.length + 1;
 
