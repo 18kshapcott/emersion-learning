@@ -3793,11 +3793,22 @@ localStorage.setItem("cases", JSON.stringify(cases));
 
   init();
 
+document.querySelectorAll(
+  "#facultySection input, #facultySection textarea"
+).forEach(el => el.value = "");
 
-  document.querySelectorAll("#facultySection input, #facultySection textarea")
-    .forEach(el => el.value = "");
+selectedTags = [];
 
-  alert("✅ Full case created!");
+renderTags();
+
+const tagSelector =
+  document.getElementById("tagSelector");
+
+if (tagSelector) {
+  tagSelector.value = "";
+}
+
+alert("✅ Full case created!");
 }
 
 function addHomeMedRow() {
@@ -5496,7 +5507,8 @@ REQUIRED JSON STRUCTURE
 "interviewFactors": {
   "factor1": {
     "question": "",
-    "response": ""
+    "response": "",
+    "keywords": []
   }
 },
 
@@ -5540,66 +5552,60 @@ CRITICAL ALIGNMENT RULES
 ========================
 
 - medications MUST be structured objects (NOT strings)
-INTERVIEW FACTOR RULES (STRICT)
+========================
+INTERVIEW FACTOR RULES
+========================
 
-Use ONLY the following format:
+Each interview factor must use this exact structure:
 
-"interviewFactors": {
-  "factor1": {
-    "question": "",
-    "response": ""
-  }
+"factor1": {
+  "question": "",
+  "response": "",
+  "keywords": []
 }
 
 Requirements:
 
-- Generate at least 5 interview factors
-- Each factor must contain BOTH:
-  - question
-  - response
-- Questions should represent information a student must ask to optimize patient care
-- Responses should represent what the patient would say
-
-Examples of topics include:
-
-- Cost concerns
-- Medication adherence
-- Treatment preferences
-- Home monitoring
-- Health literacy
-- Transportation barriers
-- Injection concerns
-- Caregiver support
-- Adverse effect concerns
-- Lifestyle barriers
+- Generate at least five clinically relevant interview factors.
+- Every factor must contain a question, response, and keywords array.
+- The question must represent information the learner should ask the patient.
+- The response must be written as the patient's realistic response.
+- The keywords field must contain 4–10 short strings representing realistic ways a learner might ask for the information.
+- Keywords must be specific enough to avoid conflicting with chart categories such as medications, labs, allergies, insurance, PMH, or vital signs.
+- Do not use a single comma-separated keyword string.
+- Do not store keywords outside the factor object.
 
 GOOD:
 
 "interviewFactors": {
   "factor1": {
     "question": "Are medication costs a concern when choosing treatment?",
-    "response": "Yes. I prefer generic medications and would like to keep my monthly cost below $20."
-  },
-  "factor2": {
-    "question": "How often do you miss doses of your medications?",
-    "response": "I occasionally miss doses when traveling."
+    "response": "Yes. I prefer affordable generic medications and would like to keep my copay below $20 per month.",
+    "keywords": [
+      "medication cost",
+      "copay",
+      "afford medications",
+      "prescription price",
+      "financial concern"
+    ]
   }
 }
 
 BAD:
 
 "interviewFactors": {
-  "Cost concerns": "Patient prefers generics"
+  "Cost concerns": "The patient prefers generic medications."
 }
 
 BAD:
 
 "interviewFactors": {
-  "question": "Are medication costs a concern?",
-  "response": "Patient prefers generics."
+  "factor1": {
+    "question": "Are medication costs a concern?",
+    "response": "Yes.",
+    "keywords": "cost, copay, insurance"
+  }
 }
-
-
 DISEASE-STATE TAG RULES
 
 The tags field must be an array of standardized disease-state or clinical-topic strings.
@@ -5634,23 +5640,32 @@ CRITICAL ELEMENT KEYS (STRICT)
 ========================
 
 
-Use ONLY these exact keys:
+Use ONLY these exact critical-element keys:
 
 wbc, rbc, hgb, hct, plt, mcv,
 pt, inr, aptt,
 esr, crp,
 sodium, potassium, chloride, bicarbonate,
-bun, creatinine, egfr, glucose, calcium,
+magnesium, calcium,
+bun, creatinine, egfr, glucose,
 alt, ast, alp, bilirubin, albumin,
 ldl, hdl, triglycerides, totalcholesterol,
 nonHdl, apob,
 tsh, a1c,
-troponin, bnp, ejectionfraction,
+troponin, bnp, digoxin, ejectionfraction,
 iron, ferritin, tibc, b12, folate,
-psa, hcg, vitals
+psa, hcg,
+vitals,
+functionalstatus,
 intakeoutput,
 urineoutput,
-fluidbalance, functionalstatus
+fluidbalance,
+pmh,
+medications,
+interview,
+allergies,
+insurance,
+social
 
 ========================
 Only include elements clinically relevant to the case.
@@ -6026,6 +6041,12 @@ Before returning the response confirm:
 - All interview factors use question/response objects
 - All plans are separate array items
 - All monitoring recommendations are separate array items
+- Every interview factor contains question, response, and keywords.
+- Every keywords field is an array.
+- Every interview factor contains 4–10 keyword strings.
+- Keywords do not replace dedicated chart categories.
+- Every criticalElements key comes from the approved critical-element key list.
+- Do not create alternate spellings or labels.
 
 Return ONLY the JSON object.
 `;
@@ -6219,7 +6240,7 @@ if (hasStandardOption) {
 document.getElementById("newEKG").value = c.diagnosticImages?.ekg || "";
 document.getElementById("newCGM").value = c.diagnosticImages?.cgm || "";
 document.getElementById("newCXR").value = c.diagnosticImages?.chest_xray || "";
-
+document.getElementById("newCXRReport").value = c.diagnosticImages?.chest_xray_report || "";
 
 
   // ✅ MEDICATIONS
@@ -6435,23 +6456,156 @@ document.getElementById("secondaryContainer").innerHTML = "";
   alert("✅ FULL case loaded successfully!");
 }
 
-function pasteCaseJSON() {
-  const text = document.getElementById("pasteJSON").value.trim();
+function cleanAIJson(rawText) {
 
-  if (!text) {
+  let cleaned = String(rawText || "");
+
+  // ---------------------------------
+  // 1. Convert copied HTML line breaks
+  // ---------------------------------
+
+  cleaned = cleaned
+    .replace(/<br\s*\/?>/gi, "\n")
+    .replace(/&lt;br\s*\/?&gt;/gi, "\n");
+
+  // ---------------------------------
+  // 2. Decode HTML entities
+  // ---------------------------------
+
+  const decoder =
+    document.createElement("textarea");
+
+  decoder.innerHTML = cleaned;
+
+  cleaned = decoder.value;
+
+  // Decode a second time in case the copied
+  // content was encoded more than once.
+  decoder.innerHTML = cleaned;
+  cleaned = decoder.value;
+
+  // ---------------------------------
+  // 3. Remove Markdown code fences
+  // ---------------------------------
+
+  cleaned = cleaned
+    .replace(/```json/gi, "")
+    .replace(/```javascript/gi, "")
+    .replace(/```/g, "");
+
+  // ---------------------------------
+  // 4. Remove invisible characters
+  // ---------------------------------
+
+  cleaned = cleaned
+    .replace(/\u00a0/g, " ")
+    .replace(/[\u200B-\u200D\u2060\uFEFF]/g, "");
+
+  // ---------------------------------
+  // 5. Remove &#21 or similar prefixes
+  // accidentally placed before each line
+  // ---------------------------------
+
+  cleaned = cleaned
+    .split(/\r?\n/)
+    .map(line =>
+      line
+        .replace(
+          /^\s*(?:&#(?:x)?21;?|&(?:x)?21;?)\s*/i,
+          ""
+        )
+        .replace(
+          /^\s*(?:21[.)\-:]?)\s+(?=["{}\[\]])/,
+          ""
+        )
+    )
+    .join("\n");
+
+  // ---------------------------------
+  // 6. Remove conversational text
+  // before and after the JSON object
+  // ---------------------------------
+
+  const firstBrace =
+    cleaned.indexOf("{");
+
+  const lastBrace =
+    cleaned.lastIndexOf("}");
+
+  if (
+    firstBrace === -1 ||
+    lastBrace === -1 ||
+    lastBrace <= firstBrace
+  ) {
+    throw new Error(
+      "No complete JSON object beginning with { and ending with } was found."
+    );
+  }
+
+  cleaned =
+    cleaned.slice(
+      firstBrace,
+      lastBrace + 1
+    );
+
+  // ---------------------------------
+  // 7. Normalize browser-generated
+  // quotation marks
+  // ---------------------------------
+
+  cleaned = cleaned
+    .replace(/[\u201C\u201D]/g, '"')
+    .replace(/[\u2018\u2019]/g, "'");
+
+  // ---------------------------------
+  // 8. Remove invalid control characters
+  // while keeping tabs and line breaks
+  // ---------------------------------
+
+  cleaned = cleaned.replace(
+    /[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/g,
+    ""
+  );
+
+  return cleaned.trim();
+}
+  
+function pasteCaseJSON() {
+
+  const rawText =
+    document.getElementById("pasteJSON").value;
+
+  if (!rawText || !rawText.trim()) {
     alert("Paste JSON first");
     return;
   }
 
   let obj;
+
   try {
-    const cleaned = text.replace(/```json|```/g, "").trim();
+
+    let cleaned = cleanAIJson(rawText);
+
+    console.log("Cleaned AI JSON:", cleaned);
+
     obj = JSON.parse(cleaned);
+
   } catch (e) {
-    alert("❌ Invalid JSON — check formatting");
-    console.error(e);
+
+    alert(
+      "❌ The AI response could not be imported as JSON.\n\n" +
+      "The importer removed HTML entities, line prefixes, Markdown fences, " +
+      "and text outside the JSON object. Open the browser console for the exact error."
+    );
+
+    console.error(
+      "AI JSON import error:",
+      e
+    );
+
     return;
   }
+  
 if (!Array.isArray(obj.tags)) {
   obj.tags = [];
 }
