@@ -5420,10 +5420,11 @@ const payload = {
   studentName: sessionData.studentName,
   case: sessionData.caseTitle,
   timestamp_submit: new Date().toISOString(),
-
+  duration: Math.floor((Date.now() - sessionData.startTime) / 1000),
   duration_active_seconds: Math.floor(activeDuration / 1000),
   duration_total_seconds: Math.floor((Date.now() - sessionData.startTime) / 1000),
   status: "submitted",
+  event: "submitted",
   last_active_time: sessionData.lastActiveTime,
   attempts: attempts,
   hintUsage: hintCount,
