@@ -50,11 +50,53 @@ class="mb-4 inline-flex items-center gap-2 rounded-lg border border-slate-600 bg
     class="w-full p-2 rounded bg-slate-800 border border-slate-700">
 </div>  
 
-<input 
-  id="caseSearch"
-  placeholder="Search cases..."
-  oninput="filterCases()"
-  class="w-full p-2 rounded bg-slate-800 border border-slate-700"/>
+<div class="grid grid-cols-1 gap-3 md:grid-cols-2">
+
+  <div>
+    <label
+      for="caseSearch"
+      class="mb-1 block text-sm font-semibold text-slate-300"
+    >
+      Search Cases
+    </label>
+
+    <input
+      id="caseSearch"
+      type="search"
+      placeholder="Search by title, author, institution, or setting"
+      oninput="filterCases()"
+      class="w-full rounded border border-slate-700 bg-slate-800 p-2 text-white"
+    />
+  </div>
+
+  <div>
+    <label
+      for="diseaseStateFilter"
+      class="mb-1 block text-sm font-semibold text-slate-300"
+    >
+      Filter by Disease State
+    </label>
+
+    <select
+      id="diseaseStateFilter"
+      onchange="filterCases()"
+      class="w-full rounded border border-slate-700 bg-slate-800 p-2 text-white"
+    >
+      <option value="">
+        All Disease States
+      </option>
+    </select>
+  </div>
+
+</div>
+
+<button
+  type="button"
+  onclick="clearCaseFilters()"
+  class="mt-2 rounded border border-slate-600 bg-slate-800 px-3 py-2 text-sm text-slate-300 hover:bg-slate-700 hover:text-white"
+>
+  Clear Filters
+</button>
 
   <div class="bg-gray-800 p-4 rounded-2xl shadow-lg">
     <select id="caseSelect" class="w-full p-2 rounded bg-slate-800 border border-slate-700"></select>
@@ -1380,53 +1422,124 @@ function loadCasesFromServer() {
 }
 
 function filterCases() {
-  const query = document.getElementById("caseSearch").value.toLowerCase();
 
-const filtered = cases.filter(c => {
-  const searchableTags =
-    Array.isArray(c.tags)
-      ? c.tags.join(" ").toLowerCase()
-      : "";
+  const query =
+    (
+      document.getElementById(
+        "caseSearch"
+      )?.value || ""
+    )
+      .trim()
+      .toLowerCase();
 
-  return (
-    (c.title || "")
-      .toLowerCase()
-      .includes(query) ||
+  const selectedDiseaseState =
+    document.getElementById(
+      "diseaseStateFilter"
+    )?.value || "";
 
-    (c.displayTitle || "")
-      .toLowerCase()
-      .includes(query) ||
+  const filtered =
+    cases.filter(c => {
 
-    (c.author || "")
-      .toLowerCase()
-      .includes(query) ||
+      const caseTags =
+        Array.isArray(c.tags)
+          ? c.tags
+          : [];
 
-    (c.institution || "")
-      .toLowerCase()
-      .includes(query) ||
+      const searchableText = [
+        c.title || "",
+        c.displayTitle || "",
+        c.author || "",
+        c.institution || "",
+        c.setting || "",
+        ...caseTags
+      ]
+        .join(" ")
+        .toLowerCase();
 
-    searchableTags.includes(query)
-  );
-});
+      const matchesText =
+        !query ||
+        searchableText.includes(query);
 
-  const select = document.getElementById("caseSelect");
+      const matchesDiseaseState =
+        !selectedDiseaseState ||
+        caseTags.includes(
+          selectedDiseaseState
+        );
+
+      return (
+        matchesText &&
+        matchesDiseaseState
+      );
+
+    });
+
+  const select =
+    document.getElementById(
+      "caseSelect"
+    );
+
+  if (!select) return;
+
   select.innerHTML = "";
 
-  filtered.forEach(c => {
-    const option = document.createElement("option");
-    option.value = c.id;
-const tagLabel =
-  Array.isArray(c.tags) &&
-  c.tags.length > 0
-    ? ` [${c.tags.join(" • ")}]`
-    : "";
+  const placeholder =
+    document.createElement("option");
 
-option.textContent =
-  `${c.displayTitle || c.title}${tagLabel}`;
+  placeholder.value = "";
+
+  placeholder.textContent =
+    filtered.length > 0
+      ? `Select a case (${filtered.length} available)`
+      : "No matching cases found";
+
+  select.appendChild(placeholder);
+
+  filtered.forEach((c, filteredIndex) => {
+
+    const originalIndex =
+      cases.indexOf(c);
+
+    const option =
+      document.createElement("option");
+
+    option.value =
+      originalIndex;
+
+    option.textContent =
+      c.displayTitle ||
+      c.title ||
+      `Case ${filteredIndex + 1}`;
+
     select.appendChild(option);
+
   });
+
 }
 
+function clearCaseFilters() {
+
+  const search =
+    document.getElementById(
+      "caseSearch"
+    );
+
+  const diseaseFilter =
+    document.getElementById(
+      "diseaseStateFilter"
+    );
+
+  if (search) {
+    search.value = "";
+  }
+
+  if (diseaseFilter) {
+    diseaseFilter.value = "";
+  }
+
+  filterCases();
+
+}
+  
 function addCollectedInfo(html) {
 
   const display =
@@ -1481,6 +1594,44 @@ select.innerHTML = `
 
 }
 
+function populateDiseaseStateFilter() {
+
+  const select =
+    document.getElementById(
+      "diseaseStateFilter"
+    );
+
+  if (!select) return;
+
+  const currentValue =
+    select.value;
+
+  select.innerHTML = `
+    <option value="">
+      All Disease States
+    </option>
+  `;
+
+  diseaseStateTags.forEach(tag => {
+
+    const option =
+      document.createElement("option");
+
+    option.value = tag;
+    option.textContent = tag;
+
+    select.appendChild(option);
+
+  });
+
+  if (
+    diseaseStateTags.includes(currentValue)
+  ) {
+    select.value = currentValue;
+  }
+
+}
+  
 function addTag() {
   const selector =
     document.getElementById("tagSelector");
@@ -1588,7 +1739,7 @@ option.textContent =
 
 ;
 populateTagSelector();
-  
+populateDiseaseStateFilter();
 }
 
 function normalize(str) {
