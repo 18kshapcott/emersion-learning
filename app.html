@@ -1398,7 +1398,7 @@ function cloneCase() {
 
 // ✅ LOAD CASES FROM GOOGLE SCRIPT
 function loadCasesFromServer() {
-  fetch("https://script.google.com/macros/s/AKfycbwdV8WfMbu634y5zb9Y--nKH2CaBGScStle_iRPyZx1tPD8DvYfI-QkxZ9yewPUmN4l/exec")
+  ("https://script.google.com/macros/s/AKfycbwdV8WfMbu634y5zb9Y--nKH2CaBGScStle_iRPyZx1tPD8DvYfI-QkxZ9yewPUmN4l/exec")
     .then(res => res.json())
 .then(serverCases => {
 
@@ -3921,7 +3921,7 @@ diagnosticImages: {
 cases.push(newCase);
 localStorage.setItem("cases", JSON.stringify(cases));
   
-  fetch("https://script.google.com/macros/s/AKfycbwdV8WfMbu634y5zb9Y--nKH2CaBGScStle_iRPyZx1tPD8DvYfI-QkxZ9yewPUmN4l/exec", {
+  fetch("https://script.google.com/macros/s/AKfycbzV4e6cjz07rPUaNshQ62KDYT3OEFg-BAQRF3joAgbS2MoulvVIcotjUMG5iSpkbPSteA/exec", {
     method: "POST",
     body: JSON.stringify(newCase)
   })
