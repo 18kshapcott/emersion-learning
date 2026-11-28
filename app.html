@@ -1963,9 +1963,29 @@ sessionData.status = "started";
 sessionData.lastActiveTime = Date.now();
 
 sendToServer({
-  ...sessionData,
-  event: "start",
-  timestamp: new Date().toISOString()
+  studentName:
+    sessionData.studentName,
+
+  case:
+    sessionData.caseTitle,
+
+  session_id:
+    sessionData.sessionID,
+
+  status:
+    "started",
+
+  event:
+    "start",
+
+  timestamp:
+    new Date().toISOString(),
+
+  last_active_time:
+    sessionData.lastActiveTime,
+
+  attempts:
+    attempts
 });
 
 document.getElementById("questionPanel").classList.remove("hidden");
@@ -7609,7 +7629,6 @@ else if (queryCount > 12) queryStyle = "moderate";
 
 
 init();
-loadCasesFromServer();
 
 
 
