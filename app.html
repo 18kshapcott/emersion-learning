@@ -798,6 +798,12 @@ Paste a direct image link. Google Drive links will be converted automatically.
 
 <script>
 
+const CASES_SCRIPT_URL =
+  "https://script.google.com/macros/s/AKfycbwdV8WfMbu634y5zb9Y--nKH2CaBGScStle_iRPyZx1tPD8DvYfI-QkxZ9yewPUmN4l/exec";
+
+const ANALYTICS_SCRIPT_URL =
+  "https://script.google.com/macros/s/AKfycbzV4e6cjz07rPUaNshQ62KDYT3OEFg-BAQRF3joAgbS2MoulvVIcotjUMG5iSpkbPSteA/exec";
+  
 const labBundles = {
 
   heartfailure: [
@@ -1396,29 +1402,114 @@ function cloneCase() {
   alert("✅ Case cloned! Edit and save.");
 }
 
-// ✅ LOAD CASES FROM GOOGLE SCRIPT
 function loadCasesFromServer() {
-  ("https://script.google.com/macros/s/AKfycbwdV8WfMbu634y5zb9Y--nKH2CaBGScStle_iRPyZx1tPD8DvYfI-QkxZ9yewPUmN4l/exec")
-    .then(res => res.json())
-.then(serverCases => {
 
-  const uniqueCases = [];
+  console.log(
+    "Loading patient cases from the case-storage server..."
+  );
 
-  const seenIds = new Set();
+  fetch(CASES_SCRIPT_URL)
+    .then(response => {
 
-  serverCases.forEach(c => {
-    if (!seenIds.has(c.id)) {
-      seenIds.add(c.id);
-      uniqueCases.push(c);
-    }
-  });
+      if (!response.ok) {
+        throw new Error(
+          `Case request failed with status ${response.status}`
+        );
+      }
 
-  cases.splice(0, cases.length, ...uniqueCases);
+      return response.json();
 
-  init();
-})
+    })
+    .then(serverCases => {
 
-    .catch(err => console.error("❌ Failed to load cases", err));
+      if (!Array.isArray(serverCases)) {
+        throw new Error(
+          "The case-storage server did not return an array."
+        );
+      }
+
+      /*
+        Only accept objects that resemble EMeRsion patient cases.
+        An analytics record should not pass this test.
+      */
+      const validCases =
+        serverCases.filter(caseRecord => {
+
+          const hasIdentity =
+            caseRecord &&
+            caseRecord.id != null &&
+            (
+              caseRecord.title ||
+              caseRecord.displayTitle
+            );
+
+          const hasAnswerStructure =
+            Array.isArray(caseRecord.problems) ||
+            Array.isArray(caseRecord.diagnoses) ||
+            Boolean(caseRecord.diagnosis);
+
+          return (
+            hasIdentity &&
+            hasAnswerStructure
+          );
+
+        });
+
+      if (validCases.length === 0) {
+        throw new Error(
+          "No valid EMeRsion patient cases were returned."
+        );
+      }
+
+      const uniqueCases = [];
+      const seenIds = new Set();
+
+      validCases.forEach(caseRecord => {
+
+        const normalizedId =
+          String(caseRecord.id);
+
+        if (!seenIds.has(normalizedId)) {
+
+          seenIds.add(normalizedId);
+
+          uniqueCases.push(caseRecord);
+
+        }
+
+      });
+
+      cases.splice(
+        0,
+        cases.length,
+        ...uniqueCases
+      );
+
+      console.log(
+        `Loaded ${uniqueCases.length} valid patient cases.`
+      );
+
+      init();
+
+    })
+    .catch(error => {
+
+      console.error(
+        "Patient-case loading failed:",
+        error
+      );
+
+      console.log(
+        "Keeping the patient cases already available in the browser."
+      );
+
+      /*
+        Do not empty the local case list when the server fails.
+      */
+      init();
+
+    });
+
 }
 
 function filterCases() {
@@ -1437,20 +1528,20 @@ function filterCases() {
       "diseaseStateFilter"
     )?.value || "";
 
-  const filtered =
-    cases.filter(c => {
+  const filteredCases =
+    cases.filter(caseRecord => {
 
       const caseTags =
-        Array.isArray(c.tags)
-          ? c.tags
+        Array.isArray(caseRecord.tags)
+          ? caseRecord.tags
           : [];
 
       const searchableText = [
-        c.title || "",
-        c.displayTitle || "",
-        c.author || "",
-        c.institution || "",
-        c.setting || "",
+        caseRecord.title || "",
+        caseRecord.displayTitle || "",
+        caseRecord.author || "",
+        caseRecord.institution || "",
+        caseRecord.setting || "",
         ...caseTags
       ]
         .join(" ")
@@ -1488,31 +1579,34 @@ function filterCases() {
   placeholder.value = "";
 
   placeholder.textContent =
-    filtered.length > 0
-      ? `Select a case (${filtered.length} available)`
+    filteredCases.length > 0
+      ? `Select a case (${filteredCases.length} available)`
       : "No matching cases found";
 
   select.appendChild(placeholder);
 
-  filtered.forEach((c, filteredIndex) => {
+  filteredCases.forEach(
+    (caseRecord, index) => {
 
-    const originalIndex =
-      cases.indexOf(c);
+      const option =
+        document.createElement("option");
 
-    const option =
-      document.createElement("option");
+      /*
+        CRITICAL:
+        Store the case ID, not its array index.
+      */
+      option.value =
+        String(caseRecord.id);
 
-    option.value =
-      originalIndex;
+      option.textContent =
+        caseRecord.displayTitle ||
+        caseRecord.title ||
+        `Case ${index + 1}`;
 
-    option.textContent =
-      c.displayTitle ||
-      c.title ||
-      `Case ${filteredIndex + 1}`;
+      select.appendChild(option);
 
-    select.appendChild(option);
-
-  });
+    }
+  );
 
 }
 
@@ -1720,26 +1814,51 @@ function removeTag(tag) {
 }
   
 function init() {
-  const select = document.getElementById("caseSelect");
+
+  const select =
+    document.getElementById(
+      "caseSelect"
+    );
+
+  if (!select) return;
+
   select.innerHTML = "";
 
-  cases.forEach(c => {
-    const option = document.createElement("option");
-    option.value = c.id;
-const tagLabel =
-  Array.isArray(c.tags) &&
-  c.tags.length > 0
-    ? ` [${c.tags.join(" • ")}]`
-    : "";
+  const placeholder =
+    document.createElement("option");
 
-option.textContent =
-  `${c.displayTitle || c.title}${tagLabel}`;
+  placeholder.value = "";
+  placeholder.textContent =
+    `Select a case (${cases.length} available)`;
+
+  select.appendChild(placeholder);
+
+  cases.forEach((caseRecord, index) => {
+
+    const option =
+      document.createElement("option");
+
+    option.value =
+      String(caseRecord.id);
+
+    option.textContent =
+      caseRecord.displayTitle ||
+      caseRecord.title ||
+      `Case ${index + 1}`;
+
     select.appendChild(option);
+
   });
 
-;
-populateTagSelector();
-populateDiseaseStateFilter();
+  populateTagSelector();
+
+  if (
+    typeof populateDiseaseStateFilter ===
+    "function"
+  ) {
+    populateDiseaseStateFilter();
+  }
+
 }
 
 function normalize(str) {
@@ -3921,14 +4040,44 @@ diagnosticImages: {
 cases.push(newCase);
 localStorage.setItem("cases", JSON.stringify(cases));
   
-  fetch("https://script.google.com/macros/s/AKfycbzV4e6cjz07rPUaNshQ62KDYT3OEFg-BAQRF3joAgbS2MoulvVIcotjUMG5iSpkbPSteA/exec", {
+fetch(
+  CASES_SCRIPT_URL,
+  {
     method: "POST",
     body: JSON.stringify(newCase)
-  })
-  .then(res => res.json())
-  .then(data => console.log("✅ Case uploaded:", data))
-  .catch(err => console.error("❌ Upload failed", err));
+  }
+)
+.then(response => {
 
+  if (!response.ok) {
+    throw new Error(
+      `Case upload failed with status ${response.status}`
+    );
+  }
+
+  return response.text();
+
+})
+.then(result => {
+
+  console.log(
+    "Case-storage server response:",
+    result
+  );
+
+})
+.catch(error => {
+
+  console.error(
+    "Case upload failed:",
+    error
+  );
+
+  /*
+    The case remains in localStorage and has
+    still been downloaded as JSON.
+  */
+});
 
   const blob = new Blob(
     [JSON.stringify(newCase, null, 2)],
@@ -5494,13 +5643,30 @@ const payload = {
 console.log("PAYLOAD OBJECT:", payload);
 console.log("PAYLOAD JSON:", JSON.stringify(payload));
 
-fetch("https://script.google.com/macros/s/AKfycbzV4e6cjz07rPUaNshQ62KDYT3OEFg-BAQRF3joAgbS2MoulvVIcotjUMG5iSpkbPSteA/exec", {
-  method: "POST",
-  body: JSON.stringify(payload)
-});
+fetch(
+  ANALYTICS_SCRIPT_URL,
+  {
+    method: "POST",
+    body: JSON.stringify(payload)
+  }
+)
+.then(response => response.text())
+.then(result => {
 
-console.log("✅ Data sent (no-cors)");
-}
+  console.log(
+    "Analytics submission response:",
+    result
+  );
+
+})
+.catch(error => {
+
+  console.error(
+    "Analytics submission failed:",
+    error
+  );
+
+});
 
 function clearCases() {
   if (confirm("Are you sure? This deletes all saved cases.")) {
@@ -7331,39 +7497,33 @@ function previewCase() {
 }
 
 function sendToServer(data) {
-  navigator.sendBeacon(
-    "https://script.google.com/macros/s/AKfycbyc-8PSZd7-FRJ_K0MRWAlSLnTK8YaDDXyjCvCpJFzKIEpqCVYIMkoe3AV1RY-1anLvsw/exec",
-    JSON.stringify(data)
-  );
-}
 
-window.addEventListener("beforeunload", () => {
+  fetch(
+    ANALYTICS_SCRIPT_URL,
+    {
+      method: "POST",
+      body: JSON.stringify(data)
+    }
+  )
+  .then(response => response.text())
+  .then(result => {
 
-  if (!caseSubmitted && sessionData.startTime) {
-
-    const now = Date.now();
-
-    const payload = {
-      ...sessionData,
-      status: "abandoned",
-      event: "abandon",
-      timestamp: new Date().toISOString(),
-      duration_active_seconds: Math.floor(
-        (sessionData.lastActiveTime - sessionData.startTime) / 1000
-      ),
-      duration_total_seconds: Math.floor(
-        (now - sessionData.startTime) / 1000
-      )
-    };
-
-    navigator.sendBeacon(
-      "https://script.google.com/macros/s/AKfycbyc-8PSZd7-FRJ_K0MRWAlSLnTK8YaDDXyjCvCpJFzKIEpqCVYIMkoe3AV1RY-1anLvsw/exec",
-      JSON.stringify(payload)
+    console.log(
+      `${data.event || "analytics"} response:`,
+      result
     );
-  }
 
-});
+  })
+  .catch(error => {
 
+    console.error(
+      `${data.event || "analytics"} failed:`,
+      error
+    );
+
+  });
+
+}
 function getDownloadButtons() {
 
   return `
