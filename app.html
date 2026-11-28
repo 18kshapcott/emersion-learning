@@ -2367,13 +2367,36 @@ const now = Date.now();
 sessionData.lastActiveTime = now;
 
 if (!sessionData.firstInteraction) {
+
   sessionData.firstInteraction = true;
   sessionData.status = "in-progress";
 
   sendToServer({
-    ...sessionData,
-    event: "first_interaction",
-    timestamp: new Date().toISOString()
+
+    studentName:
+      sessionData.studentName,
+
+    case:
+      sessionData.caseTitle,
+
+    session_id:
+      sessionData.sessionID,
+
+    status:
+      "in-progress",
+
+    event:
+      "first_interaction",
+
+    timestamp:
+      new Date().toISOString(),
+
+    last_active_time:
+      sessionData.lastActiveTime,
+
+    attempts:
+      attempts
+
   });
 }
 
@@ -5700,22 +5723,21 @@ fetch(
   ANALYTICS_SCRIPT_URL,
   {
     method: "POST",
+    mode: "no-cors",
     body: JSON.stringify(payload)
   }
 )
-.then(response => response.text())
-.then(result => {
+.then(() => {
 
   console.log(
-    "Analytics submission response:",
-    result
+    "Completed-case analytics request sent."
   );
 
 })
 .catch(error => {
 
   console.error(
-    "Analytics submission failed:",
+    "Completed-case analytics could not be sent:",
     error
   );
 
@@ -7549,29 +7571,27 @@ function previewCase() {
     <p><strong>Chief Complaint:</strong> ${tempCase.chiefComplaint}</p>
   `;
 }
-
 function sendToServer(data) {
 
   fetch(
     ANALYTICS_SCRIPT_URL,
     {
       method: "POST",
+      mode: "no-cors",
       body: JSON.stringify(data)
     }
   )
-  .then(response => response.text())
-  .then(result => {
+  .then(() => {
 
     console.log(
-      `${data.event || "analytics"} response:`,
-      result
+      `${data.event || "analytics"} request sent`
     );
 
   })
   .catch(error => {
 
     console.error(
-      `${data.event || "analytics"} failed:`,
+      `${data.event || "analytics"} could not be sent:`,
       error
     );
 
