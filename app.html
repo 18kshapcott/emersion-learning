@@ -1875,9 +1875,42 @@ function matchTerm(input, term) {
 }
 
 function loadCase() {
-  const id = document.getElementById("caseSelect").value;
-  currentCase = cases.find(c => c.id == id);
-attempts = 0;
+
+  const selectedId =
+    document.getElementById(
+      "caseSelect"
+    )?.value || "";
+
+  if (!selectedId) {
+    alert("Please select a patient case first.");
+    return;
+  }
+
+  currentCase =
+    cases.find(caseRecord =>
+      String(caseRecord.id) ===
+      String(selectedId)
+    );
+
+  if (!currentCase) {
+    alert(
+      "The selected case could not be found. Clear the filters, refresh the page, and select it again."
+    );
+
+    console.error(
+      "No case matched this ID:",
+      selectedId
+    );
+
+    return;
+  }
+
+  console.log(
+    "Starting patient case:",
+    currentCase
+  );
+
+  attempts = 0;
 hintIndex = 0;
 hintCount = 0;
 document.getElementById("diagnosisSection").classList.add("hidden");
@@ -5667,7 +5700,8 @@ fetch(
   );
 
 });
-
+}
+  
 function clearCases() {
   if (confirm("Are you sure? This deletes all saved cases.")) {
     localStorage.removeItem("cases");
